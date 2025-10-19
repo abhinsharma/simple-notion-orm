@@ -39,9 +39,10 @@ await createPage({
 | `buildMultiSelectProperty(options)` | Multi-select property. |
 | `buildStatusProperty(option)` | Status property value by name or id. |
 | `buildRelationProperty(pageIds)` | Relation property linking to other pages. |
-| `buildRollupProperty(value)` | Rollup placeholder (useful for testing/mocks). |
 
 > **Status note**: Notion's public API still rejects status options during database creation. Use `buildStatusProperty` for updates against an existing status column, and avoid `buildStatusConfig()` unless the property is already provisioned in Notion.
+>
+> **Rollups**: Rollup values are read-only in the Notion API, so there is no builder for row-level rollup payloads. Treat them as derived fields.
 
 ### Example: create a database row
 
