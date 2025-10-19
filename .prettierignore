@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build outputs
+dist
+build
+coverage
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# AI documentation
+ai-docs
+
+# Git
+.git
+
+# IDE
+.vscode
+.idea
