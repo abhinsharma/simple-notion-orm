@@ -2,8 +2,8 @@
  * Database API
  * API for managing Notion databases and database pages (items)
  */
-import type { DatabaseResource } from "@utils/database";
-import { wrapError } from "@utils/error";
+import type { DatabaseResource } from "@/utils/database";
+import { wrapError } from "@/utils/error";
 import type {
   CreateDatabaseParameters,
   DataSourceObjectResponse,

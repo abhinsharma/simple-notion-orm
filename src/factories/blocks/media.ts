@@ -3,7 +3,7 @@
  * Includes image, video, embed, bookmark, PDF, file, and audio blocks
  */
 
-import type { RichTextItemRequest, FileSource } from "@app-types/blocks";
+import type { RichTextItemRequest, FileSource } from "@/types/blocks";
 
 /**
  * Builds an image block

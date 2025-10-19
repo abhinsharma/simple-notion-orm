@@ -3,7 +3,7 @@
  * Includes paragraph, headings, lists, quotes, toggles, and to-dos
  */
 
-import type { RichTextItemRequest, ApiColor, HeadingLevel } from "@app-types/blocks";
+import type { RichTextItemRequest, ApiColor, HeadingLevel } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children

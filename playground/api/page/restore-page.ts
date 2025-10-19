@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { restorePage } from "@api/page";
+import { restorePage } from "@/api/page";
 
 async function main(): Promise<void> {
   const pageId = process.argv[2];

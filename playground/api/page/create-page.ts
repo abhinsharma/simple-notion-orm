@@ -1,5 +1,7 @@
 import "dotenv/config";
-import { createPage } from "@api/page";
+import { createPage } from "@/api/page";
+import { buildTitleProperty } from "@/factories/properties";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 
 async function main(): Promise<void> {
   const parentId = process.env.CAPTURE_PAGE_ID;
@@ -10,14 +12,9 @@ async function main(): Promise<void> {
   const result = await createPage({
     parentId,
     properties: {
-      title: [
-        {
-          type: "text",
-          text: { content: `Playground create ${new Date().toISOString()}` },
-        },
-      ],
+      title: buildTitleProperty(`Playground create ${new Date().toISOString()}`),
     },
-  });
+  }) as PageObjectResponse;
 
   console.dir(
     {

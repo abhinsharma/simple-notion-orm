@@ -6,14 +6,14 @@
  * as they require the database schema to define these property types.
  */
 
-import { textToRichText } from "@utils/richtext";
+import { textToRichText } from "@/utils/richtext";
 import type {
   DatePropertyInput,
   SelectOptionInput,
   FileInput,
   UserInput,
   GroupInput,
-} from "@app-types/properties";
+} from "@/types/properties";
 
 /**
  * Builds a rich text property value

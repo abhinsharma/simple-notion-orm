@@ -3,7 +3,7 @@
  * Includes divider, table, columns, breadcrumb, and table of contents
  */
 
-import type { RichTextItemRequest, ApiColor } from "@app-types/blocks";
+import type { RichTextItemRequest, ApiColor } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children

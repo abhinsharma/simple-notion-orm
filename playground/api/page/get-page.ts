@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { getPage } from "@api/page";
+import { getPage } from "@/api/page";
 
 async function main(): Promise<void> {
   const pageId = process.env.CAPTURE_PAGE_ID;

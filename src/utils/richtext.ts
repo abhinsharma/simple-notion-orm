@@ -1,14 +1,14 @@
 /**
- * Utility functions for working with Notion RichText
+ * Utility helpers for constructing Notion rich text payloads.
+ * We only emit plain text items, so the shape aligns with Notion's
+ * `TextRichTextItemRequest` + shared annotation fields.
  */
 
-/**
- * RichTextItemRequest type from Notion SDK
- * Manually defined as it's not exported
- */
-export interface RichTextItemRequest {
-  type?: "text" | "mention" | "equation";
-  text?: {
+import type { ApiColor } from "@/types/blocks";
+
+export type RichTextItemRequest = {
+  type?: "text";
+  text: {
     content: string;
     link?: {
       url: string;
@@ -20,28 +20,12 @@ export interface RichTextItemRequest {
     strikethrough?: boolean;
     underline?: boolean;
     code?: boolean;
-    color?: string;
+    color?: ApiColor;
   };
-  mention?: unknown;
-  equation?: {
-    expression: string;
-  };
-}
+  plain_text?: string;
+  href?: string | null;
+};
 
-/**
- * Converts a plain string to a Notion RichTextItemRequest array
- * Trims whitespace and handles empty strings
- *
- * @param text - The plain text string to convert
- * @returns Array of RichTextItemRequest objects
- *
- * @example
- * textToRichText("Hello World")
- * // Returns: [{ type: "text", text: { content: "Hello World" } }]
- *
- * textToRichText("")
- * // Returns: [{ type: "text", text: { content: "" } }]
- */
 export function textToRichText(text: string): RichTextItemRequest[] {
   const trimmedText = text.trim();
 
@@ -55,17 +39,6 @@ export function textToRichText(text: string): RichTextItemRequest[] {
   ];
 }
 
-/**
- * Creates a single RichTextItemRequest with optional formatting
- *
- * @param content - The text content
- * @param options - Optional formatting options
- * @returns A single RichTextItemRequest object
- *
- * @example
- * createRichTextItem("Bold text", { bold: true })
- * // Returns: { type: "text", text: { content: "Bold text" }, annotations: { bold: true } }
- */
 export function createRichTextItem(
   content: string,
   options?: {
@@ -74,29 +47,34 @@ export function createRichTextItem(
     strikethrough?: boolean;
     underline?: boolean;
     code?: boolean;
-    color?: string;
+    color?: ApiColor;
     link?: string;
   }
 ): RichTextItemRequest {
-  const richText: RichTextItemRequest = {
+  const base: RichTextItemRequest = {
     type: "text",
     text: {
       content: content.trim(),
     },
   };
 
-  // Add link if provided
   if (options?.link) {
-    richText.text = {
-      content: richText.text?.content ?? content.trim(),
+    base.text = {
+      content: base.text.content,
       link: { url: options.link },
     };
   }
 
-  // Add annotations if any formatting is provided
-  if (options && (options.bold || options.italic || options.strikethrough ||
-      options.underline || options.code || options.color)) {
-    richText.annotations = {
+  if (
+    options &&
+    (options.bold ||
+      options.italic ||
+      options.strikethrough ||
+      options.underline ||
+      options.code ||
+      options.color)
+  ) {
+    base.annotations = {
       bold: options.bold ?? false,
       italic: options.italic ?? false,
       strikethrough: options.strikethrough ?? false,
@@ -106,16 +84,9 @@ export function createRichTextItem(
     };
   }
 
-  return richText;
+  return base;
 }
 
-/**
- * Validates if a RichTextItemRequest array is valid
- * Notion has a limit of 100 rich text items per property
- *
- * @param richTextArray - Array of RichTextItemRequest objects
- * @returns True if valid, false otherwise
- */
 export function isValidRichTextArray(richTextArray: RichTextItemRequest[]): boolean {
   if (!Array.isArray(richTextArray)) {
     return false;
@@ -125,19 +96,5 @@ export function isValidRichTextArray(richTextArray: RichTextItemRequest[]): bool
     return false;
   }
 
-  return richTextArray.every(item => {
-    if (!item.type) {
-      return false;
-    }
-
-    if (item.type === "text" && !item.text) {
-      return false;
-    }
-
-    if (item.type === "equation" && !item.equation) {
-      return false;
-    }
-
-    return true;
-  });
+  return richTextArray.every((item) => item.type === "text" && Boolean(item.text));
 }

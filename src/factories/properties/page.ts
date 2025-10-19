@@ -3,7 +3,7 @@
  * These functions work for both database pages and standalone pages
  */
 
-import { textToRichText } from "@utils/richtext";
+import { textToRichText } from "@/utils/richtext";
 
 /**
  * Builds a title property value

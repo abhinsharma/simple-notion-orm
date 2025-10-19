@@ -9,13 +9,13 @@ import type {
   RelationConfigInput,
   RollupConfigInput,
   RollupFunction,
-} from "@app-types/properties";
+} from "@/types/properties";
 
 /**
  * Builds a title property configuration for database schema
  * Every database must have exactly one title property
  *
- * @returns Title property configuration
+ * @/returns Title property configuration
  *
  * @example
  * buildTitleConfig()
@@ -30,7 +30,7 @@ export function buildTitleConfig() {
 /**
  * Builds a rich text property configuration
  *
- * @returns Rich text property configuration
+ * @/returns Rich text property configuration
  *
  * @example
  * buildRichTextConfig()
@@ -63,7 +63,7 @@ export function buildNumberConfig(format?: NumberFormat) {
 /**
  * Builds a date property configuration
  *
- * @returns Date property configuration
+ * @/returns Date property configuration
  *
  * @example
  * buildDateConfig()
@@ -78,7 +78,7 @@ export function buildDateConfig() {
 /**
  * Builds a checkbox property configuration
  *
- * @returns Checkbox property configuration
+ * @/returns Checkbox property configuration
  *
  * @example
  * buildCheckboxConfig()
@@ -93,7 +93,7 @@ export function buildCheckboxConfig() {
 /**
  * Builds a URL property configuration
  *
- * @returns URL property configuration
+ * @/returns URL property configuration
  *
  * @example
  * buildUrlConfig()
@@ -108,7 +108,7 @@ export function buildUrlConfig() {
 /**
  * Builds an email property configuration
  *
- * @returns Email property configuration
+ * @/returns Email property configuration
  *
  * @example
  * buildEmailConfig()
@@ -123,7 +123,7 @@ export function buildEmailConfig() {
 /**
  * Builds a phone number property configuration
  *
- * @returns Phone number property configuration
+ * @/returns Phone number property configuration
  *
  * @example
  * buildPhoneNumberConfig()
@@ -138,7 +138,7 @@ export function buildPhoneNumberConfig() {
 /**
  * Builds a people property configuration
  *
- * @returns People property configuration
+ * @/returns People property configuration
  *
  * @example
  * buildPeopleConfig()
@@ -153,7 +153,7 @@ export function buildPeopleConfig() {
 /**
  * Builds a files property configuration
  *
- * @returns Files property configuration
+ * @/returns Files property configuration
  *
  * @example
  * buildFilesConfig()
@@ -209,7 +209,7 @@ export function buildMultiSelectConfig(options?: SelectOptionConfig[]) {
  * Builds a status property configuration
  * Status property options are managed separately through the Notion UI
  *
- * @returns Status property configuration
+ * @/returns Status property configuration
  *
  * @example
  * buildStatusConfig()
@@ -373,7 +373,7 @@ export function buildUniqueIdConfig(prefix?: string | null) {
  * Builds a button property configuration
  * Button properties are for interactions and don't store data
  *
- * @returns Button property configuration
+ * @/returns Button property configuration
  *
  * @example
  * buildButtonConfig()
@@ -388,7 +388,7 @@ export function buildButtonConfig() {
 /**
  * Builds a created by property configuration (read-only system property)
  *
- * @returns Created by property configuration
+ * @/returns Created by property configuration
  *
  * @example
  * buildCreatedByConfig()
@@ -403,7 +403,7 @@ export function buildCreatedByConfig() {
 /**
  * Builds a created time property configuration (read-only system property)
  *
- * @returns Created time property configuration
+ * @/returns Created time property configuration
  *
  * @example
  * buildCreatedTimeConfig()
@@ -418,7 +418,7 @@ export function buildCreatedTimeConfig() {
 /**
  * Builds a last edited by property configuration (read-only system property)
  *
- * @returns Last edited by property configuration
+ * @/returns Last edited by property configuration
  *
  * @example
  * buildLastEditedByConfig()
@@ -433,7 +433,7 @@ export function buildLastEditedByConfig() {
 /**
  * Builds a last edited time property configuration (read-only system property)
  *
- * @returns Last edited time property configuration
+ * @/returns Last edited time property configuration
  *
  * @example
  * buildLastEditedTimeConfig()
@@ -448,7 +448,7 @@ export function buildLastEditedTimeConfig() {
 /**
  * Builds a verification property configuration (read-only system property)
  *
- * @returns Verification property configuration
+ * @/returns Verification property configuration
  *
  * @example
  * buildVerificationConfig()
@@ -463,7 +463,7 @@ export function buildVerificationConfig() {
 /**
  * Builds a location property configuration
  *
- * @returns Location property configuration
+ * @/returns Location property configuration
  *
  * @example
  * buildLocationConfig()
@@ -478,7 +478,7 @@ export function buildLocationConfig() {
 /**
  * Builds a last visited time property configuration (read-only system property)
  *
- * @returns Last visited time property configuration
+ * @/returns Last visited time property configuration
  *
  * @example
  * buildLastVisitedTimeConfig()
@@ -493,7 +493,7 @@ export function buildLastVisitedTimeConfig() {
 /**
  * Builds a place property configuration
  *
- * @returns Place property configuration
+ * @/returns Place property configuration
  *
  * @example
  * buildPlaceConfig()

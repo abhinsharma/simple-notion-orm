@@ -4,7 +4,7 @@
  */
 
 // Re-export RichTextItemRequest from utils for convenience
-export type { RichTextItemRequest } from "@utils/richtext";
+export type { RichTextItemRequest } from "@/utils/richtext";
 
 /**
  * Notion API color options for blocks and text

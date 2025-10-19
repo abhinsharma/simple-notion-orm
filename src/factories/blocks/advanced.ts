@@ -3,7 +3,7 @@
  * Includes code, callout, equation, synced blocks, and link-to-page
  */
 
-import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType } from "@app-types/blocks";
+import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children

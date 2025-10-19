@@ -9,7 +9,7 @@
 /**
  * Date input options for buildDateProperty
  */
-export interface DatePropertyInput {
+export type DatePropertyInput = {
   start: string;
   end?: string | null;
   time_zone?: string | null;
@@ -32,14 +32,14 @@ export type FileInput =
 /**
  * User reference input
  */
-export interface UserInput {
+export type UserInput = {
   id: string;
 }
 
 /**
  * Group reference input
  */
-export interface GroupInput {
+export type GroupInput = {
   id: string;
 }
 
@@ -135,7 +135,7 @@ export type RollupFunction =
 /**
  * Database select option configuration
  */
-export interface SelectOptionConfig {
+export type SelectOptionConfig = {
   name: string;
   color?: SelectColor;
   description?: string | null;
@@ -149,7 +149,7 @@ export type RelationType = "single_property" | "dual_property";
 /**
  * Relation configuration input
  */
-export interface RelationConfigInput {
+export type RelationConfigInput = {
   data_source_id: string;
   type?: RelationType;
   synced_property_id?: string;
@@ -159,7 +159,7 @@ export interface RelationConfigInput {
 /**
  * Rollup configuration input
  */
-export interface RollupConfigInput {
+export type RollupConfigInput = {
   relation_property_name?: string;
   relation_property_id?: string;
   rollup_property_name?: string;

@@ -11,13 +11,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@orm': path.resolve(root, 'src/orm'),
-      '@api': path.resolve(root, 'src/api'),
-      '@utils': path.resolve(root, 'src/utils'),
-      '@types': path.resolve(root, 'src/types'),
-      '@constants': path.resolve(root, 'src/constants'),
-      '@factories': path.resolve(root, 'src/factories'),
-      '@transform': path.resolve(root, 'src/transform'),
+      '@/orm': path.resolve(root, 'src/orm'),
+      '@/api': path.resolve(root, 'src/api'),
+      '@/utils': path.resolve(root, 'src/utils'),
+      '@/types': path.resolve(root, 'src/types'),
+      '@/constants': path.resolve(root, 'src/constants'),
+      '@/factories': path.resolve(root, 'src/factories'),
+      '@/transform': path.resolve(root, 'src/transform'),
     },
   },
 });

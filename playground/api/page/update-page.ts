@@ -1,5 +1,7 @@
 import "dotenv/config";
-import { updatePage } from "@api/page";
+import { updatePage } from "@/api/page";
+import { buildTitleProperty } from "@/factories/properties";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 
 async function main(): Promise<void> {
   const pageId = process.argv[2];
@@ -13,19 +15,18 @@ async function main(): Promise<void> {
   const result = await updatePage({
     pageId,
     properties: {
-      title: [
-        {
-          type: "text",
-          text: { content: `Updated via playground ${new Date().toISOString()}` },
-        },
-      ],
+      title: buildTitleProperty(`Updated via playground ${new Date().toISOString()}`),
     },
-  });
+  }) as PageObjectResponse;
+
+  const titleProperty = result.properties.title;
+  const updatedTitleBlocks =
+    titleProperty?.type === "title" ? titleProperty.title.length : 0;
 
   console.dir(
     {
       pageId: result.id,
-      updatedTitleBlocks: result.properties.title?.length ?? 0,
+      updatedTitleBlocks,
     },
     { depth: 2 }
   );

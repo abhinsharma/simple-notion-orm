@@ -10,6 +10,8 @@ module.exports = {
         allowPaths: [
           'src/orm/index.ts',
           'src/factories/index.ts',
+          'src/factories/blocks/index.ts',
+          'src/factories/properties/index.ts',
           'src/transform/index.ts',
           'src/utils/index.ts',
         ],
