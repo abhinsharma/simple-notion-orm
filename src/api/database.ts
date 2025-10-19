@@ -2,6 +2,8 @@
  * Database API
  * API for managing Notion databases and database pages (items)
  */
+import type { DatabaseResource } from "@utils/database";
+import { wrapError } from "@utils/error";
 import type {
   CreateDatabaseParameters,
   DataSourceObjectResponse,
@@ -12,8 +14,6 @@ import type {
   UpdateDatabaseParameters,
   UpdateDataSourceParameters,
 } from "@notionhq/client/build/src/api-endpoints";
-import type { DatabaseResource } from "@utils/database";
-import { wrapError } from "@utils/error";
 import { getNotionClient } from "./client";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
