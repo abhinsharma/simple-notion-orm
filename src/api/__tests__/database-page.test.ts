@@ -1,0 +1,113 @@
+import { buildTitleProperty } from "@/factories/properties/page";
+import { describe, it, expect, beforeEach } from "vitest";
+import { http, HttpResponse } from "msw";
+import { server } from "../../../tests/setup-msw";
+import {
+  getDatabasePage,
+  createDatabasePage,
+  updateDatabasePage,
+  archiveDatabasePage,
+  restoreDatabasePage,
+  clearDatabasePageContent,
+} from "../database-page";
+import dbPageGetFixture from "../../../tests/fixtures/db-page-get.json";
+import dbPageCreateFixture from "../../../tests/fixtures/db-page-create.json";
+import dbPageUpdateFixture from "../../../tests/fixtures/db-page-update.json";
+import dbPageArchiveFixture from "../../../tests/fixtures/db-page-archive.json";
+import dbPageRestoreFixture from "../../../tests/fixtures/db-page-restore.json";
+
+beforeEach(() => {
+  server.use(
+    http.get("https://api.notion.com/v1/pages/:pageId", () => {
+      return HttpResponse.json(dbPageGetFixture);
+    }),
+    http.post("https://api.notion.com/v1/pages", () => {
+      return HttpResponse.json(dbPageCreateFixture);
+    }),
+    http.patch("https://api.notion.com/v1/pages/:pageId", async ({ request }) => {
+      const body = (await request.json()) as { archived?: boolean };
+      if (body.archived === true) {
+        return HttpResponse.json(dbPageArchiveFixture);
+      }
+      if (body.archived === false) {
+        return HttpResponse.json(dbPageRestoreFixture);
+      }
+      return HttpResponse.json(dbPageUpdateFixture);
+    })
+  );
+});
+
+describe("getDatabasePage", () => {
+  it("should successfully retrieve a database page by ID", async () => {
+    const pageId = "obf_id_1";
+
+    const result = await getDatabasePage(pageId);
+
+    expect(result.object).toBe("page");
+    expect((result as any).parent.type).toBe("data_source_id");
+    expect(result.id).toBeDefined();
+  });
+});
+
+describe("createDatabasePage", () => {
+  it("should successfully create a database page", async () => {
+    const result = await createDatabasePage({
+      databaseId: "obf_id_2",
+      properties: {
+        Name: buildTitleProperty("New Database Page"),
+      },
+    });
+
+    expect(result.object).toBe("page");
+    expect((result as any).parent.type).toBe("data_source_id");
+    expect(result.id).toBeDefined();
+  });
+});
+
+describe("updateDatabasePage", () => {
+  it("should successfully update a database page", async () => {
+    const pageId = "obf_id_1";
+
+    const result = await updateDatabasePage({
+      pageId,
+      properties: {
+        Name: buildTitleProperty("Updated Database Page"),
+      },
+    });
+
+    expect(result.object).toBe("page");
+    expect(result.id).toBeDefined();
+  });
+});
+
+describe("archiveDatabasePage", () => {
+  it("should successfully archive a database page", async () => {
+    const pageId = "obf_id_1";
+
+    const result = await archiveDatabasePage(pageId);
+
+    expect(result.object).toBe("page");
+    expect((result as any).archived).toBe(true);
+    expect((result as any).in_trash).toBe(true);
+  });
+});
+
+describe("restoreDatabasePage", () => {
+  it("should successfully restore a database page", async () => {
+    const pageId = "obf_id_1";
+
+    const result = await restoreDatabasePage(pageId);
+
+    expect(result.object).toBe("page");
+    expect((result as any).archived).toBe(false);
+    expect((result as any).in_trash).toBe(false);
+  });
+});
+
+describe("clearDatabasePageContent", () => {
+  it("should successfully clear all content from a database page", async () => {
+    const pageId = "obf_id_1";
+
+    await expect(clearDatabasePageContent(pageId)).resolves.toBeUndefined();
+  });
+});
