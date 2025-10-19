@@ -1,12 +1,12 @@
 {
   "database": {
     "object": "database",
-    "id": "obf_id_1",
+    "id": "obf_id_59",
     "title": [
       {
         "type": "text",
         "text": {
-          "content": "Playground Database 2025-10-19T23:03:47.384Z",
+          "content": "Playground DB 2025-10-19T23:08:57.721Z",
           "link": null
         },
         "annotations": {
@@ -17,52 +17,52 @@
           "code": false,
           "color": "default"
         },
-        "plain_text": "Playground Database 2025-10-19T23:03:47.384Z",
+        "plain_text": "Playground DB 2025-10-19T23:08:57.721Z",
         "href": null
       }
     ],
     "description": [],
     "parent": {
       "type": "page_id",
-      "page_id": "obf_id_2"
+      "page_id": "obf_id_60"
     },
     "is_inline": false,
     "in_trash": false,
     "is_locked": false,
-    "created_time": "2025-10-19T23:03:47.716+00:00",
-    "last_edited_time": "2025-10-19T23:03:47.716+00:00",
+    "created_time": "2025-10-19T23:08:58.089+00:00",
+    "last_edited_time": "2025-10-19T23:08:58.089+00:00",
     "data_sources": [
       {
-        "id": "obf_id_3",
-        "name": "Playground Database 2025-10-19T23:03:47.384Z"
+        "id": "obf_id_61",
+        "name": "Playground DB 2025-10-19T23:08:57.721Z"
       }
     ],
     "icon": null,
     "cover": null,
-    "url": "https://example.com/obf/1",
+    "url": "https://example.com/obf/11",
     "public_url": null,
-    "request_id": "obf_id_72"
+    "request_id": "obf_id_69"
   },
   "dataSource": {
     "object": "data_source",
-    "id": "obf_id_3",
+    "id": "obf_id_61",
     "cover": null,
     "icon": null,
-    "created_time": "2025-10-19T23:03:00.000Z",
+    "created_time": "2025-10-19T23:08:00.000Z",
     "created_by": {
       "object": "user",
-      "id": "obf_id_5"
+      "id": "obf_id_63"
     },
     "last_edited_by": {
       "object": "user",
-      "id": "obf_id_5"
+      "id": "obf_id_63"
     },
-    "last_edited_time": "2025-10-19T23:03:00.000Z",
+    "last_edited_time": "2025-10-19T23:08:00.000Z",
     "title": [
       {
         "type": "text",
         "text": {
-          "content": "Playground Database 2025-10-19T23:03:47.384Z",
+          "content": "Playground DB 2025-10-19T23:08:57.721Z",
           "link": null
         },
         "annotations": {
@@ -73,7 +73,7 @@
           "code": false,
           "color": "default"
         },
-        "plain_text": "Playground Database 2025-10-19T23:03:47.384Z",
+        "plain_text": "Playground DB 2025-10-19T23:08:57.721Z",
         "href": null
       }
     ],
@@ -81,29 +81,29 @@
     "is_inline": false,
     "properties": {
       "Stage": {
-        "id": "obf_id_6",
+        "id": "obf_id_64",
         "name": "Stage",
         "description": null,
         "type": "select",
         "select": {
           "options": [
             {
-              "id": "obf_id_7",
-              "name": "Backlog",
+              "id": "obf_id_65",
+              "name": "Todo",
               "color": "default",
               "description": null
             },
             {
-              "id": "obf_id_8",
-              "name": "In Progress",
-              "color": "blue",
+              "id": "obf_id_66",
+              "name": "Done",
+              "color": "green",
               "description": null
             }
           ]
         }
       },
       "Name": {
-        "id": "obf_id_9",
+        "id": "obf_id_67",
         "name": "Name",
         "description": null,
         "type": "title",
@@ -112,16 +112,16 @@
     },
     "parent": {
       "type": "database_id",
-      "database_id": "obf_id_1"
+      "database_id": "obf_id_59"
     },
     "database_parent": {
       "type": "page_id",
-      "page_id": "obf_id_2"
+      "page_id": "obf_id_60"
     },
-    "url": "https://example.com/obf/1",
+    "url": "https://example.com/obf/11",
     "public_url": null,
     "archived": false,
     "in_trash": false,
-    "request_id": "obf_id_73"
+    "request_id": "obf_id_70"
   }
 }
