@@ -4,7 +4,11 @@ import { handlers } from './handlers';
 
 const server = setupServer(...handlers);
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => {
+  process.env.NOTION_API_KEY = 'test-api-key';
+  server.listen({ onUnhandledRequest: 'error' });
+});
+
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
