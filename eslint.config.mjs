@@ -4,17 +4,14 @@ import { fileURLToPath } from 'node:url';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import unicornPlugin from 'eslint-plugin-unicorn';
-import { createRequire } from 'node:module';
+import importPlugin from 'eslint-plugin-import';
+import eslintCommentsPlugin from 'eslint-plugin-eslint-comments';
 
 import bestPractices from './lint-rules/best-practices.js';
 import comments from './lint-rules/comments.js';
 import imports from './lint-rules/imports.js';
 import naming from './lint-rules/naming.js';
 import typescriptRules from './lint-rules/typescript.js';
-
-const require = createRequire(import.meta.url);
-const importPlugin = require('./lint-rules/plugins/import.cjs');
-const eslintCommentsPlugin = require('./lint-rules/plugins/eslint-comments.cjs');
 
 export default [
   {
@@ -74,6 +71,12 @@ export default [
         test: 'readonly',
         vi: 'readonly',
       },
+    },
+  },
+  {
+    files: ['vitest.config.ts'],
+    rules: {
+      'import/no-default-export': 'off',
     },
   },
 ];
