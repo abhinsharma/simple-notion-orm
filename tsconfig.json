@@ -29,6 +29,6 @@
       "@/transform/*": ["src/transform/*"]
     }
   },
-  "include": ["src/**/*", "playground/**/*", "tests/**/*", "vitest.config.ts"],
+  "include": ["src/**/*", "tests/**/*", "vitest.config.ts", "playground.ts"],
   "exclude": ["node_modules", "dist"]
 }
