@@ -1,6 +1,6 @@
+import { buildTitleProperty } from "@/factories/properties/page";
 import { describe, it, expect } from "vitest";
 import { getPage, createPage, updatePage, archivePage, restorePage, searchPages } from "../page";
-import { buildTitleProperty } from "@/factories/properties/page";
 import pageGetFixture from "../../../tests/fixtures/page-get.json";
 import pageCreateFixture from "../../../tests/fixtures/page-create.json";
 import pageUpdateFixture from "../../../tests/fixtures/page-update.json";

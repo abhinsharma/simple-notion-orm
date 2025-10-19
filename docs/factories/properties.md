@@ -41,6 +41,8 @@ await createPage({
 | `buildRelationProperty(pageIds)` | Relation property linking to other pages. |
 | `buildRollupProperty(value)` | Rollup placeholder (useful for testing/mocks). |
 
+> **Status note**: Notion's public API still rejects status options during database creation. Use `buildStatusProperty` for updates against an existing status column, and avoid `buildStatusConfig()` unless the property is already provisioned in Notion.
+
 ### Example: create a database row
 
 ```ts
@@ -59,6 +61,28 @@ await createDatabasePage({
     Notes: buildRichTextProperty("Generated from factories"),
   },
 });
+
+### Example: update database properties
+
+```ts
+import { updateDatabasePage } from "@/api/database-page";
+import {
+  buildSelectProperty,
+  buildMultiSelectProperty,
+  buildDateProperty,
+  buildCheckboxProperty,
+} from "@/factories/properties/database-page";
+
+await updateDatabasePage({
+  pageId: "notion-page-id",
+  properties: {
+    Stage: buildSelectProperty({ name: "Done" }),
+    Tags: buildMultiSelectProperty([{ name: "Docs" }, { name: "Feature" }]),
+    Due: buildDateProperty({ start: "2025-01-01" }),
+    Done: buildCheckboxProperty(true),
+  },
+});
+```
 ```
 
 ## Schema helpers
