@@ -1,13 +1,18 @@
 # Simple Notion ORM
 
-Simple Notion ORM provides a thin, typed layer on top of the official Notion API. It packages schema builders, payload factories, and lightweight CRUD helpers so you can treat pages, databases, and blocks like first-class data structures without memorizing JSON shapes.
+Simple Notion ORM is a typed toolkit layered on top of `@notionhq/client`. It ships schema builders, payload factories, and thin API wrappers so pages, databases, and blocks can be managed as predictable data structures.
 
-## Project Layout
-- `src/api/` – High-level wrappers for Notion endpoints (pages, blocks, databases, database pages) with consistent error handling.
-- `src/factories/` – Reusable builders for block payloads, property values, and database schemas.
-- `tests/fixtures/` – Obfuscated Notion responses used by MSW-powered integration tests.
-- `docs/` + `ai-docs/` – Living documentation: API usage guides, factory references, and story-driven design notes.
-- `playground.ts` – Scratch file for manual experiments. Expand it temporarily, then reset to the minimal example when finished.
+## Project Structure & Architecture
+
+```
+src/
+├── api/           # Raw API wrappers (thin layer over @notionhq/client)
+├── orm/           # ORM layer (higher-level abstractions)
+├── factories/     # Builder functions for Notion objects
+├── transform/     # Data transformation utilities
+├── types/         # TypeScript type definitions
+└── utils/         # Shared utilities
+```
 
 ## Getting Started
 1. Install dependencies:
@@ -23,15 +28,30 @@ Simple Notion ORM provides a thin, typed layer on top of the official Notion API
    ```bash
    pnpm tsx playground.ts
    ```
-   (Feel free to tweak while testing; run `clearPageContent` afterwards to tidy the capture page.)
+   Tweak it as needed, then restore the minimal example and run `clearPageContent` to tidy the capture page.
 
 ## Development Commands
-- `pnpm lint` – ESLint with flat configuration and TypeScript-aware ordering rules.
-- `pnpm build` – Type-check via `tsc --noEmit`.
-- `pnpm test` – Reserved for the forthcoming Vitest/MSW suite (see `tests/handlers.ts` scaffolding).
+- `pnpm tsc` – Standalone type check (`tsc --noEmit`).
+- `pnpm lint` / `pnpm lint --fix` – ESLint flat config with TypeScript rules.
+- `pnpm format` / `pnpm format:check` – Prettier with `printWidth: 160`.
+- `pnpm build` – Type-check pipeline (alias for `tsc --noEmit` used in CI).
+- `pnpm test` / `vitest run <path>` – Vitest + MSW suite (see `tests/handlers.ts`).
+- `pnpm tsx playground.ts` – Run the playground script during manual experiments.
 
-## Resources
-- [`docs/api`](./docs/api) contains quick-start snippets for each API module.
-- [`docs/factories`](./docs/factories) explains block/property/schema builders with examples.
-- [`AGENTS.md`](./AGENTS.md) distills contributor guidelines (structure, workflow, commit style).
 
+## Testing
+- Tests are powered by [Vitest](https://vitest.dev/) and MSW.
+- Fixtures in `tests/fixtures/*.json` provide deterministic responses (IDs/URLs are obfuscated).
+- Run a single test file: `pnpm test src/api/__tests__/page.test.ts`.
+- Override handlers with `server.use(...)` when customizing MSW responses (see existing tests).
+
+## Environment & Configuration
+- Required secrets: `NOTION_API_KEY`, `CAPTURE_PAGE_ID`.
+- `src/api/client.ts` loads environment variables via `dotenv`.
+- Prefer sandbox pages/databases for playground work and call `clearPageContent` after manual runs.
+
+## Documentation
+- [`docs/api`](./docs/api) – API usage guides and examples.
+- [`docs/factories`](./docs/factories) – Block/property/schema builder references.
+- [`AGENTS.md`](./AGENTS.md) – Contributor workflow and repository conventions.
+- [`CLAUDE.md`](./CLAUDE.md) – Claude-specific guidance (now points back to `AGENTS.md`).
