@@ -2,6 +2,7 @@
  * Database Page API
  * API for managing pages/items within Notion databases
  */
+import { deleteBlock, getBlockChildren } from "@/api/block";
 import type {
   CreatePageParameters,
   CreatePageResponse,
@@ -122,4 +123,26 @@ export async function restoreDatabasePage(
   } catch (error) {
     throw wrapError(`Failed to restore database page ${pageId}`, error);
   }
+}
+
+/**
+ * Remove all blocks (content) from a database page
+ */
+export async function clearDatabasePageContent(pageId: string): Promise<void> {
+  let cursor: string | undefined;
+
+  do {
+    const response = await getBlockChildren(pageId, cursor ? { start_cursor: cursor } : undefined);
+    if (!response.results.length) {
+      break;
+    }
+
+    await Promise.all(
+      response.results.map(async (block) => {
+        await deleteBlock(block.id);
+      }),
+    );
+
+    cursor = response.next_cursor ?? undefined;
+  } while (cursor);
 }

@@ -8,6 +8,7 @@
 | `archivePage` | `PageObjectResponse` | Archive (soft delete) a page.                      |
 | `restorePage` | `PageObjectResponse` | Restore a previously archived page.                |
 | `searchPages` | `SearchResponse`     | Query pages in the workspace using Notion search.  |
+| `clearPageContent` | `void`          | Remove all child blocks (content) from a page.     |
 
 All helpers live under `@/api/page` and operate on regular (non-database) Notion pages.
 
@@ -69,4 +70,12 @@ const restored = await restorePage("notion-page-id");
 import { searchPages } from "@/api/page";
 
 const results = await searchPages("Playground");
+```
+
+## Clear page content
+
+```ts
+import { clearPageContent } from "@/api/page";
+
+await clearPageContent("notion-page-id");
 ```

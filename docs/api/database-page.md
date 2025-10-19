@@ -7,6 +7,7 @@
 | `updateDatabasePage`   | `PageObjectResponse` | Update row properties.                             |
 | `archiveDatabasePage`  | `PageObjectResponse` | Archive (soft delete) a row.                       |
 | `restoreDatabasePage`  | `PageObjectResponse` | Restore an archived row.                           |
+| `clearDatabasePageContent` | `void`           | Remove all blocks from a database row.             |
 
 All helpers live under `@/api/database-page`.
 
@@ -71,4 +72,12 @@ const archived = await archiveDatabasePage("notion-page-id");
 import { restoreDatabasePage } from "@/api/database-page";
 
 const restored = await restoreDatabasePage("notion-page-id");
+```
+
+## Clear database page content
+
+```ts
+import { clearDatabasePageContent } from "@/api/database-page";
+
+await clearDatabasePageContent("notion-page-id");
 ```

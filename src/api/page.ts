@@ -2,6 +2,7 @@
  * Page API
  * Here api is shaped for non database pages to reduce complexity.
  */
+import { deleteBlock, getBlockChildren } from "@/api/block";
 import type {
   CreatePageParameters,
   PageObjectResponse,
@@ -147,4 +148,26 @@ export async function searchPages(query: string): Promise<SearchResponse> {
   } catch (error) {
     throw wrapError(`Failed to search pages with query "${query}"`, error);
   }
+}
+
+/**
+ * Remove all blocks (content) from a page
+ */
+export async function clearPageContent(pageId: string): Promise<void> {
+  let cursor: string | undefined;
+
+  do {
+    const response = await getBlockChildren(pageId, cursor ? { start_cursor: cursor } : undefined);
+    if (!response.results.length) {
+      break;
+    }
+
+    await Promise.all(
+      response.results.map(async (block) => {
+        await deleteBlock(block.id);
+      }),
+    );
+
+    cursor = response.next_cursor ?? undefined;
+  } while (cursor);
 }
