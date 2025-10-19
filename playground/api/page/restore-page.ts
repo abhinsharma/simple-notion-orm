@@ -1,21 +1,10 @@
-import "dotenv/config";
 import { restorePage } from "@/api/page";
+import "dotenv/config";
 
 async function main(): Promise<void> {
-  const pageId = process.argv[2];
-
-  if (!pageId) {
-    throw new Error(
-      "Pass the page ID you want to restore as the first argument. Example: pnpm tsx playground/restore-page.ts <PAGE_ID>"
-    );
-  }
-
-  await restorePage(pageId);
-
-  console.log(`Restored page ${pageId}`);
+  const pageId = process.argv[2]!;
+  const page = await restorePage(pageId);
+  console.dir({ id: page.id, archived: page.archived });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main();

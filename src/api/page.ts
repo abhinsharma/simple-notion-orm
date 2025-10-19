@@ -4,12 +4,9 @@
  */
 import type {
   CreatePageParameters,
-  CreatePageResponse,
-  GetPageResponse,
   PageObjectResponse,
   SearchResponse,
   UpdatePageParameters,
-  UpdatePageResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
@@ -20,14 +17,17 @@ import { getNotionClient } from "./client";
 export async function getPage(
   pageId: string,
   filterProperties?: string[]
-): Promise<GetPageResponse> {
+): Promise<PageObjectResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.retrieve({
       page_id: pageId,
       filter_properties: filterProperties,
     });
-    return response as PageObjectResponse;
+    if (!("properties" in response)) {
+      throw new Error(`Retrieve page ${pageId} returned a partial page response`);
+    }
+    return response;
   } catch (error) {
     throw wrapError(`Failed to retrieve page ${pageId}`, error);
   }
@@ -50,7 +50,7 @@ export async function createPage({
   children,
   icon,
   cover,
-}: CreatePageParams): Promise<CreatePageResponse> {
+}: CreatePageParams): Promise<PageObjectResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.create({
@@ -62,7 +62,10 @@ export async function createPage({
       ...(icon !== undefined ? { icon } : {}),
       ...(cover !== undefined ? { cover } : {}),
     });
-    return response as PageObjectResponse;
+    if (!("properties" in response)) {
+      throw new Error("Create page request returned a partial page response");
+    }
+    return response;
   } catch (error) {
     throw wrapError("Failed to create page", error);
   }
@@ -84,7 +87,7 @@ export async function updatePage({
   icon,
   cover,
   archived,
-}: UpdatePageParams): Promise<UpdatePageResponse> {
+}: UpdatePageParams): Promise<PageObjectResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.update({
@@ -94,7 +97,12 @@ export async function updatePage({
       ...(cover !== undefined ? { cover } : {}),
       ...(typeof archived === "boolean" ? { archived } : {}),
     });
-    return response as PageObjectResponse;
+    if (!("properties" in response)) {
+      throw new Error(
+        `Update page request for ${pageId} returned a partial page response`
+      );
+    }
+    return response;
   } catch (error) {
     throw wrapError(`Failed to update page ${pageId}`, error);
   }
@@ -103,7 +111,7 @@ export async function updatePage({
 /**
  * Archive/delete a page (Notion doesn't have true deletion, only archiving)
  */
-export async function archivePage(pageId: string): Promise<UpdatePageResponse> {
+export async function archivePage(pageId: string): Promise<PageObjectResponse> {
   try {
     return await updatePage({ pageId, archived: true });
   } catch (error) {
@@ -114,7 +122,7 @@ export async function archivePage(pageId: string): Promise<UpdatePageResponse> {
 /**
  * Restore an archived page
  */
-export async function restorePage(pageId: string): Promise<UpdatePageResponse> {
+export async function restorePage(pageId: string): Promise<PageObjectResponse> {
   try {
     return await updatePage({ pageId, archived: false });
   } catch (error) {

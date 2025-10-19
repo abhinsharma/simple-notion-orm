@@ -1,31 +1,19 @@
-import "dotenv/config";
 import { createPage } from "@/api/page";
 import { buildTitleProperty } from "@/factories/properties";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import "dotenv/config";
 
 async function main(): Promise<void> {
-  const parentId = process.env.CAPTURE_PAGE_ID;
-  if (!parentId) {
-    throw new Error("CAPTURE_PAGE_ID is not set. Provide a parent page ID to create a child page.");
-  }
-
+  const parentId = process.env.CAPTURE_PAGE_ID!;
   const result = await createPage({
     parentId,
     properties: {
-      title: buildTitleProperty(`Playground create ${new Date().toISOString()}`),
+      title: buildTitleProperty(
+        `Playground create ${new Date().toISOString()}`
+      ),
     },
-  }) as PageObjectResponse;
+  });
 
-  console.dir(
-    {
-      createdId: result.id,
-      url: result.url,
-    },
-    { depth: 2 }
-  );
+  console.dir({ createdId: result.id, url: result.url });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main();
