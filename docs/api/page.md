@@ -1,6 +1,4 @@
-# Page API
-
-## Specs
+# Page API Examples
 
 | API           | Returns              | Description                                        |
 | ------------- | -------------------- | -------------------------------------------------- |
@@ -18,7 +16,7 @@ All helpers live under `@/api/page` and operate on regular (non-database) Notion
 ```ts
 import { getPage } from "@/api/page";
 
-const page = await getPage(process.env.CAPTURE_PAGE_ID!);
+const page = await getPage("notion-page-id");
 ```
 
 ## Create a child page
@@ -28,7 +26,7 @@ import { createPage } from "@/api/page";
 import { buildTitleProperty } from "@/factories/properties";
 
 const page = await createPage({
-  parentId: process.env.CAPTURE_PAGE_ID!,
+  parentId: "notion-page-id",
   properties: {
     title: buildTitleProperty("New playground page"),
   },
