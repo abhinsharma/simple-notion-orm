@@ -44,7 +44,7 @@ Configured in `tsconfig.json` and `vitest.config.ts`:
 Prefer these over relative imports.
 
 ## Environment Setup
-- `.env` must contain `NOTION_API_KEY` and a playground `CAPTURE_PAGE_ID`.
+- `.env` must contain `NOTION_API_KEY`.
 - `dotenv` is loaded inside `src/api/client.ts`; tests stub secrets in `tests/setup-msw.ts`.
 - Use dedicated playground pages/databases to avoid affecting production data.
 
@@ -63,8 +63,8 @@ Prefer these over relative imports.
   - Verification notes (lint/build/test commands run).
   - Screenshots or JSON diffs when docs/fixtures change.
 
-## Security & Configuration Tips
-- Secrets (`NOTION_API_KEY`, `CAPTURE_PAGE_ID`) live in `.env`; never commit them.
+- ## Security & Configuration Tips
+- Secrets (e.g., `NOTION_API_KEY`) live in `.env`; never commit them.
 - Use `clearPageContent` or dedicated test databases to avoid leaking real workspace data.
 - Obfuscate IDs/URLs in fixtures before committing (`tests/fixtures/*` script snippets already demonstrate patterns).
 - Use worktrees stored under `../simple-notion-orm-worktrees` for parallel feature work (`git worktree add ../simple-notion-orm-worktrees/<branch> -b <branch> main`).

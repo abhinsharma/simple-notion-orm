@@ -22,7 +22,6 @@ src/
 2. Provide credentials in `.env`:
    ```
    NOTION_API_KEY=secret
-   CAPTURE_PAGE_ID=page-id-for-playground
    ```
 3. Exercise the playground:
    ```bash
@@ -46,9 +45,8 @@ src/
 - Override handlers with `server.use(...)` when customizing MSW responses (see existing tests).
 
 ## Environment & Configuration
-- Required secrets: `NOTION_API_KEY`, `CAPTURE_PAGE_ID`.
-- `src/api/client.ts` loads environment variables via `dotenv`.
-- Prefer sandbox pages/databases for playground work and call `clearPageContent` after manual runs.
+- Required secret: `NOTION_API_KEY` (loaded via `src/api/client.ts`).
+- Use sandbox pages/databases for playground work and call `clearPageContent` after manual runs.
 
 ## Documentation
 - [`docs/api`](./docs/api) – API usage guides and examples.

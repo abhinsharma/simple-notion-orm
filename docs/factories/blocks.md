@@ -43,7 +43,7 @@ import { appendBlockChildren } from "@/api/block";
 import { buildParagraphBlock } from "@/factories/blocks/text";
 import { textToRichText } from "@/utils/richtext";
 
-await appendBlockChildren(process.env.CAPTURE_PAGE_ID!, [
+await appendBlockChildren("notion-page-id", [
   buildParagraphBlock(textToRichText("Hello from block factories")),
 ]);
 ```
@@ -69,7 +69,7 @@ const columnList = buildColumnListBlock([
   ]),
 ]);
 
-await appendBlockChildren(process.env.CAPTURE_PAGE_ID!, [columnList]);
+await appendBlockChildren("notion-page-id", [columnList]);
 ```
 
 The factories return plain objects; you can compose them, clone them, or store them in your own abstraction before sending them to Notion.

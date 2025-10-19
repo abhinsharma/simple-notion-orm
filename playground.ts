@@ -1,5 +1,5 @@
 /**
- * Use the `CAPTURE_PAGE_ID` page for playground calls.
+ * Use a dedicated playground page for manual calls.
  * Once you're done running the script, clean the file but keep this note.
  */
 import "dotenv/config";
