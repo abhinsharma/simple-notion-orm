@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { archivePage } from "../src/api/page";
+import { archivePage } from "@api/page";
 
 async function main(): Promise<void> {
   const pageId = process.argv[2];

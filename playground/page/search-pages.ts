@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { searchPages } from "../src/api/page";
+import { searchPages } from "@api/page";
 
 async function main(): Promise<void> {
   const query = process.argv[2] ?? "";

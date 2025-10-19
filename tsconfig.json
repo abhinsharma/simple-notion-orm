@@ -23,7 +23,7 @@
       "@orm/*": ["src/orm/*"],
       "@api/*": ["src/api/*"],
       "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
+      "@app-types/*": ["src/types/*"],
       "@constants/*": ["src/constants/*"],
       "@factories/*": ["src/factories/*"],
       "@transform/*": ["src/transform/*"]

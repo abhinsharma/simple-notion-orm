@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createPage } from "../src/api/page";
+import { createPage } from "@api/page";
 
 async function main(): Promise<void> {
   const parentId = process.env.CAPTURE_PAGE_ID;
