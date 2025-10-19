@@ -1,11 +1,6 @@
-/**
- * Test playground for page property factories
- * Testing title property with actual page update
- */
-
-import "dotenv/config";
-import { buildTitleProperty } from "@factories/properties/page";
 import { updatePage } from "@api/page";
+import { buildTitleProperty } from "@factories/properties/page";
+import "dotenv/config";
 
 async function main() {
   const pageId = process.env.CAPTURE_PAGE_ID;

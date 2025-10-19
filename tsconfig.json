@@ -29,6 +29,12 @@
       "@transform/*": ["src/transform/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*.ts", "vitest.config.ts"],
+<<<<<<< HEAD
+  "include": ["src/**/*", "tests/**/*.ts", "vitest.config.ts", "playground/**/*"],
+||||||| parent of 9ab1846 (feat: add block factories and playground tests)
+  "include": ["src/**/*"],
+=======
+  "include": ["src/**/*", "playground/**/*"],
+>>>>>>> 9ab1846 (feat: add block factories and playground tests)
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
