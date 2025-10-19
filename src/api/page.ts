@@ -162,11 +162,9 @@ export async function clearPageContent(pageId: string): Promise<void> {
       break;
     }
 
-    await Promise.all(
-      response.results.map(async (block) => {
-        await deleteBlock(block.id);
-      }),
-    );
+    for (const block of response.results) {
+      await deleteBlock(block.id);
+    }
 
     cursor = response.next_cursor ?? undefined;
   } while (cursor);
