@@ -72,6 +72,7 @@ import {
   buildMultiSelectProperty,
   buildDateProperty,
   buildCheckboxProperty,
+  buildRelationProperty,
 } from "@/factories/properties/database-page";
 
 await updateDatabasePage({
@@ -81,6 +82,7 @@ await updateDatabasePage({
     Tags: buildMultiSelectProperty([{ name: "Docs" }, { name: "Feature" }]),
     Due: buildDateProperty({ start: "2025-01-01" }),
     Done: buildCheckboxProperty(true),
+    Relation: buildRelationProperty(["linked-page-id"]),
   },
 });
 ```
