@@ -18,9 +18,9 @@ import type {
  * @/returns Title property configuration
  *
  * @example
- * buildTitleConfig()
+ * buildTitleColumn()
  */
-export function buildTitleConfig() {
+export function buildTitleColumn() {
   return {
     type: "title" as const,
     title: {},
@@ -33,9 +33,9 @@ export function buildTitleConfig() {
  * @/returns Rich text property configuration
  *
  * @example
- * buildRichTextConfig()
+ * buildRichTextColumn()
  */
-export function buildRichTextConfig() {
+export function buildRichTextColumn() {
   return {
     type: "rich_text" as const,
     rich_text: {},
@@ -49,11 +49,11 @@ export function buildRichTextConfig() {
  * @returns Number property configuration
  *
  * @example
- * buildNumberConfig()
- * buildNumberConfig("percent")
- * buildNumberConfig("dollar")
+ * buildNumberColumn()
+ * buildNumberColumn("percent")
+ * buildNumberColumn("dollar")
  */
-export function buildNumberConfig(format?: NumberFormat) {
+export function buildNumberColumn(format?: NumberFormat) {
   return {
     type: "number" as const,
     number: format ? { format } : {},
@@ -66,9 +66,9 @@ export function buildNumberConfig(format?: NumberFormat) {
  * @/returns Date property configuration
  *
  * @example
- * buildDateConfig()
+ * buildDateColumn()
  */
-export function buildDateConfig() {
+export function buildDateColumn() {
   return {
     type: "date" as const,
     date: {},
@@ -81,9 +81,9 @@ export function buildDateConfig() {
  * @/returns Checkbox property configuration
  *
  * @example
- * buildCheckboxConfig()
+ * buildCheckboxColumn()
  */
-export function buildCheckboxConfig() {
+export function buildCheckboxColumn() {
   return {
     type: "checkbox" as const,
     checkbox: {},
@@ -96,9 +96,9 @@ export function buildCheckboxConfig() {
  * @/returns URL property configuration
  *
  * @example
- * buildUrlConfig()
+ * buildUrlColumn()
  */
-export function buildUrlConfig() {
+export function buildUrlColumn() {
   return {
     type: "url" as const,
     url: {},
@@ -111,9 +111,9 @@ export function buildUrlConfig() {
  * @/returns Email property configuration
  *
  * @example
- * buildEmailConfig()
+ * buildEmailColumn()
  */
-export function buildEmailConfig() {
+export function buildEmailColumn() {
   return {
     type: "email" as const,
     email: {},
@@ -126,9 +126,9 @@ export function buildEmailConfig() {
  * @/returns Phone number property configuration
  *
  * @example
- * buildPhoneNumberConfig()
+ * buildPhoneNumberColumn()
  */
-export function buildPhoneNumberConfig() {
+export function buildPhoneNumberColumn() {
   return {
     type: "phone_number" as const,
     phone_number: {},
@@ -141,9 +141,9 @@ export function buildPhoneNumberConfig() {
  * @/returns People property configuration
  *
  * @example
- * buildPeopleConfig()
+ * buildPeopleColumn()
  */
-export function buildPeopleConfig() {
+export function buildPeopleColumn() {
   return {
     type: "people" as const,
     people: {},
@@ -156,9 +156,9 @@ export function buildPeopleConfig() {
  * @/returns Files property configuration
  *
  * @example
- * buildFilesConfig()
+ * buildFilesColumn()
  */
-export function buildFilesConfig() {
+export function buildFilesColumn() {
   return {
     type: "files" as const,
     files: {},
@@ -172,13 +172,13 @@ export function buildFilesConfig() {
  * @returns Select property configuration
  *
  * @example
- * buildSelectConfig([
+ * buildSelectColumn([
  *   { name: "To Do", color: "red" },
  *   { name: "In Progress", color: "yellow" },
  *   { name: "Done", color: "green" }
  * ])
  */
-export function buildSelectConfig(options?: SelectOptionConfig[]) {
+export function buildSelectColumn(options?: SelectOptionConfig[]) {
   return {
     type: "select" as const,
     select: options ? { options } : {},
@@ -192,13 +192,13 @@ export function buildSelectConfig(options?: SelectOptionConfig[]) {
  * @returns Multi-select property configuration
  *
  * @example
- * buildMultiSelectConfig([
+ * buildMultiSelectColumn([
  *   { name: "Frontend", color: "blue" },
  *   { name: "Backend", color: "green" },
  *   { name: "Design", color: "purple" }
  * ])
  */
-export function buildMultiSelectConfig(options?: SelectOptionConfig[]) {
+export function buildMultiSelectColumn(options?: SelectOptionConfig[]) {
   return {
     type: "multi_select" as const,
     multi_select: options ? { options } : {},
@@ -212,9 +212,9 @@ export function buildMultiSelectConfig(options?: SelectOptionConfig[]) {
  * @/returns Status property configuration
  *
  * @example
- * buildStatusConfig()
+ * buildStatusColumn()
  */
-export function buildStatusConfig() {
+export function buildStatusColumn() {
   return {
     type: "status" as const,
     status: {},
@@ -229,19 +229,19 @@ export function buildStatusConfig() {
  *
  * @example
  * // Single property relation
- * buildRelationConfig({
+ * buildRelationColumn({
  *   data_source_id: "data-source-id-123",
  *   type: "single_property"
  * })
  *
  * // Dual property relation with synced property
- * buildRelationConfig({
+ * buildRelationColumn({
  *   data_source_id: "data-source-id-123",
  *   type: "dual_property",
  *   synced_property_name: "Related Items"
  * })
  */
-export function buildRelationConfig(config: RelationConfigInput) {
+export function buildRelationColumn(config: RelationConfigInput) {
   const relationType = config.type ?? "single_property";
 
   if (relationType === "single_property") {
@@ -286,20 +286,20 @@ export function buildRelationConfig(config: RelationConfigInput) {
  *
  * @example
  * // Using property names
- * buildRollupConfig({
+ * buildRollupColumn({
  *   relation_property_name: "Projects",
  *   rollup_property_name: "Hours",
  *   function: "sum"
  * })
  *
  * // Using property IDs
- * buildRollupConfig({
+ * buildRollupColumn({
  *   relation_property_id: "prop-id-123",
  *   rollup_property_id: "prop-id-456",
  *   function: "average"
  * })
  */
-export function buildRollupConfig(config: RollupConfigInput) {
+export function buildRollupColumn(config: RollupConfigInput) {
   const rollup: {
     function: RollupFunction;
     relation_property_name?: string;
@@ -337,11 +337,11 @@ export function buildRollupConfig(config: RollupConfigInput) {
  * @returns Formula property configuration
  *
  * @example
- * buildFormulaConfig("prop(\"Price\") * prop(\"Quantity\")")
+ * buildFormulaColumn("prop(\"Price\") * prop(\"Quantity\")")
  */
-export function buildFormulaConfig(expression: string) {
+export function buildFormulaColumn(expression: string) {
   if (!expression.trim()) {
-    throw new Error("buildFormulaConfig requires a non-empty expression");
+    throw new Error("buildFormulaColumn requires a non-empty expression");
   }
 
   return {
@@ -357,10 +357,10 @@ export function buildFormulaConfig(expression: string) {
  * @returns Unique ID property configuration
  *
  * @example
- * buildUniqueIdConfig("TASK")
- * buildUniqueIdConfig() // No prefix
+ * buildUniqueIdColumn("TASK")
+ * buildUniqueIdColumn() // No prefix
  */
-export function buildUniqueIdConfig(prefix?: string | null) {
+export function buildUniqueIdColumn(prefix?: string | null) {
   return {
     type: "unique_id" as const,
     unique_id: {
@@ -376,9 +376,9 @@ export function buildUniqueIdConfig(prefix?: string | null) {
  * @/returns Button property configuration
  *
  * @example
- * buildButtonConfig()
+ * buildButtonColumn()
  */
-export function buildButtonConfig() {
+export function buildButtonColumn() {
   return {
     type: "button" as const,
     button: {},
@@ -391,9 +391,9 @@ export function buildButtonConfig() {
  * @/returns Created by property configuration
  *
  * @example
- * buildCreatedByConfig()
+ * buildCreatedByColumn()
  */
-export function buildCreatedByConfig() {
+export function buildCreatedByColumn() {
   return {
     type: "created_by" as const,
     created_by: {},
@@ -406,9 +406,9 @@ export function buildCreatedByConfig() {
  * @/returns Created time property configuration
  *
  * @example
- * buildCreatedTimeConfig()
+ * buildCreatedTimeColumn()
  */
-export function buildCreatedTimeConfig() {
+export function buildCreatedTimeColumn() {
   return {
     type: "created_time" as const,
     created_time: {},
@@ -421,9 +421,9 @@ export function buildCreatedTimeConfig() {
  * @/returns Last edited by property configuration
  *
  * @example
- * buildLastEditedByConfig()
+ * buildLastEditedByColumn()
  */
-export function buildLastEditedByConfig() {
+export function buildLastEditedByColumn() {
   return {
     type: "last_edited_by" as const,
     last_edited_by: {},
@@ -436,9 +436,9 @@ export function buildLastEditedByConfig() {
  * @/returns Last edited time property configuration
  *
  * @example
- * buildLastEditedTimeConfig()
+ * buildLastEditedTimeColumn()
  */
-export function buildLastEditedTimeConfig() {
+export function buildLastEditedTimeColumn() {
   return {
     type: "last_edited_time" as const,
     last_edited_time: {},
@@ -451,9 +451,9 @@ export function buildLastEditedTimeConfig() {
  * @/returns Verification property configuration
  *
  * @example
- * buildVerificationConfig()
+ * buildVerificationColumn()
  */
-export function buildVerificationConfig() {
+export function buildVerificationColumn() {
   return {
     type: "verification" as const,
     verification: {},
@@ -466,9 +466,9 @@ export function buildVerificationConfig() {
  * @/returns Location property configuration
  *
  * @example
- * buildLocationConfig()
+ * buildLocationColumn()
  */
-export function buildLocationConfig() {
+export function buildLocationColumn() {
   return {
     type: "location" as const,
     location: {},
@@ -481,9 +481,9 @@ export function buildLocationConfig() {
  * @/returns Last visited time property configuration
  *
  * @example
- * buildLastVisitedTimeConfig()
+ * buildLastVisitedTimeColumn()
  */
-export function buildLastVisitedTimeConfig() {
+export function buildLastVisitedTimeColumn() {
   return {
     type: "last_visited_time" as const,
     last_visited_time: {},
@@ -496,9 +496,9 @@ export function buildLastVisitedTimeConfig() {
  * @/returns Place property configuration
  *
  * @example
- * buildPlaceConfig()
+ * buildPlaceColumn()
  */
-export function buildPlaceConfig() {
+export function buildPlaceColumn() {
   return {
     type: "place" as const,
     place: {},
