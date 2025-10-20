@@ -19,8 +19,6 @@ import type { BlockNode } from "@/transform/markdown";
 
 const blocks: BlockNode[] = /* obtain from fixtures or API */;
 const { markdown } = renderMarkdown(blocks);
-
-console.log(markdown);
 ```
 
 ## Render by page id
@@ -31,8 +29,6 @@ To convert a Notion page without prefetching blocks, use `renderMarkdownByPageId
 import { renderMarkdownByPageId } from "@/transform/markdown";
 
 const { markdown } = await renderMarkdownByPageId("notion-page-id");
-
-console.log(markdown);
 ```
 
 ## Fetch block trees directly
