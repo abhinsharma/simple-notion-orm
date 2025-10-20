@@ -18,9 +18,9 @@ import type {
  * @/returns Title property configuration
  *
  * @example
- * buildTitleConfig()
+ * buildTitleColumn()
  */
-export function buildTitleConfig() {
+export function buildTitleColumn() {
   return {
     type: "title" as const,
     title: {},
