@@ -96,16 +96,16 @@ The database schema factories in `src/factories/properties/database-schema.ts` m
 import { createDatabase } from "@/api/database";
 import { textToRichText } from "@/utils/richtext";
 import {
-  buildSelectConfig,
-  buildTitleConfig,
+  buildSelectColumn,
+  buildTitleColumn,
 } from "@/factories/properties/database-schema";
 
 await createDatabase({
   parentId: "notion-page-id",
   title: textToRichText("Tasks"),
   properties: {
-    Name: buildTitleConfig(),
-    Stage: buildSelectConfig([
+    Name: buildTitleColumn(),
+    Stage: buildSelectColumn([
       { name: "Todo", color: "default" },
       { name: "Done", color: "green" },
     ]),
