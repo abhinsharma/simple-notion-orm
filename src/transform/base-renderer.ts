@@ -1,5 +1,5 @@
 import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
-import type { BlockNode, NormalizedRenderOptions, RenderContext, RenderOptions } from "./markdown/types";
+import type { BlockNode, NormalizedRenderOptions, RenderContext, RenderOptions } from "@/types/markdown";
 
 function normalizeOptions(options?: RenderOptions): NormalizedRenderOptions {
   return {

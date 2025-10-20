@@ -1,7 +1,7 @@
 import type { BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { loadBlockTree } from "./fetch";
-import { MarkdownRenderer } from "./markdown";
-import type { BlockNode, RenderOptions, RenderResult } from "./types";
+import { MarkdownRenderer } from "./renderer";
+import type { BlockNode, RenderOptions, RenderResult } from "@/types/markdown";
 
 function toBlockNodes(blocks: Array<BlockObjectResponse | BlockNode>): BlockNode[] {
   return blocks.map((block) => (block as BlockNode));

@@ -1,6 +1,6 @@
 import { getBlockChildren } from "@/api/block";
 import type { ListBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
-import type { BlockNode } from "./types";
+import type { BlockNode } from "@/types/markdown";
 
 async function collectChildren(blockId: string, params?: Omit<ListBlockChildrenParameters, "block_id">): Promise<BlockNode[]> {
   const nodes: BlockNode[] = [];
@@ -31,4 +31,3 @@ async function collectChildren(blockId: string, params?: Omit<ListBlockChildrenP
 export async function loadBlockTree(rootId: string): Promise<BlockNode[]> {
   return collectChildren(rootId);
 }
-
