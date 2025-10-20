@@ -1,32 +1,36 @@
-/**
- * Checkbox property codec (STUB)
- *
- * TODO: Implement checkbox codec for database page properties
- * - Schema: z.boolean()
- * - Encode: boolean → { checkbox: boolean }
- * - Decode: Extract boolean from property.checkbox
- * - Config: { [name]: { checkbox: {} } }
- *
- * Reference: src/factories/properties/database-page.ts (buildCheckboxProperty)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildCheckboxProperty } from "@/factories/properties/database-page";
 import { z } from "zod";
+
+export type CheckboxPropertyPayload = {
+  checkbox: boolean;
+};
+
+export type CheckboxPropertyResponse = {
+  id?: string;
+  type?: "checkbox";
+  checkbox: boolean;
+};
 
 export const checkboxCodec = createNotionCodec(
   z.codec(
     z.boolean(),
-    z.unknown(),
+    z.custom<CheckboxPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Checkbox codec not yet implemented");
+      decode: (value: boolean): CheckboxPropertyPayload => {
+        const { type: _type, ...payload } = buildCheckboxProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Checkbox codec not yet implemented");
+      encode: (property: CheckboxPropertyResponse): boolean => {
+        return property.checkbox;
       },
     }
   ),
-  () => {
-    throw new Error("Checkbox codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        checkbox: {},
+      },
+    };
   }
 );

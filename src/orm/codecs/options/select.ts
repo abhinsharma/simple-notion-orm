@@ -1,35 +1,45 @@
-/**
- * Select property codec (STUB)
- *
- * TODO: Implement select codec for database page properties
- * - Schema: z.object({ name?, id? }) or z.string() for option name
- * - Encode: SelectOption → { select: { name?, id? } }
- * - Decode: Extract option from property.select
- * - Config: { [name]: { select: { options: [...] } } }
- *
- * Note: Include option normalization helper (by name or ID)
- *
- * Reference: src/factories/properties/database-page.ts (buildSelectProperty)
- * Type: src/types/properties.ts (SelectOptionInput)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildSelectProperty } from "@/factories/properties/database-page";
+import type { SelectOptionInput } from "@/types/properties";
 import { z } from "zod";
+
+export type SelectPropertyPayload = {
+  select: SelectOptionInput | null;
+};
+
+export type SelectPropertyResponse = {
+  id?: string;
+  type?: "select";
+  select: {
+    id?: string;
+    name?: string;
+    color?: string;
+  } | null;
+};
 
 export const selectCodec = createNotionCodec(
   z.codec(
-    z.unknown(),
-    z.unknown(),
+    z.custom<SelectOptionInput>().nullable(),
+    z.custom<SelectPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Select codec not yet implemented");
+      decode: (value: SelectOptionInput | null): SelectPropertyPayload => {
+        const { type: _type, ...payload } = buildSelectProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Select codec not yet implemented");
+      encode: (property: SelectPropertyResponse): SelectOptionInput | null => {
+        if (!property.select) {
+          return null;
+        }
+
+        return property.select as SelectOptionInput;
       },
     }
   ),
-  () => {
-    throw new Error("Select codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        select: {},
+      },
+    };
   }
 );

@@ -1,33 +1,53 @@
-/**
- * Date property codec (STUB)
- *
- * TODO: Implement date codec for database page properties
- * - Schema: z.object({ start, end?, time_zone? }).nullable()
- * - Encode: DateInput → { date: { start, end?, time_zone? } | null }
- * - Decode: Extract date object from property.date
- * - Config: { [name]: { date: {} } }
- *
- * Reference: src/factories/properties/database-page.ts (buildDateProperty)
- * Type: src/types/properties.ts (DatePropertyInput)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildDateProperty } from "@/factories/properties/database-page";
+import type { DatePropertyInput } from "@/types/properties";
 import { z } from "zod";
+
+export type DatePropertyPayload = {
+  date: {
+    start: string;
+    end: string | null;
+    time_zone: string | null;
+  } | null;
+};
+
+export type DatePropertyResponse = {
+  id?: string;
+  type?: "date";
+  date: {
+    start: string;
+    end?: string | null;
+    time_zone?: string | null;
+  } | null;
+};
 
 export const dateCodec = createNotionCodec(
   z.codec(
-    z.unknown(),
-    z.unknown(),
+    z.custom<DatePropertyInput>().nullable(),
+    z.custom<DatePropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Date codec not yet implemented");
+      decode: (value: DatePropertyInput | null): DatePropertyPayload => {
+        const { type: _type, ...payload } = buildDateProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Date codec not yet implemented");
+      encode: (property: DatePropertyResponse): DatePropertyInput | null => {
+        if (!property.date) {
+          return null;
+        }
+
+        return {
+          start: property.date.start,
+          end: property.date.end ?? undefined,
+          time_zone: property.date.time_zone ?? undefined,
+        };
       },
     }
   ),
-  () => {
-    throw new Error("Date codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        date: {},
+      },
+    };
   }
 );

@@ -1,27 +1,26 @@
 import { statusCodec } from "@/orm/codecs";
 import type { ColumnDef } from "../types";
 
-type StatusColumnDef = Omit<ColumnDef, "optional" | "nullable"> & {
-  optional: () => StatusColumnDef;
-  nullable: () => StatusColumnDef;
-  default: (value: string) => StatusColumnDef;
+type StatusColumnBuilder = ColumnDef & {
+  optional: () => StatusColumnBuilder;
+  nullable: () => StatusColumnBuilder;
+  default: (value: string) => StatusColumnBuilder;
 };
 
-function buildStatusColumn(def: ColumnDef): StatusColumnDef {
-  const { optional: _optional, nullable: _nullable, ...rest } = def;
-  return {
-    ...rest,
+function buildStatusColumn(def: ColumnDef): StatusColumnBuilder {
+  return Object.assign(def, {
     optional: () => buildStatusColumn({ ...def, optional: true }),
     nullable: () => buildStatusColumn({ ...def, nullable: true }),
     default: (value: string) => buildStatusColumn({ ...def, defaultValue: value }),
-  };
+  });
 }
 
-export function status(name: string): StatusColumnDef {
+export function status(name: string): StatusColumnBuilder {
   return buildStatusColumn({
     name,
     codec: statusCodec,
     optional: false,
     nullable: false,
+    __type: undefined as unknown as { id: string; name: string; color: string },
   });
 }

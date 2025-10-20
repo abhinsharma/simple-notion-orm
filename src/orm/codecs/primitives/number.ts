@@ -1,32 +1,36 @@
-/**
- * Number property codec (STUB)
- *
- * TODO: Implement number codec for database page properties
- * - Schema: z.number().nullable() to support clearing
- * - Encode: number | null → { number: number | null }
- * - Decode: Extract number from property.number
- * - Config: { [name]: { number: {} } }
- *
- * Reference: src/factories/properties/database-page.ts (buildNumberProperty)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildNumberProperty } from "@/factories/properties/database-page";
 import { z } from "zod";
+
+export type NumberPropertyPayload = {
+  number: number | null;
+};
+
+export type NumberPropertyResponse = {
+  id?: string;
+  type?: "number";
+  number: number | null;
+};
 
 export const numberCodec = createNotionCodec(
   z.codec(
     z.number().nullable(),
-    z.unknown(),
+    z.custom<NumberPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Number codec not yet implemented");
+      decode: (value: number | null): NumberPropertyPayload => {
+        const { type: _type, ...payload } = buildNumberProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Number codec not yet implemented");
+      encode: (property: NumberPropertyResponse): number | null => {
+        return property.number;
       },
     }
   ),
-  () => {
-    throw new Error("Number codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        number: {},
+      },
+    };
   }
 );

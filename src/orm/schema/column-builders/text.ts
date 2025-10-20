@@ -1,29 +1,28 @@
 import { richTextCodec, titleCodec } from "@/orm/codecs";
 import type { ColumnDef } from "../types";
 
-type TextColumnDef = Omit<ColumnDef, "optional" | "nullable"> & {
-  optional: () => TextColumnDef;
-  nullable: () => TextColumnDef;
-  default: (value: string) => TextColumnDef;
-  title: () => TextColumnDef;
+type TextColumnBuilder = ColumnDef & {
+  optional: () => TextColumnBuilder;
+  nullable: () => TextColumnBuilder;
+  default: (value: string) => TextColumnBuilder;
+  title: () => TextColumnBuilder;
 };
 
-function buildTextColumn(def: ColumnDef): TextColumnDef {
-  const { optional: _optional, nullable: _nullable, ...rest } = def;
-  return {
-    ...rest,
+function buildTextColumn(def: ColumnDef): TextColumnBuilder {
+  return Object.assign(def, {
     optional: () => buildTextColumn({ ...def, optional: true }),
     nullable: () => buildTextColumn({ ...def, nullable: true }),
     default: (value: string) => buildTextColumn({ ...def, defaultValue: value }),
     title: () => buildTextColumn({ ...def, codec: titleCodec }),
-  };
+  });
 }
 
-export function text(name: string): TextColumnDef {
+export function text(name: string): TextColumnBuilder {
   return buildTextColumn({
     name,
     codec: richTextCodec,
     optional: false,
     nullable: false,
+    __type: undefined as unknown as string,
   });
 }

@@ -1,27 +1,26 @@
 import { multiSelectCodec } from "@/orm/codecs";
 import type { ColumnDef } from "../types";
 
-type MultiSelectColumnDef = Omit<ColumnDef, "optional" | "nullable"> & {
-  optional: () => MultiSelectColumnDef;
-  nullable: () => MultiSelectColumnDef;
-  default: (value: string[]) => MultiSelectColumnDef;
+type MultiSelectColumnBuilder = ColumnDef & {
+  optional: () => MultiSelectColumnBuilder;
+  nullable: () => MultiSelectColumnBuilder;
+  default: (value: string[]) => MultiSelectColumnBuilder;
 };
 
-function buildMultiSelectColumn(def: ColumnDef): MultiSelectColumnDef {
-  const { optional: _optional, nullable: _nullable, ...rest } = def;
-  return {
-    ...rest,
+function buildMultiSelectColumn(def: ColumnDef): MultiSelectColumnBuilder {
+  return Object.assign(def, {
     optional: () => buildMultiSelectColumn({ ...def, optional: true }),
     nullable: () => buildMultiSelectColumn({ ...def, nullable: true }),
     default: (value: string[]) => buildMultiSelectColumn({ ...def, defaultValue: value }),
-  };
+  });
 }
 
-export function multiSelect(name: string): MultiSelectColumnDef {
+export function multiSelect(name: string): MultiSelectColumnBuilder {
   return buildMultiSelectColumn({
     name,
     codec: multiSelectCodec,
     optional: false,
     nullable: false,
+    __type: undefined as unknown as Array<{ id: string; name: string; color: string }>,
   });
 }

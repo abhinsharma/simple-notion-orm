@@ -1,5 +1,6 @@
 import { buildParagraphBlock } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
+import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters, UpdateBlockParameters } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect } from "vitest";
 import { getBlock, getBlockChildren, appendBlockChildren, updateBlock, deleteBlock } from "../block";
 
@@ -10,7 +11,7 @@ describe("getBlock", () => {
     const result = await getBlock(blockId);
 
     expect(result.object).toBe("block");
-    expect((result as any).type).toBe("paragraph");
+    expect((result as GetBlockResponse & { type: string }).type).toBe("paragraph");
     expect(result.id).toBeDefined();
   });
 });
@@ -31,7 +32,7 @@ describe("getBlockChildren", () => {
 describe("appendBlockChildren", () => {
   it("should successfully append children to a block", async () => {
     const blockId = "obf_id_2";
-    const children = [buildParagraphBlock(textToRichText("New paragraph"))] as any;
+    const children = [buildParagraphBlock(textToRichText("New paragraph"))] as AppendBlockChildrenParameters["children"];
 
     const result = await appendBlockChildren(blockId, children);
 
@@ -50,10 +51,10 @@ describe("updateBlock", () => {
       paragraph: {
         rich_text: textToRichText("Updated paragraph"),
       },
-    } as any);
+    } as { blockId: string } & Omit<UpdateBlockParameters, "block_id">);
 
     expect(result.object).toBe("block");
-    expect((result as any).type).toBe("paragraph");
+    expect((result as GetBlockResponse & { type: string }).type).toBe("paragraph");
     expect(result.id).toBeDefined();
   });
 });
@@ -65,7 +66,7 @@ describe("deleteBlock", () => {
     const result = await deleteBlock(blockId);
 
     expect(result.object).toBe("block");
-    expect((result as any).archived).toBe(true);
+    expect((result as DeleteBlockResponse & { archived: boolean }).archived).toBe(true);
     expect(result.id).toBeDefined();
   });
 });

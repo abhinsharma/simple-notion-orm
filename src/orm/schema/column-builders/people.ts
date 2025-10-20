@@ -1,27 +1,26 @@
 import { peopleCodec } from "@/orm/codecs";
 import type { ColumnDef } from "../types";
 
-type PeopleColumnDef = Omit<ColumnDef, "optional" | "nullable"> & {
-  optional: () => PeopleColumnDef;
-  nullable: () => PeopleColumnDef;
-  default: (value: string[]) => PeopleColumnDef;
+type PeopleColumnBuilder = ColumnDef & {
+  optional: () => PeopleColumnBuilder;
+  nullable: () => PeopleColumnBuilder;
+  default: (value: string[]) => PeopleColumnBuilder;
 };
 
-function buildPeopleColumn(def: ColumnDef): PeopleColumnDef {
-  const { optional: _optional, nullable: _nullable, ...rest } = def;
-  return {
-    ...rest,
+function buildPeopleColumn(def: ColumnDef): PeopleColumnBuilder {
+  return Object.assign(def, {
     optional: () => buildPeopleColumn({ ...def, optional: true }),
     nullable: () => buildPeopleColumn({ ...def, nullable: true }),
     default: (value: string[]) => buildPeopleColumn({ ...def, defaultValue: value }),
-  };
+  });
 }
 
-export function people(name: string): PeopleColumnDef {
+export function people(name: string): PeopleColumnBuilder {
   return buildPeopleColumn({
     name,
     codec: peopleCodec,
     optional: false,
     nullable: false,
+    __type: undefined as unknown as Array<{ id: string; name?: string }>,
   });
 }

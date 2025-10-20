@@ -1,32 +1,36 @@
-/**
- * URL property codec (STUB)
- *
- * TODO: Implement URL codec for database page properties
- * - Schema: z.string().url().nullable() with trimming
- * - Encode: string | null → { url: string | null }
- * - Decode: Extract URL from property.url
- * - Config: { [name]: { url: {} } }
- *
- * Reference: src/factories/properties/database-page.ts (buildUrlProperty)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildUrlProperty } from "@/factories/properties/database-page";
 import { z } from "zod";
+
+export type UrlPropertyPayload = {
+  url: string | null;
+};
+
+export type UrlPropertyResponse = {
+  id?: string;
+  type?: "url";
+  url: string | null;
+};
 
 export const urlCodec = createNotionCodec(
   z.codec(
-    z.string().url().nullable(),
-    z.unknown(),
+    z.string().nullable(),
+    z.custom<UrlPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("URL codec not yet implemented");
+      decode: (value: string | null): UrlPropertyPayload => {
+        const { type: _type, ...payload } = buildUrlProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("URL codec not yet implemented");
+      encode: (property: UrlPropertyResponse): string | null => {
+        return property.url;
       },
     }
   ),
-  () => {
-    throw new Error("URL codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        url: {},
+      },
+    };
   }
 );

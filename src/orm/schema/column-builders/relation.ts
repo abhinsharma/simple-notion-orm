@@ -1,27 +1,26 @@
 import { relationCodec } from "@/orm/codecs";
 import type { ColumnDef } from "../types";
 
-type RelationColumnDef = Omit<ColumnDef, "optional" | "nullable"> & {
-  optional: () => RelationColumnDef;
-  nullable: () => RelationColumnDef;
-  default: (value: string[]) => RelationColumnDef;
+type RelationColumnBuilder = ColumnDef & {
+  optional: () => RelationColumnBuilder;
+  nullable: () => RelationColumnBuilder;
+  default: (value: string[]) => RelationColumnBuilder;
 };
 
-function buildRelationColumn(def: ColumnDef): RelationColumnDef {
-  const { optional: _optional, nullable: _nullable, ...rest } = def;
-  return {
-    ...rest,
+function buildRelationColumn(def: ColumnDef): RelationColumnBuilder {
+  return Object.assign(def, {
     optional: () => buildRelationColumn({ ...def, optional: true }),
     nullable: () => buildRelationColumn({ ...def, nullable: true }),
     default: (value: string[]) => buildRelationColumn({ ...def, defaultValue: value }),
-  };
+  });
 }
 
-export function relation(name: string): RelationColumnDef {
+export function relation(name: string): RelationColumnBuilder {
   return buildRelationColumn({
     name,
     codec: relationCodec,
     optional: false,
     nullable: false,
+    __type: undefined as unknown as Array<{ id: string }>,
   });
 }

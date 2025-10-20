@@ -1,38 +1,38 @@
-/**
- * Relation property codec (STUB)
- *
- * TODO: Implement relation codec for database page properties
- * - Schema: z.array(z.string()) for page IDs
- * - Encode: string[] → { relation: [{ id }] }
- * - Decode: Extract page IDs from property.relation
- * - Config: { [name]: { relation: { data_source_id } } }
- *
- * Note: Relation config requires target data_source_id
- * Decoding returns IDs by default; population is handled separately (ST-012)
- *
- * Reference:
- * - src/factories/properties/database-page.ts (buildRelationProperty)
- * - ai-docs/RFC Simplified Notion ORM.md (§4.4 Relation Handling)
- * - ai-docs/archives/Tech Design — ORM Relation Population.md
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildRelationProperty } from "@/factories/properties/database-page";
 import { z } from "zod";
+
+export type RelationPropertyPayload = {
+  relation: Array<{ id: string }>;
+};
+
+export type RelationPropertyResponse = {
+  id?: string;
+  type?: "relation";
+  relation: Array<{
+    id: string;
+  }>;
+};
 
 export const relationCodec = createNotionCodec(
   z.codec(
     z.array(z.string()),
-    z.unknown(),
+    z.custom<RelationPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Relation codec not yet implemented");
+      decode: (value: string[]): RelationPropertyPayload => {
+        const { type: _type, ...payload } = buildRelationProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Relation codec not yet implemented");
+      encode: (property: RelationPropertyResponse): string[] => {
+        return property.relation.map((rel) => rel.id);
       },
     }
   ),
-  () => {
-    throw new Error("Relation codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        relation: {},
+      },
+    };
   }
 );

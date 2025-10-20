@@ -213,6 +213,23 @@ export async function updateDatabase({
 /**
  * Query database items (pages within the database)
  */
+export async function queryDataSource(
+  dataSourceId: string,
+  params?: Omit<QueryDataSourceParameters, "data_source_id">
+): Promise<QueryDataSourceResponse> {
+  try {
+    const notionClient = getNotionClient();
+    const response = await notionClient.dataSources.query({
+      data_source_id: dataSourceId,
+      ...params,
+    });
+
+    return response;
+  } catch (error) {
+    throw wrapError(`Failed to query data source ${dataSourceId}`, error);
+  }
+}
+
 export async function queryDatabase(
   databaseId: string,
   params?: Omit<QueryDataSourceParameters, "data_source_id">
@@ -221,13 +238,7 @@ export async function queryDatabase(
     const database = await retrieveDatabase(databaseId);
     const dataSourceId = getPrimaryDataSourceId(database);
 
-    const notionClient = getNotionClient();
-    const response = await notionClient.dataSources.query({
-      data_source_id: dataSourceId,
-      ...params,
-    });
-
-    return response;
+    return await queryDataSource(dataSourceId, params);
   } catch (error) {
     throw wrapError(`Failed to query database ${databaseId}`, error);
   }

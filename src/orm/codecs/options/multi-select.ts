@@ -1,34 +1,41 @@
-/**
- * Multi-select property codec (STUB)
- *
- * TODO: Implement multi-select codec for database page properties
- * - Schema: z.array(z.object({ name?, id? })) or z.array(z.string())
- * - Encode: SelectOption[] → { multi_select: [{ name?, id? }] }
- * - Decode: Extract options array from property.multi_select
- * - Config: { [name]: { multi_select: { options: [...] } } }
- *
- * Note: Handle empty array and option normalization
- *
- * Reference: src/factories/properties/database-page.ts (buildMultiSelectProperty)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildMultiSelectProperty } from "@/factories/properties/database-page";
+import type { SelectOptionInput } from "@/types/properties";
 import { z } from "zod";
+
+export type MultiSelectPropertyPayload = {
+  multi_select: SelectOptionInput[];
+};
+
+export type MultiSelectPropertyResponse = {
+  id?: string;
+  type?: "multi_select";
+  multi_select: Array<{
+    id?: string;
+    name?: string;
+    color?: string;
+  }>;
+};
 
 export const multiSelectCodec = createNotionCodec(
   z.codec(
-    z.array(z.unknown()),
-    z.unknown(),
+    z.array(z.custom<SelectOptionInput>()),
+    z.custom<MultiSelectPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Multi-select codec not yet implemented");
+      decode: (value: SelectOptionInput[]): MultiSelectPropertyPayload => {
+        const { type: _type, ...payload } = buildMultiSelectProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Multi-select codec not yet implemented");
+      encode: (property: MultiSelectPropertyResponse): SelectOptionInput[] => {
+        return property.multi_select as SelectOptionInput[];
       },
     }
   ),
-  () => {
-    throw new Error("Multi-select codec not yet implemented");
+  (name: string): Record<string, unknown> => {
+    return {
+      [name]: {
+        multi_select: {},
+      },
+    };
   }
 );

@@ -1,42 +1,41 @@
-/**
- * Status property codec (STUB)
- *
- * TODO: Implement status codec for database page properties
- * - Schema: z.object({ name?, id? }) or z.string() for option name
- * - Encode: StatusOption → { status: { name?, id? } }
- * - Decode: Extract option from property.status
- * - Config: { [name]: { status: {} } } - NOTE: Do NOT include options in config
- *
- * ⚠️ IMPORTANT: Status column limitations
- * - Notion's REST API does NOT support status property creation during database creation
- * - Codec supports validation/encode/decode, but config must omit options
- * - Database sync will warn when status properties cannot be provisioned
- * - Future enhancement (ST-019): Two-phase provisioning (create DB, then update status)
- *
- * Reference:
- * - src/factories/properties/database-page.ts (buildStatusProperty)
- * - ai-docs/RFC Simplified Notion ORM.md (§4.3 Status Column Handling)
- */
-
 import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { buildStatusProperty } from "@/factories/properties/database-page";
+import type { SelectOptionInput } from "@/types/properties";
 import { z } from "zod";
+
+export type StatusPropertyPayload = {
+  status: SelectOptionInput | null;
+};
+
+export type StatusPropertyResponse = {
+  id?: string;
+  type?: "status";
+  status: {
+    id?: string;
+    name?: string;
+    color?: string;
+  } | null;
+};
 
 export const statusCodec = createNotionCodec(
   z.codec(
-    z.unknown(),
-    z.unknown(),
+    z.custom<SelectOptionInput>().nullable(),
+    z.custom<StatusPropertyPayload>(),
     {
-      decode: () => {
-        throw new Error("Status codec not yet implemented");
+      decode: (value: SelectOptionInput | null): StatusPropertyPayload => {
+        const { type: _type, ...payload } = buildStatusProperty(value);
+        return payload;
       },
-      encode: () => {
-        throw new Error("Status codec not yet implemented");
+      encode: (property: StatusPropertyResponse): SelectOptionInput | null => {
+        if (!property.status) {
+          return null;
+        }
+
+        return property.status as SelectOptionInput;
       },
     }
   ),
-  (name: string) => {
-    // Status config does NOT include options due to API limitations
-    // See ai-docs/RFC Simplified Notion ORM.md §4.3
+  (name: string): Record<string, unknown> => {
     return {
       [name]: {
         status: {},

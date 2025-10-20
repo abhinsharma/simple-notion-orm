@@ -1,4 +1,5 @@
 import { buildTitleProperty } from "@/factories/properties/page";
+import type { GetPageResponse, CreatePageResponse, UpdatePageResponse } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect, beforeEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../../../tests/setup-msw";
@@ -44,7 +45,7 @@ describe("getDatabasePage", () => {
     const result = await getDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as any).parent.type).toBe("data_source_id");
+    expect((result as GetPageResponse & { parent: { type: string } }).parent.type).toBe("data_source_id");
     expect(result.id).toBeDefined();
   });
 });
@@ -59,7 +60,7 @@ describe("createDatabasePage", () => {
     });
 
     expect(result.object).toBe("page");
-    expect((result as any).parent.type).toBe("data_source_id");
+    expect((result as CreatePageResponse & { parent: { type: string } }).parent.type).toBe("data_source_id");
     expect(result.id).toBeDefined();
   });
 });
@@ -87,8 +88,8 @@ describe("archiveDatabasePage", () => {
     const result = await archiveDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as any).archived).toBe(true);
-    expect((result as any).in_trash).toBe(true);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(true);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(true);
   });
 });
 
@@ -99,8 +100,8 @@ describe("restoreDatabasePage", () => {
     const result = await restoreDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as any).archived).toBe(false);
-    expect((result as any).in_trash).toBe(false);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(false);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(false);
   });
 });
 
