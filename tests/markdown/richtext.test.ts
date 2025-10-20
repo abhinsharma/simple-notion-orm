@@ -83,4 +83,47 @@ describe("renderRichText", () => {
 
     expect(renderRichText(items)).toBe("$E=mc^2$");
   });
+
+  it("does not escape underscores inside code spans", () => {
+    const items: RichTextItemResponse[] = [
+      buildItem({
+        text: { content: "foo_bar", link: null },
+        annotations: {
+          bold: false,
+          italic: false,
+          strikethrough: false,
+          underline: false,
+          code: true,
+          color: "default",
+        },
+        plain_text: "foo_bar",
+      }),
+    ];
+
+    expect(renderRichText(items)).toBe("`foo_bar`");
+  });
+
+  it("prefixes user mentions with at symbol", () => {
+    const items: RichTextItemResponse[] = [
+      {
+        type: "mention",
+        plain_text: "Notion User",
+        annotations: {
+          bold: false,
+          italic: false,
+          strikethrough: false,
+          underline: false,
+          code: false,
+          color: "default",
+        },
+        href: null,
+        mention: {
+          type: "user",
+          user: { object: "user", id: "obf_user" },
+        },
+      } as RichTextItemResponse,
+    ];
+
+    expect(renderRichText(items)).toBe("@Notion User");
+  });
 });

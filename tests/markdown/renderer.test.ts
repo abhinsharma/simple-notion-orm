@@ -1,4 +1,5 @@
 import { renderMarkdown, renderMarkdownByPageId } from "@/transform/markdown";
+import type { BlockNode } from "@/transform/markdown";
 import * as blockApi from "@/api/block";
 import type { ListBlockChildrenResponse } from "@notionhq/client/build/src/api-endpoints";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -8,6 +9,76 @@ describe("renderMarkdown", () => {
   it("renders a complex block tree to markdown", () => {
     const { markdown } = renderMarkdown(sampleBlocks);
     expect(markdown).toMatchSnapshot();
+  });
+
+  it("supports nested toggle style", () => {
+    const toggleBlock: BlockNode = {
+      object: "block",
+      id: "toggle-block-test",
+      created_time: "2025-10-19T00:00:00.000Z",
+      last_edited_time: "2025-10-19T00:00:00.000Z",
+      created_by: { object: "user", id: "user" },
+      last_edited_by: { object: "user", id: "user" },
+      archived: false,
+      in_trash: false,
+      has_children: true,
+      type: "toggle",
+      toggle: {
+        color: "default",
+        rich_text: [
+          {
+            type: "text",
+            text: { content: "Toggle summary", link: null },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+              color: "default",
+            },
+            plain_text: "Toggle summary",
+            href: null,
+          },
+        ],
+      },
+      children: [
+        {
+          object: "block",
+          id: "toggle-child",
+          created_time: "2025-10-19T00:00:00.000Z",
+          last_edited_time: "2025-10-19T00:00:00.000Z",
+          created_by: { object: "user", id: "user" },
+          last_edited_by: { object: "user", id: "user" },
+          archived: false,
+          in_trash: false,
+          has_children: false,
+          type: "paragraph",
+          paragraph: {
+            color: "default",
+            rich_text: [
+              {
+                type: "text",
+                text: { content: "Nested paragraph", link: null },
+                annotations: {
+                  bold: false,
+                  italic: false,
+                  strikethrough: false,
+                  underline: false,
+                  code: false,
+                  color: "default",
+                },
+                plain_text: "Nested paragraph",
+                href: null,
+              },
+            ],
+          },
+        } as BlockNode,
+      ],
+    } as BlockNode;
+
+    const { markdown } = renderMarkdown([toggleBlock], { toggleStyle: "nested" });
+    expect(markdown).toBe("- Toggle summary\n  Nested paragraph");
   });
 });
 

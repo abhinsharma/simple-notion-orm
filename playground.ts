@@ -1,37 +1,8 @@
 /**
  * Use a dedicated playground page for manual calls.
  * Once you're done running the script, clean the file but keep this note.
+ * Use this page `PLAYGROUND_PAGE_ID` from env as parentId for all tests.
  */
 import "dotenv/config";
 
-import {
-  archivePage,
-  createPage,
-  getPage,
-  restorePage,
-  searchPages,
-  updatePage,
-} from "@/api/page";
-import { buildTitleProperty } from "@/factories/properties";
-
-const capturePageId = process.env.CAPTURE_PAGE_ID!;
-
-await getPage(capturePageId);
-
-const createdPage = await createPage({
-  parentId: capturePageId,
-  properties: {
-    title: buildTitleProperty(`Playground example ${new Date().toISOString()}`),
-  },
-});
-
-await updatePage({
-  pageId: createdPage.id,
-  properties: {
-    title: buildTitleProperty(`Updated playground ${new Date().toISOString()}`),
-  },
-});
-
-await archivePage(createdPage.id);
-await restorePage(createdPage.id);
-await searchPages("Playground");
+// Add temporary playground scripts below. Restore to this stub when finished.

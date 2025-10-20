@@ -2,7 +2,7 @@
 
 exports[`renderMarkdown > renders a complex block tree to markdown 1`] = `
 "# Markdown Renderer Demo
-**Bold** and *italic* with a link[ to Notion](https://www.notion.so) and a mention: [Notion Page](https://www.notion.so/sample-page)\\.
+**Bold** and *italic* with a link[ to Notion](https://www.notion.so) and a mention: [Notion Page](https://www.notion.so/sample-page).
 - Top bullet
   - Nested bullet item
 1. Numbered item
