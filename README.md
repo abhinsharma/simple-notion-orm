@@ -48,16 +48,6 @@ const rows = await tasks.select();
 console.table(rows);
 ```
 
-Expected output (the playground and fixtures return similar data):
-
-```
-┌─────────┬────────────────────┬───────────────┬────────────────┐
-│ (index) │ title              │ status        │ assignees      │
-├─────────┼────────────────────┼───────────────┼────────────────┤
-│ 0       │ 'Ship ORM codecs'  │ 'In Progress' │ [ { id: ... } ]│
-└─────────┴────────────────────┴───────────────┴────────────────┘
-```
-
 ## Core Ideas
 
 ### Schema-first tables inspired by Drizzle
