@@ -29,6 +29,7 @@ function buildDateColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     nullable: () =>
       buildDateColumn({
@@ -37,6 +38,7 @@ function buildDateColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: true as const,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     default: (value: DateValue) =>
       buildDateColumn({
@@ -45,6 +47,7 @@ function buildDateColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: value,
+        propertyType: def.propertyType,
       }),
   };
 }
@@ -55,5 +58,6 @@ export function date(name: string): DateColumnBuilder {
     codec: dateCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "date",
   });
 }

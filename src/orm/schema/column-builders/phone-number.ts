@@ -29,6 +29,7 @@ function buildPhoneNumberColumn<TOptional extends boolean, TNullable extends boo
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     nullable: () =>
       buildPhoneNumberColumn({
@@ -37,6 +38,7 @@ function buildPhoneNumberColumn<TOptional extends boolean, TNullable extends boo
         isOptional: def.isOptional,
         isNullable: true as const,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     default: (value: string | null) =>
       buildPhoneNumberColumn({
@@ -45,6 +47,7 @@ function buildPhoneNumberColumn<TOptional extends boolean, TNullable extends boo
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: value,
+        propertyType: def.propertyType,
       }),
   };
 }
@@ -55,5 +58,6 @@ export function phoneNumber(name: string): PhoneNumberColumnBuilder {
     codec: phoneNumberCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "phone_number",
   });
 }

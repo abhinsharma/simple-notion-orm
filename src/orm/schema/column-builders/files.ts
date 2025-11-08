@@ -27,6 +27,7 @@ function buildFilesColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: cloneArray(def.defaultValue),
+        propertyType: def.propertyType,
       }),
     nullable: () =>
       buildFilesColumn({
@@ -35,6 +36,7 @@ function buildFilesColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: true as const,
         defaultValue: cloneArray(def.defaultValue),
+        propertyType: def.propertyType,
       }),
     default: (value: FileInput[]) =>
       buildFilesColumn({
@@ -43,6 +45,7 @@ function buildFilesColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: cloneArray(value),
+        propertyType: def.propertyType,
       }),
   };
 }
@@ -65,5 +68,6 @@ export function files(name: string): FilesColumnBuilder {
     codec: filesCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "files",
   });
 }

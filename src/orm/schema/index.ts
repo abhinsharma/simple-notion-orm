@@ -1,4 +1,16 @@
-export type { ColumnDef, TableDef, TableHandle, RowInput, RowOutput } from "./types";
+export type {
+  ColumnDef,
+  TableDef,
+  TableHandle,
+  RowInput,
+  RowOutput,
+  RowEnvelope,
+  RowPatch,
+  SelectOptions,
+  SelectResult,
+  TargetOptions,
+  UpdateOptions,
+} from "./types";
 export { defineTable } from "./define-table";
 export { text } from "./column-builders/text";
 export { number } from "./column-builders/number";

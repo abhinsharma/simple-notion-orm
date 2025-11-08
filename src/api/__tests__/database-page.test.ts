@@ -17,7 +17,7 @@ import dbPageUpdateFixture from "../../../tests/fixtures/db-page-update.json";
 import dbPageArchiveFixture from "../../../tests/fixtures/db-page-archive.json";
 import dbPageRestoreFixture from "../../../tests/fixtures/db-page-restore.json";
 
-const respond = (data: unknown) => HttpResponse.json(data as any) as any;
+const respond = <BodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 
 beforeEach(() => {
   server.use(

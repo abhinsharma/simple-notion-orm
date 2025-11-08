@@ -1,2 +1,2 @@
-// TODO: export ORM public surface when implementation lands.
-export {};
+export * from "./schema";
+export * from "./query";

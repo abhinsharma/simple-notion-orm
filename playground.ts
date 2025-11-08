@@ -3,65 +3,67 @@
  * playground after experiments and keep sandbox data clean.
  * Use a dedicated sandbox page/database, and reset this file after experiments.
  */
-import { defineTable, multiSelect, relation, select, status, text } from "@/orm/schema";
+import { asc, checkbox, contains, defineTable, number, text } from "@/orm";
 import "dotenv/config";
 
+const log = (message: string) => process.stdout.write(`${message}\n`);
+const logError = (message: string) => process.stderr.write(`${message}\n`);
+
 async function main() {
-  const techProjects = await defineTable(
-    "Tech projects",
+  const parentId = process.env.PLAYGROUND_PAGE_ID;
+  if (!parentId) {
+    throw new Error("Set PLAYGROUND_PAGE_ID in your .env file to run the playground.");
+  }
+
+  const table = await defineTable(
+    `Playground Todos ${new Date().toISOString()}`,
     {
-      name: text("Name").title(),
-      prdFeatures: relation("PRD features"),
-      techStories: relation("Tech stories"),
+      title: text("Title").title(),
+      description: text("Description").optional(),
+      done: checkbox("Done").default(false),
+      points: number("Points").optional(),
     },
-    { databaseId: "28a91127-9aed-80e7-b422-dba015a2e9c4" }
+    { parentId }
   );
 
-  const prdFeatures = await defineTable(
-    "PRD features",
+  log(`Created playground database: ${JSON.stringify(table.getIds())}`);
+
+  const inserted = await table.insert({
+    title: "Test task",
+    description: "Inserted via playground",
+    points: 3,
+    done: false,
+  });
+
+  log(`Inserted row for page ${inserted.page.id}`);
+
+  const selection = await table.select({
+    pageSize: 10,
+    where: contains(table.columns.title, "Test"),
+    orderBy: asc(table.columns.title),
+  });
+
+  log(`Fetched ${selection.rows.length} rows (nextCursor=${selection.nextCursor ?? "null"})`);
+
+  const updated = await table.update(
+    { done: true },
     {
-      name: text("Name").title(),
-      techStories: relation("Tech stories"),
-      projects: relation("Projects"),
-      status: select("Status"),
-    },
-    { databaseId: "28a911279aed805499abf8d95f98b029" }
+      pageIds: [inserted.page.id],
+    }
   );
 
-  const techStories = await defineTable(
-    "Tech stories",
-    {
-      name: text("Name").title(),
-      prdFeatures: relation("PRD features"),
-      techProjects: relation("Tech projects"),
-      tags: multiSelect("Tags"),
-      status: select("Status"),
-      techTodos: relation("Tech todos"),
-    },
-    { databaseId: "28a911279aed807cb87ce0ec448884e5" }
-  );
+  log(`Updated row status: ${updated.data.done ? "completed" : "pending"}`);
 
-  const techTodos = await defineTable(
-    "Tech todos",
-    {
-      name: text("Name").title(),
-      status: status("Status"),
-      techStories: relation("Tech stories"),
-      select: select("Select"),
-      definitionOfDone: text("Definition of done"),
-    },
-    { databaseId: "28a911279aed802aa1c1d8b48a5a9b77" }
-  );
+  const archived = await table.archive({ pageIds: [inserted.page.id] });
+  log(`Archived rows: ${archived}`);
 
-  const projects = await techProjects.select();
-  const features = await prdFeatures.select();
-  const stories = await techStories.select();
-  await techTodos.select();
+  const restored = await table.restore({ pageIds: [inserted.page.id] });
+  log(`Restored rows: ${restored}`);
 
-  console.log(`Tech projects: ${projects.length} records`);
-  console.log(`PRD features: ${features.length} records`);
-  console.dir(stories, { depth: null });
+  log("Playground complete. Remember to clean up the created database.");
 }
 
-main();
-
+main().catch((error) => {
+  logError(error instanceof Error ? error.stack ?? error.message : String(error));
+  process.exit(1);
+});

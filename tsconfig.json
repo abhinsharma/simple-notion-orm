@@ -20,15 +20,15 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
+      "@/orm": ["src/orm/index.ts"],
       "@/orm/*": ["src/orm/*"],
       "@/api/*": ["src/api/*"],
       "@/utils/*": ["src/utils/*"],
       "@/types/*": ["src/types/*"],
       "@/constants/*": ["src/constants/*"],
-      "@/factories/*": ["src/factories/*"],
-      "@/transform/*": ["src/transform/*"]
+      "@/factories/*": ["src/factories/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*", "vitest.config.ts", "playground.ts"],
+  "include": ["src/**/*", "tests/**/*", "vitest.config.mts", "playground.ts"],
   "exclude": ["node_modules", "dist"]
 }
