@@ -3,6 +3,7 @@
 Simple Notion ORM is a schema-first toolkit that turns Notion’s powerful—but type-heavy—API into a familiar Drizzle-style workflow. It provides builders, codecs, and helpers so you can treat both stand-alone pages and database rows (which are themselves pages) as predictable application data.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Quick Preview](#quick-preview)
 - [Core Ideas](#core-ideas)
@@ -51,16 +52,19 @@ console.table(rows);
 ## Core Ideas
 
 ### Schema-first tables inspired by Drizzle
+
 - `defineTable` pairs a human-readable title with column builders such as `text`, `number`, `status`, `relation`, and `people`.
 - Each builder configures optionality, nullability, defaults, and Notion-specific modifiers (for example, `.title()` for the primary column).
 - Behind the scenes, codecs convert from app-friendly values to Notion payloads and back, so TypeScript catches mistakes before any API calls.
 
 ### Two page abstractions
+
 - **Standalone page handles** let you orchestrate single pages (landing pages, docs, etc.) without touching database metadata.
 - **Database row handles** expose CRUD helpers on top of Notion databases; each row is still a page, but the ORM adds typed column accessors and metadata like `{ databaseId, dataSourceId }`.
 - Because both abstractions speak the same typed language, you can move data between ad-hoc pages and structured tables without re-learning the API.
 
 ### Composable codecs and factories
+
 - Codecs in `src/orm/codecs/**` describe how to parse outgoing requests and decode responses.
 - Factories under `src/factories/**` help you build Notion payloads (blocks, properties, transforms) when you need to drop down to the raw API.
 - Shared utilities (`src/transform`, `src/utils`) keep schemas, payload builders, and runtime helpers in sync.
