@@ -7,7 +7,9 @@ The ORM layer wraps our Notion API clients with a typed schema DSL, column build
 ## Table Handles At A Glance
 
 ```ts
-import { defineTable, text, status, people, relation } from "@/orm/schema";
+import { defineTable, text, status, people, relation } from "@/orm";
+import { buildParagraphBlock } from "@/factories/blocks";
+import { textToRichText } from "@/utils/richtext";
 
 const tasks = await defineTable(
   "Tasks",
@@ -27,9 +29,12 @@ await tasks.insert({
   status: { name: "In Progress" },
 });
 
-// Select returns typed rows
-const rows = await tasks.select();
-rows[0].assignees?.[0].id; // string
+// Select returns decoded rows plus helpers & pagination metadata
+const { rows } = await tasks.select();
+const firstRow = rows[0];
+firstRow?.data.assignees?.[0].id; // string
+firstRow?._raw.id; // access the raw PageObjectResponse
+await firstRow?.notionPage.append([buildParagraphBlock(textToRichText("Synced from ORM!"))]);
 ```
 
 `defineTable` returns a table handle with typed `rows`, `insert`, and `columns` metadata (future predicate support). Types flow from the column builders, so optional and nullable flags are enforced at compile time.
@@ -79,11 +84,12 @@ Table handles cache `{ databaseId, dataSourceId }` after the first sync and expo
 
 ### CRUD Surface
 
-| Method          | Signature                                         | Notes                                                                                   |
-| --------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `insert(data)`  | `Promise<RowOutput>`                              | Validates against column codecs; currently writes a single page per call.               |
-| `select()`      | `Promise<RowOutput[]>`                            | Returns decoded rows; each row field matches the builder type (`string`, `{ id }[]`, …) |
-| _(coming soon)_ | `update`, `archive`, `populate`, query predicates | Roadmap items (see `ai-docs/stories/index.md`).                                         |
+| Method                | Signature               | Notes                                                                                                |
+| --------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| `insert(data)`        | `Promise<RowEnvelope>`  | Validates against column codecs; returns decoded data plus `_raw` payloads and `notionPage` helpers. |
+| `select(options?)`    | `Promise<SelectResult>` | Returns `{ rows, nextCursor, hasMore }`; each row is a `RowEnvelope` with `_raw` and `notionPage`.   |
+| `update(patch, opts)` | `Promise<RowEnvelope>`  | Applies codec-driven updates; `{ many: true }` returns an array of envelopes.                        |
+| `archive/restore`     | `Promise<number>`       | Archives or restores rows matching the provided selectors or explicit `pageIds`.                     |
 
 All errors include column/table context. Codec validation happens before any network traffic.
 
@@ -121,3 +127,19 @@ When creating databases with relations, call `defineTable` in `databaseId` mode 
 - API wrappers (pages, databases, data sources) are documented in `docs/api/`.
 
 These guides evolve alongside the stories in `ai-docs/stories/index.md`; check the story tracking doc for the latest roadmap.
+
+### Notion Page Handle in Row Envelopes
+
+Each `RowEnvelope` returned by `table.insert`, `table.select`, or `table.update` now bundles:
+
+- `row.data` – decoded column values typed from your schema.
+- `row.page` / `row._raw` – the untouched `PageObjectResponse` from Notion.
+- `row.notionPage` – a fluent helper exposing the block + page surface (no property mutation).
+
+`NotionPage` instances live under `@/pages` and support:
+
+- `get`, `refresh`, `setIcon`, `setCover`, `archive`, `restore`, `clearContent`.
+- Block helpers `append`, `add`, `insertAfter`, `getBlocks({ recursive })`, `updateBlock`, `deleteBlock` with automatic 100-block chunking.
+- `updateTitle` finds the page's title property (useful for non-database pages); property CRUD for database rows stays in the ORM/table layer.
+
+This keeps ORM reads typed while surfacing the imperative block/page API for rich content workflows without re-querying Notion.

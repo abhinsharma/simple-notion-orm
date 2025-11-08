@@ -1,3 +1,4 @@
+import { NotionPage } from "@/pages";
 import type { TableDef, TableHandle, RowEnvelope } from "@/orm/schema/types";
 import { decodeRow } from "@/orm/schema/utils";
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
@@ -15,8 +16,12 @@ export function ensureTableIds<TDef extends TableDef>(table: TableHandle<TDef>):
 }
 
 export function buildRowEnvelope<TDef extends TableDef>(table: TableHandle<TDef>, page: PageObjectResponse): RowEnvelope<TDef> {
+  const notionPage = NotionPage.fromPage(page);
+
   return {
     data: decodeRow(table.columns, page),
     page,
+    _raw: page,
+    notionPage,
   };
 }

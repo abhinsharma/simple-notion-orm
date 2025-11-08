@@ -5,6 +5,7 @@ export type {
   RowInput,
   RowOutput,
   RowEnvelope,
+  SelectedRow,
   RowPatch,
   SelectOptions,
   SelectResult,
