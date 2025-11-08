@@ -1,3 +1,4 @@
+import type { NotionPage } from "@/pages";
 import type { NotionCodec } from "@/orm/codecs/base/codec";
 import type { TablePredicate, SortDescriptor } from "@/orm/query/types";
 import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
@@ -57,6 +58,8 @@ export type TableDef<TColumns extends Record<string, AnyColumnDef> = Record<stri
 export type RowEnvelope<TDef extends TableDef> = {
   data: RowOutput<TDef>;
   page: PageObjectResponse;
+  _raw: PageObjectResponse;
+  notionPage: NotionPage;
 };
 
 export type RelationColumnKeys<TDef extends TableDef> = {
@@ -123,3 +126,5 @@ export type RowOutput<TDef extends TableDef> = {
 };
 
 export type RowPatch<TDef extends TableDef> = Partial<RowInput<TDef>>;
+
+export type SelectedRow<TDef extends TableDef> = RowEnvelope<TDef>;

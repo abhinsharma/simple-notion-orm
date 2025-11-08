@@ -18,6 +18,7 @@ export default defineConfig({
       "@/types": path.resolve(root, "src/types"),
       "@/constants": path.resolve(root, "src/constants"),
       "@/factories": path.resolve(root, "src/factories"),
+      "@/pages": path.resolve(root, "src/pages"),
     },
   },
 });

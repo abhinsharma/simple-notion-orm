@@ -1,6 +1,7 @@
 import * as databasePageApi from "@/api/database-page";
 import { populateRelations } from "@/orm/relation/populate";
 import { text, relation, defineRelations } from "@/orm";
+import { NotionPage } from "@/pages";
 import type { AnyColumnDef, RowEnvelope, RowOutput, TableDef, TableHandle } from "@/orm/schema/types";
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -72,9 +73,13 @@ function createTaskRow<TColumns extends Record<string, AnyColumnDef>>(relationKe
     [relationKey]: relationIds.map((relId) => ({ id: relId })),
   } as unknown as RowOutput<TableDef<TColumns>>;
 
+  const page = createProjectPage(`task-${relationIds.join("-")}`, `Task ${relationIds.join("-")}`);
+
   return {
     data,
-    page: createProjectPage(`task-${relationIds.join("-")}`, `Task ${relationIds.join("-")}`),
+    page,
+    _raw: page,
+    notionPage: NotionPage.fromPage(page),
   };
 }
 
