@@ -4,14 +4,8 @@ import { buildInsertProperties } from "@/orm/schema/utils";
 import type { CreatePageParameters, PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
-export function insertRows<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  values: RowInput<TDef>
-): Promise<RowEnvelope<TDef>>;
-export function insertRows<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  values: Array<RowInput<TDef>>
-): Promise<Array<RowEnvelope<TDef>>>;
+export function insertRows<TDef extends TableDef>(table: TableHandle<TDef>, values: RowInput<TDef>): Promise<RowEnvelope<TDef>>;
+export function insertRows<TDef extends TableDef>(table: TableHandle<TDef>, values: Array<RowInput<TDef>>): Promise<Array<RowEnvelope<TDef>>>;
 export async function insertRows<TDef extends TableDef>(
   table: TableHandle<TDef>,
   values: RowInput<TDef> | Array<RowInput<TDef>>

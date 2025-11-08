@@ -3,13 +3,7 @@
  * These functions build property schema configurations for creating/updating databases
  */
 
-import type {
-  NumberFormat,
-  SelectOptionConfig,
-  RelationConfigInput,
-  RollupConfigInput,
-  RollupFunction,
-} from "@/types/properties";
+import type { NumberFormat, SelectOptionConfig, RelationConfigInput, RollupConfigInput, RollupFunction } from "@/types/properties";
 
 /**
  * Builds a title property configuration for database schema

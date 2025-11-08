@@ -1,22 +1,28 @@
-import { richTextCodec, titleCodec } from "@/orm/codecs";
+import {
+  richTextCodec,
+  titleCodec,
+  type RichTextPropertyPayload,
+  type RichTextPropertyResponse,
+  type TitlePropertyPayload,
+  type TitlePropertyResponse,
+} from "@/orm/codecs";
 import type { ColumnDef } from "../types";
 
-type TextColumnBuilder<TOptional extends boolean = false, TNullable extends boolean = false> = ColumnDef<
-  string,
-  TOptional,
-  TNullable,
-  unknown,
-  unknown
-> & {
-  optional: () => TextColumnBuilder<true, TNullable>;
-  nullable: () => TextColumnBuilder<TOptional, true>;
-  default: (value: string) => TextColumnBuilder<TOptional, TNullable>;
-  title: () => TextColumnBuilder<TOptional, TNullable>;
+type TextColumnBuilder<
+  TOptional extends boolean = false,
+  TNullable extends boolean = false,
+  TPayload = RichTextPropertyPayload,
+  TResponse = RichTextPropertyResponse,
+> = ColumnDef<string, TOptional, TNullable, TPayload, TResponse> & {
+  optional: () => TextColumnBuilder<true, TNullable, TPayload, TResponse>;
+  nullable: () => TextColumnBuilder<TOptional, true, TPayload, TResponse>;
+  default: (value: string) => TextColumnBuilder<TOptional, TNullable, TPayload, TResponse>;
+  title: () => TextColumnBuilder<TOptional, TNullable, TitlePropertyPayload, TitlePropertyResponse>;
 };
 
-function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
-  def: ColumnDef<string, TOptional, TNullable, unknown, unknown>
-): TextColumnBuilder<TOptional, TNullable> {
+function buildTextColumn<TOptional extends boolean, TNullable extends boolean, TPayload, TResponse>(
+  def: ColumnDef<string, TOptional, TNullable, TPayload, TResponse>
+): TextColumnBuilder<TOptional, TNullable, TPayload, TResponse> {
   return {
     ...def,
     optional: () =>
@@ -47,7 +53,7 @@ function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
         propertyType: def.propertyType,
       }),
     title: () =>
-      buildTextColumn({
+      buildTextColumn<TOptional, TNullable, TitlePropertyPayload, TitlePropertyResponse>({
         name: def.name,
         codec: titleCodec,
         isOptional: def.isOptional,

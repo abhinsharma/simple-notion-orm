@@ -11,7 +11,7 @@ export { type NotionCodec, createNotionCodec } from "./base/codec";
 
 // Text codecs
 export { titleCodec, type TitlePropertyPayload, type TitlePropertyResponse } from "./text/title";
-export { richTextCodec } from "./text/rich-text";
+export { richTextCodec, type RichTextPropertyPayload, type RichTextPropertyResponse } from "./text/rich-text";
 
 // Primitive codecs
 export { numberCodec } from "./primitives/number";

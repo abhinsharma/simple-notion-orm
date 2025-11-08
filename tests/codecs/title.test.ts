@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- Test file uses 'as any' for mock Notion API responses and testing invalid inputs */
 
-import {
-  titleCodec,
-  type TitlePropertyPayload,
-  type TitlePropertyResponse,
-} from "@/orm/codecs/text/title";
+import { titleCodec, type TitlePropertyPayload, type TitlePropertyResponse } from "@/orm/codecs/text/title";
 import { describe, it, expect } from "vitest";
 
 describe("titleCodec", () => {

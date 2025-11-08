@@ -10,52 +10,31 @@ import type {
   SortDirection,
 } from "./types";
 
-export function eq<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function eq<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "eq", value);
 }
 
-export function neq<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function neq<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "neq", value);
 }
 
-export function contains<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function contains<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "contains", value);
 }
 
-export function gt<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function gt<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "gt", value);
 }
 
-export function gte<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function gte<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "gte", value);
 }
 
-export function lt<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function lt<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "lt", value);
 }
 
-export function lte<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  value: ColumnFilterValue<TColumn>
-): ComparisonPredicate<TColumn> {
+export function lte<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "lte", value);
 }
 
@@ -112,10 +91,7 @@ function makeComparisonPredicate<TColumn extends AnyColumnDef>(
   };
 }
 
-function makeSortDescriptor<TColumn extends AnyColumnDef>(
-  column: TColumn,
-  direction: SortDirection
-): SortDescriptor<TColumn> {
+function makeSortDescriptor<TColumn extends AnyColumnDef>(column: TColumn, direction: SortDirection): SortDescriptor<TColumn> {
   return {
     column,
     direction,

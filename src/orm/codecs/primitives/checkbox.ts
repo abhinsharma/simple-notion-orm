@@ -13,19 +13,15 @@ export type CheckboxPropertyResponse = {
 };
 
 export const checkboxCodec = createNotionCodec<boolean, CheckboxPropertyPayload, CheckboxPropertyResponse>(
-  z.codec(
-    z.boolean(),
-    z.custom<CheckboxPropertyPayload>(),
-    {
-      decode: (value: boolean): CheckboxPropertyPayload => {
-        const { type: _type, ...payload } = buildCheckboxProperty(value);
-        return payload;
-      },
-      encode: (property: CheckboxPropertyResponse): boolean => {
-        return property.checkbox;
-      },
-    }
-  ),
+  z.codec(z.boolean(), z.custom<CheckboxPropertyPayload>(), {
+    decode: (value: boolean): CheckboxPropertyPayload => {
+      const { type: _type, ...payload } = buildCheckboxProperty(value);
+      return payload;
+    },
+    encode: (property: CheckboxPropertyResponse): boolean => {
+      return property.checkbox;
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

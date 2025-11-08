@@ -18,23 +18,19 @@ export type SelectPropertyResponse = {
 };
 
 export const selectCodec = createNotionCodec<SelectOptionInput | null, SelectPropertyPayload, SelectPropertyResponse>(
-  z.codec(
-    z.custom<SelectOptionInput>().nullable(),
-    z.custom<SelectPropertyPayload>(),
-    {
-      decode: (value: SelectOptionInput | null): SelectPropertyPayload => {
-        const { type: _type, ...payload } = buildSelectProperty(value);
-        return payload;
-      },
-      encode: (property: SelectPropertyResponse): SelectOptionInput | null => {
-        if (!property.select) {
-          return null;
-        }
+  z.codec(z.custom<SelectOptionInput>().nullable(), z.custom<SelectPropertyPayload>(), {
+    decode: (value: SelectOptionInput | null): SelectPropertyPayload => {
+      const { type: _type, ...payload } = buildSelectProperty(value);
+      return payload;
+    },
+    encode: (property: SelectPropertyResponse): SelectOptionInput | null => {
+      if (!property.select) {
+        return null;
+      }
 
-        return property.select as SelectOptionInput;
-      },
-    }
-  ),
+      return property.select as SelectOptionInput;
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

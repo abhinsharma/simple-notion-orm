@@ -18,13 +18,7 @@ type PeopleColumnBuilder<TOptional extends boolean = false, TNullable extends bo
 };
 
 function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>(
-  def: ColumnDef<
-    PeopleValue,
-    TOptional,
-    TNullable,
-    PeoplePropertyPayload,
-    PeoplePropertyResponse
-  >
+  def: ColumnDef<PeopleValue, TOptional, TNullable, PeoplePropertyPayload, PeoplePropertyResponse>
 ): PeopleColumnBuilder<TOptional, TNullable> {
   return {
     ...def,

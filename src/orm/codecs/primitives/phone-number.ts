@@ -12,24 +12,16 @@ export type PhoneNumberPropertyResponse = {
   phone_number: string | null;
 };
 
-export const phoneNumberCodec = createNotionCodec<
-  string | null,
-  PhoneNumberPropertyPayload,
-  PhoneNumberPropertyResponse
->(
-  z.codec(
-    z.string().trim().min(1).nullable(),
-    z.custom<PhoneNumberPropertyPayload>(),
-    {
-      decode: (value: string | null): PhoneNumberPropertyPayload => {
-        const { type: _type, ...payload } = buildPhoneNumberProperty(value);
-        return payload;
-      },
-      encode: (property: PhoneNumberPropertyResponse): string | null => {
-        return property.phone_number;
-      },
-    }
-  ),
+export const phoneNumberCodec = createNotionCodec<string | null, PhoneNumberPropertyPayload, PhoneNumberPropertyResponse>(
+  z.codec(z.string().trim().min(1).nullable(), z.custom<PhoneNumberPropertyPayload>(), {
+    decode: (value: string | null): PhoneNumberPropertyPayload => {
+      const { type: _type, ...payload } = buildPhoneNumberProperty(value);
+      return payload;
+    },
+    encode: (property: PhoneNumberPropertyResponse): string | null => {
+      return property.phone_number;
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

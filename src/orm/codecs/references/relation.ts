@@ -16,11 +16,7 @@ export type RelationPropertyResponse = {
 
 type RelationReference = { id: string };
 
-export const relationCodec = createNotionCodec<
-  RelationReference[],
-  RelationPropertyPayload,
-  RelationPropertyResponse
->(
+export const relationCodec = createNotionCodec<RelationReference[], RelationPropertyPayload, RelationPropertyResponse>(
   z.codec(
     z.array(
       z.object({

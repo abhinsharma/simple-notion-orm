@@ -38,19 +38,15 @@ function extractTextFromRichText(richTextArray: RichTextPropertyResponse["rich_t
 }
 
 export const richTextCodec = createNotionCodec<string, RichTextPropertyPayload, RichTextPropertyResponse>(
-  z.codec(
-    z.string(),
-    z.custom<RichTextPropertyPayload>(),
-    {
-      decode: (value: string): RichTextPropertyPayload => {
-        const { type: _type, ...payload } = buildRichTextProperty(value.trim());
-        return payload;
-      },
-      encode: (property: RichTextPropertyResponse): string => {
-        return extractTextFromRichText(property.rich_text);
-      },
-    }
-  ),
+  z.codec(z.string(), z.custom<RichTextPropertyPayload>(), {
+    decode: (value: string): RichTextPropertyPayload => {
+      const { type: _type, ...payload } = buildRichTextProperty(value.trim());
+      return payload;
+    },
+    encode: (property: RichTextPropertyResponse): string => {
+      return extractTextFromRichText(property.rich_text);
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

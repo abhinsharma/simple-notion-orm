@@ -17,24 +17,16 @@ export type MultiSelectPropertyResponse = {
   }>;
 };
 
-export const multiSelectCodec = createNotionCodec<
-  SelectOptionInput[],
-  MultiSelectPropertyPayload,
-  MultiSelectPropertyResponse
->(
-  z.codec(
-    z.array(z.custom<SelectOptionInput>()),
-    z.custom<MultiSelectPropertyPayload>(),
-    {
-      decode: (value: SelectOptionInput[]): MultiSelectPropertyPayload => {
-        const { type: _type, ...payload } = buildMultiSelectProperty(value);
-        return payload;
-      },
-      encode: (property: MultiSelectPropertyResponse): SelectOptionInput[] => {
-        return property.multi_select as SelectOptionInput[];
-      },
-    }
-  ),
+export const multiSelectCodec = createNotionCodec<SelectOptionInput[], MultiSelectPropertyPayload, MultiSelectPropertyResponse>(
+  z.codec(z.array(z.custom<SelectOptionInput>()), z.custom<MultiSelectPropertyPayload>(), {
+    decode: (value: SelectOptionInput[]): MultiSelectPropertyPayload => {
+      const { type: _type, ...payload } = buildMultiSelectProperty(value);
+      return payload;
+    },
+    encode: (property: MultiSelectPropertyResponse): SelectOptionInput[] => {
+      return property.multi_select as SelectOptionInput[];
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

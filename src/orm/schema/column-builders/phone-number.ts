@@ -1,8 +1,5 @@
 import { phoneNumberCodec } from "@/orm/codecs";
-import type {
-  PhoneNumberPropertyPayload,
-  PhoneNumberPropertyResponse,
-} from "@/orm/codecs/primitives/phone-number";
+import type { PhoneNumberPropertyPayload, PhoneNumberPropertyResponse } from "@/orm/codecs/primitives/phone-number";
 import type { ColumnDef } from "../types";
 
 type PhoneNumberColumnBuilder<TOptional extends boolean = false, TNullable extends boolean = false> = ColumnDef<

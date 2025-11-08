@@ -13,7 +13,7 @@ export type DatePropertyInput = {
   start: string;
   end?: string | null;
   time_zone?: string | null;
-}
+};
 
 /**
  * Select option input (by ID or name)
@@ -25,38 +25,26 @@ export type SelectOptionInput =
 /**
  * File input for buildFilesProperty
  */
-export type FileInput =
-  | { type: 'external'; url: string; name?: string }
-  | { type: 'file'; url: string; name?: string };
+export type FileInput = { type: "external"; url: string; name?: string } | { type: "file"; url: string; name?: string };
 
 /**
  * User reference input
  */
 export type UserInput = {
   id: string;
-}
+};
 
 /**
  * Group reference input
  */
 export type GroupInput = {
   id: string;
-}
+};
 
 /**
  * Select color options
  */
-export type SelectColor =
-  | "default"
-  | "gray"
-  | "brown"
-  | "orange"
-  | "yellow"
-  | "green"
-  | "blue"
-  | "purple"
-  | "pink"
-  | "red";
+export type SelectColor = "default" | "gray" | "brown" | "orange" | "yellow" | "green" | "blue" | "purple" | "pink" | "red";
 
 /**
  * Number format options for database number properties
@@ -139,7 +127,7 @@ export type SelectOptionConfig = {
   name: string;
   color?: SelectColor;
   description?: string | null;
-}
+};
 
 /**
  * Relation type for database configuration
@@ -154,7 +142,7 @@ export type RelationConfigInput = {
   type?: RelationType;
   synced_property_id?: string;
   synced_property_name?: string;
-}
+};
 
 /**
  * Rollup configuration input
@@ -165,4 +153,4 @@ export type RollupConfigInput = {
   rollup_property_name?: string;
   rollup_property_id?: string;
   function: RollupFunction;
-}
+};

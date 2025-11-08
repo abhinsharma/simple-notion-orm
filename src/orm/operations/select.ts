@@ -17,16 +17,11 @@ function sanitizePageSize(size?: number): number | undefined {
   return Math.min(size, MAX_PAGE_SIZE);
 }
 
-function isPageObject(
-  result: QueryDataSourceResponse["results"][number]
-): result is PageObjectResponse {
+function isPageObject(result: QueryDataSourceResponse["results"][number]): result is PageObjectResponse {
   return result.object === "page" && "properties" in result;
 }
 
-export async function selectRows<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  options?: SelectOptions<TDef>
-): Promise<SelectResult<TDef>> {
+export async function selectRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: SelectOptions<TDef>): Promise<SelectResult<TDef>> {
   const ids = ensureTableIds(table);
   const pageSize = sanitizePageSize(options?.pageSize ?? DEFAULT_PAGE_SIZE);
   const queryOptions = compileQueryOptions(options);

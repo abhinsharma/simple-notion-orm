@@ -1,5 +1,5 @@
 module.exports = {
   rules: {
-    'eslint-comments/require-description': 'error',
+    "eslint-comments/require-description": "error",
   },
 };

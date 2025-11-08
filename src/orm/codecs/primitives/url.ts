@@ -13,19 +13,15 @@ export type UrlPropertyResponse = {
 };
 
 export const urlCodec = createNotionCodec<string | null, UrlPropertyPayload, UrlPropertyResponse>(
-  z.codec(
-    z.string().nullable(),
-    z.custom<UrlPropertyPayload>(),
-    {
-      decode: (value: string | null): UrlPropertyPayload => {
-        const { type: _type, ...payload } = buildUrlProperty(value);
-        return payload;
-      },
-      encode: (property: UrlPropertyResponse): string | null => {
-        return property.url;
-      },
-    }
-  ),
+  z.codec(z.string().nullable(), z.custom<UrlPropertyPayload>(), {
+    decode: (value: string | null): UrlPropertyPayload => {
+      const { type: _type, ...payload } = buildUrlProperty(value);
+      return payload;
+    },
+    encode: (property: UrlPropertyResponse): string | null => {
+      return property.url;
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

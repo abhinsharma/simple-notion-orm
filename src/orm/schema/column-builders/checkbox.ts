@@ -2,13 +2,7 @@ import { checkboxCodec } from "@/orm/codecs";
 import type { CheckboxPropertyPayload, CheckboxPropertyResponse } from "@/orm/codecs/primitives/checkbox";
 import type { ColumnDef } from "../types";
 
-type CheckboxColumnBuilder<TOptional extends boolean = false> = ColumnDef<
-  boolean,
-  TOptional,
-  false,
-  CheckboxPropertyPayload,
-  CheckboxPropertyResponse
-> & {
+type CheckboxColumnBuilder<TOptional extends boolean = false> = ColumnDef<boolean, TOptional, false, CheckboxPropertyPayload, CheckboxPropertyResponse> & {
   optional: () => CheckboxColumnBuilder<true>;
   default: (value: boolean) => CheckboxColumnBuilder<TOptional>;
 };
