@@ -1,12 +1,10 @@
 import { createDatabase, getDatabase } from "@/api/database";
-import type {
-  CreateDatabaseParameters,
-} from "@notionhq/client/build/src/api-endpoints";
-import type { AnyColumnDef, RowInput, TableHandle, TableDef } from "./types";
+import { archiveRows, restoreRows } from "@/orm/operations/archive";
 import { insertRows } from "@/orm/operations/insert";
 import { selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
-import { archiveRows, restoreRows } from "@/orm/operations/archive";
+import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { AnyColumnDef, RowInput, TableHandle, TableDef } from "./types";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
@@ -131,10 +129,10 @@ export async function defineTable<
       }
       return insertRows(handle, data);
     }) as TableHandle<TableDefType<TColumns>>["insert"],
-    select: (options) => selectRows(handle, options),
-    update: ((patch, options) => updateRows(handle, patch, options)) as TableHandle<TableDefType<TColumns>>["update"],
-    archive: (options) => archiveRows(handle, options),
-    restore: (options) => restoreRows(handle, options),
+    select: (selectOptions) => selectRows(handle, selectOptions),
+    update: ((patch, updateOptions) => updateRows(handle, patch, updateOptions)) as TableHandle<TableDefType<TColumns>>["update"],
+    archive: (targetOptions) => archiveRows(handle, targetOptions),
+    restore: (targetOptions) => restoreRows(handle, targetOptions),
   };
 
   return handle;

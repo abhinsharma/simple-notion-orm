@@ -1,7 +1,7 @@
 import { createDatabasePage } from "@/api/database-page";
-import type { CreatePageParameters, PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import type { TableDef, TableHandle, RowInput, RowEnvelope } from "@/orm/schema/types";
 import { buildInsertProperties } from "@/orm/schema/utils";
+import type { CreatePageParameters, PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
 export function insertRows<TDef extends TableDef>(

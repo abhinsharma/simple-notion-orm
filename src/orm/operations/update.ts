@@ -1,7 +1,7 @@
 import { updateDatabasePage } from "@/api/database-page";
-import type { PageObjectResponse, UpdatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import type { TableDef, TableHandle, RowPatch, RowEnvelope, UpdateOptions } from "@/orm/schema/types";
 import { buildUpdateProperties } from "@/orm/schema/utils";
+import type { PageObjectResponse, UpdatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 import { selectRows } from "./select";
 

@@ -49,8 +49,8 @@ export type TablePredicate<TDef extends TableDef> = Predicate<TDef["columns"][ke
 
 export type SortDirection = "asc" | "desc";
 
-export type SortDescriptor<TDef extends TableDef> = {
-  column: TDef["columns"][keyof TDef["columns"]];
+export type SortDescriptor<TColumn extends AnyColumnDef = AnyColumnDef> = {
+  column: TColumn;
   direction: SortDirection;
 };
 

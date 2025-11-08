@@ -6,11 +6,13 @@
 import { asc, checkbox, contains, defineTable, number, text } from "@/orm";
 import "dotenv/config";
 
+const log = (message: string) => process.stdout.write(`${message}\n`);
+const logError = (message: string) => process.stderr.write(`${message}\n`);
+
 async function main() {
   const parentId = process.env.PLAYGROUND_PAGE_ID;
   if (!parentId) {
-    console.error("Set PLAYGROUND_PAGE_ID in your .env file to run the playground.");
-    return;
+    throw new Error("Set PLAYGROUND_PAGE_ID in your .env file to run the playground.");
   }
 
   const table = await defineTable(
@@ -24,7 +26,7 @@ async function main() {
     { parentId }
   );
 
-  console.log("Created playground database:", table.getIds());
+  log(`Created playground database: ${JSON.stringify(table.getIds())}`);
 
   const inserted = await table.insert({
     title: "Test task",
@@ -33,7 +35,7 @@ async function main() {
     done: false,
   });
 
-  console.log("Inserted row:", inserted.data, "page", inserted.page.id);
+  log(`Inserted row for page ${inserted.page.id}`);
 
   const selection = await table.select({
     pageSize: 10,
@@ -41,7 +43,7 @@ async function main() {
     orderBy: asc(table.columns.title),
   });
 
-  console.log(`Fetched ${selection.rows.length} rows (nextCursor=${selection.nextCursor})`);
+  log(`Fetched ${selection.rows.length} rows (nextCursor=${selection.nextCursor ?? "null"})`);
 
   const updated = await table.update(
     { done: true },
@@ -50,18 +52,18 @@ async function main() {
     }
   );
 
-  console.log("Updated row:", updated.data.done ? "completed" : "pending");
+  log(`Updated row status: ${updated.data.done ? "completed" : "pending"}`);
 
   const archived = await table.archive({ pageIds: [inserted.page.id] });
-  console.log(`Archived rows: ${archived}`);
+  log(`Archived rows: ${archived}`);
 
   const restored = await table.restore({ pageIds: [inserted.page.id] });
-  console.log(`Restored rows: ${restored}`);
+  log(`Restored rows: ${restored}`);
 
-  console.log("Playground complete. Remember to clean up the created database.");
+  log("Playground complete. Remember to clean up the created database.");
 }
 
 main().catch((error) => {
-  console.error(error);
+  logError(error instanceof Error ? error.stack ?? error.message : String(error));
   process.exit(1);
 });

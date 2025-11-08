@@ -1,10 +1,7 @@
 import { queryDataSource } from "@/api/database";
-import type {
-  PageObjectResponse,
-  QueryDataSourceResponse,
-} from "@notionhq/client/build/src/api-endpoints";
 import { compileQueryOptions } from "@/orm/query/compiler";
 import type { TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
+import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
 const DEFAULT_PAGE_SIZE = 25;

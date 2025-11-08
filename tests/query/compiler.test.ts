@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
 import { compileQueryOptions } from "@/orm/query/compiler";
 import { eq, contains, gt, and, isNull } from "@/orm/query/predicates";
 import { text, number, select } from "@/orm";
 import type { TableDef } from "@/orm/schema/types";
+import { describe, it, expect } from "vitest";
 
 const columns = {
   title: text("Title").title(),
@@ -60,7 +60,7 @@ describe("compileQueryOptions", () => {
   });
 
   it("throws when using unsupported operator for a column type", () => {
-    expect(() => compileQueryOptions<TestTableDef>({ where: gt(columns.title, 10) as any })).toThrow(
+    expect(() => compileQueryOptions<TestTableDef>({ where: gt(columns.title, "10") })).toThrow(
       /Operator 'gt' is not supported/
     );
   });

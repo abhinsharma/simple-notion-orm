@@ -1,6 +1,6 @@
-import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 import type { NotionCodec } from "@/orm/codecs/base/codec";
 import type { TablePredicate, SortDescriptor } from "@/orm/query/types";
+import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 
 export type ColumnPropertyType =
   | "title"
@@ -34,17 +34,35 @@ export type ColumnDef<
   propertyType: ColumnPropertyType;
 };
 
-export type AnyColumnDef = ColumnDef<any, boolean, boolean, any, any>;
+export type AnyColumnDef = ColumnDef<unknown, boolean, boolean, unknown, unknown>;
 
-export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, any, any, any, any>
+export type ColumnValue<TColumn> = TColumn extends ColumnDef<
+  infer TValue,
+  infer _Optional,
+  infer _Nullable,
+  infer _Payload,
+  infer _Response
+>
   ? TValue
   : never;
 
-export type ColumnOptional<TColumn> = TColumn extends ColumnDef<any, infer TOptional, any, any, any>
+export type ColumnOptional<TColumn> = TColumn extends ColumnDef<
+  unknown,
+  infer TOptional,
+  infer _Nullable,
+  unknown,
+  unknown
+>
   ? TOptional
   : never;
 
-export type ColumnNullable<TColumn> = TColumn extends ColumnDef<any, any, infer TNullable, any, any>
+export type ColumnNullable<TColumn> = TColumn extends ColumnDef<
+  unknown,
+  infer _Optional,
+  infer TNullable,
+  unknown,
+  unknown
+>
   ? TNullable
   : never;
 
@@ -72,7 +90,9 @@ export type RowEnvelope<TDef extends TableDef> = {
 
 export type SelectOptions<TDef extends TableDef = TableDef> = {
   where?: TablePredicate<TDef>;
-  orderBy?: SortDescriptor<TDef> | Array<SortDescriptor<TDef>>;
+  orderBy?:
+    | SortDescriptor<TDef["columns"][keyof TDef["columns"]]>
+    | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
   rawFilter?: QueryDataSourceParameters["filter"];
   rawSorts?: QueryDataSourceParameters["sorts"];
   pageSize?: number;

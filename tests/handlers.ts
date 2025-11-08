@@ -17,7 +17,7 @@ import databaseQueryFixture from './fixtures/database-query.json';
 import databaseSearchFixture from './fixtures/database-search.json';
 import dbPageCreateFixture from './fixtures/db-page-create.json';
 
-const respond = (data: unknown) => HttpResponse.json(data as any) as any;
+const respond = <BodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 
 export const handlers = [
   http.get<never, undefined, { ok: boolean }>('https://api.notion.com/v1/ping', () =>

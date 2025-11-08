@@ -1,5 +1,5 @@
-import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 import type { TableDef, AnyColumnDef } from "@/orm/schema/types";
+import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 import type {
   Predicate,
   ComparisonPredicate,
@@ -42,7 +42,9 @@ const OPERATOR_SUPPORT: Record<string, Array<string>> = {
 
 export type CompileOptions<TDef extends TableDef> = {
   where?: TablePredicate<TDef>;
-  orderBy?: SortDescriptor<TDef> | Array<SortDescriptor<TDef>>;
+  orderBy?:
+    | SortDescriptor<TDef["columns"][keyof TDef["columns"]]>
+    | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
   rawFilter?: QueryDataSourceParameters["filter"];
   rawSorts?: QueryDataSourceParameters["sorts"];
 };
@@ -55,7 +57,7 @@ export function compileQueryOptions<TDef extends TableDef>(
   }
 
   const filter = options.rawFilter ?? (options.where ? compilePredicate(options.where) : undefined);
-  const sorts = options.rawSorts ?? compileSorts(options.orderBy);
+  const sorts = options.rawSorts ?? compileSorts<TDef>(options.orderBy);
 
   return {
     ...(filter ? { filter } : {}),
@@ -106,8 +108,10 @@ function compileCompound(predicate: CompoundPredicate): NotionFilter {
   } as NotionFilter;
 }
 
-function compileSorts(
-  descriptors?: SortDescriptor<any> | Array<SortDescriptor<any>>
+function compileSorts<TDef extends TableDef>(
+  descriptors?:
+    | SortDescriptor<TDef["columns"][keyof TDef["columns"]]>
+    | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>
 ): QueryDataSourceParameters["sorts"] {
   if (!descriptors) {
     return undefined;

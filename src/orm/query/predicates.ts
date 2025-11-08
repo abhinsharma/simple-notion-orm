@@ -91,11 +91,11 @@ export function or(...predicates: Predicate[]): CompoundPredicate {
   };
 }
 
-export function asc<TColumn extends AnyColumnDef>(column: TColumn): SortDescriptor<any> {
+export function asc<TColumn extends AnyColumnDef>(column: TColumn): SortDescriptor<TColumn> {
   return makeSortDescriptor(column, "asc");
 }
 
-export function desc<TColumn extends AnyColumnDef>(column: TColumn): SortDescriptor<any> {
+export function desc<TColumn extends AnyColumnDef>(column: TColumn): SortDescriptor<TColumn> {
   return makeSortDescriptor(column, "desc");
 }
 
@@ -115,7 +115,7 @@ function makeComparisonPredicate<TColumn extends AnyColumnDef>(
 function makeSortDescriptor<TColumn extends AnyColumnDef>(
   column: TColumn,
   direction: SortDirection
-): SortDescriptor<any> {
+): SortDescriptor<TColumn> {
   return {
     column,
     direction,
