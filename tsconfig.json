@@ -29,6 +29,6 @@
       "@/factories/*": ["src/factories/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*", "vitest.config.ts", "playground.ts"],
+  "include": ["src/**/*", "tests/**/*", "vitest.config.mts", "playground.ts"],
   "exclude": ["node_modules", "dist"]
 }
