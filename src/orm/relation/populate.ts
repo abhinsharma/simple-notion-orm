@@ -1,12 +1,6 @@
 import { getDatabasePage } from "@/api/database-page";
 import { buildRowEnvelope } from "@/orm/operations/helpers";
-import type {
-  PopulateInstruction,
-  RelationPopulateMap,
-  TableDef,
-  TableHandle,
-  RowEnvelope,
-} from "@/orm/schema/types";
+import type { PopulateInstruction, RelationPopulateMap, TableDef, TableHandle, RowEnvelope } from "@/orm/schema/types";
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { getRelationTarget } from "./registry";
 
@@ -72,10 +66,7 @@ export async function populateRelations<TDef extends TableDef>(
   });
 }
 
-function normalizePopulateEntries<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  populate: RelationPopulateMap<TDef>
-): NormalizedPopulateEntry[] {
+function normalizePopulateEntries<TDef extends TableDef>(table: TableHandle<TDef>, populate: RelationPopulateMap<TDef>): NormalizedPopulateEntry[] {
   const entries: NormalizedPopulateEntry[] = [];
 
   for (const [columnKey, instruction] of Object.entries(populate)) {
@@ -98,10 +89,7 @@ function normalizePopulateEntries<TDef extends TableDef>(
   return entries;
 }
 
-async function fetchRelatedPages(
-  entries: NormalizedPopulateEntry[],
-  rows: Array<RowEnvelope<TableDef>>
-): Promise<Map<string, RowEnvelope<TableDef>>> {
+async function fetchRelatedPages(entries: NormalizedPopulateEntry[], rows: Array<RowEnvelope<TableDef>>): Promise<Map<string, RowEnvelope<TableDef>>> {
   const plan = new Map<TableHandle<TableDef>, Set<string>>();
 
   for (const entry of entries) {

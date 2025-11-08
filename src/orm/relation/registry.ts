@@ -1,9 +1,4 @@
-import type {
-  RelationColumnKeys,
-  RelationMap,
-  TableDef,
-  TableHandle,
-} from "@/orm/schema/types";
+import type { RelationColumnKeys, RelationMap, TableDef, TableHandle } from "@/orm/schema/types";
 
 type RelationConfig = {
   columnKey: string;
@@ -21,10 +16,7 @@ function getOrCreateMap(table: TableHandle<TableDef>): Map<string, RelationConfi
   return map;
 }
 
-export function defineRelations<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  relations: RelationMap<TDef>
-): TableHandle<TDef> {
+export function defineRelations<TDef extends TableDef>(table: TableHandle<TDef>, relations: RelationMap<TDef>): TableHandle<TDef> {
   const map = getOrCreateMap(table as TableHandle<TableDef>);
 
   for (const [columnKey, target] of Object.entries(relations)) {
@@ -40,10 +32,10 @@ export function defineRelations<TDef extends TableDef>(
   return table;
 }
 
-export function getRelationTarget<
-  TDef extends TableDef,
-  TKey extends RelationColumnKeys<TDef> & string
->(table: TableHandle<TDef>, columnKey: TKey): TableHandle<TableDef> | undefined {
+export function getRelationTarget<TDef extends TableDef, TKey extends RelationColumnKeys<TDef> & string>(
+  table: TableHandle<TDef>,
+  columnKey: TKey
+): TableHandle<TableDef> | undefined {
   const map = registry.get(table as TableHandle<TableDef>);
   return map?.get(columnKey)?.target;
 }

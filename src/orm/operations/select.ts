@@ -37,7 +37,7 @@ export async function selectRows<TDef extends TableDef>(table: TableHandle<TDef>
   let rows = response.results.filter(isPageObject).map((page) => buildRowEnvelope(table, page));
 
   if (options?.populate) {
-    rows = (await populateRelations(table, rows, options.populate)) as Array<typeof rows[number]>;
+    rows = (await populateRelations(table, rows, options.populate)) as Array<(typeof rows)[number]>;
   }
 
   return {

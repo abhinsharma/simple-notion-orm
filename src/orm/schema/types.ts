@@ -19,13 +19,7 @@ export type ColumnPropertyType =
   | "relation"
   | "unique_id";
 
-export type ColumnDef<
-  TValue,
-  TOptional extends boolean,
-  TNullable extends boolean,
-  TPropertyPayload = unknown,
-  TPropertyResponse = unknown,
-> = {
+export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boolean, TPropertyPayload = unknown, TPropertyResponse = unknown> = {
   name: string;
   codec: NotionCodec<TValue, TPropertyPayload, TPropertyResponse>;
   isOptional: TOptional;
@@ -41,17 +35,11 @@ export type AnyColumnDef = Omit<BaseAnyColumnDef, "codec"> & {
   codec: NotionCodec<any, any, any>;
 };
 
-export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, infer _Optional, infer _Nullable, infer _Payload, infer _Response>
-  ? TValue
-  : never;
+export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, infer _Optional, infer _Nullable, infer _Payload, infer _Response> ? TValue : never;
 
-export type ColumnOptional<TColumn> = TColumn extends ColumnDef<unknown, infer TOptional, infer _Nullable, unknown, unknown>
-  ? TOptional
-  : never;
+export type ColumnOptional<TColumn> = TColumn extends ColumnDef<unknown, infer TOptional, infer _Nullable, unknown, unknown> ? TOptional : never;
 
-export type ColumnNullable<TColumn> = TColumn extends ColumnDef<unknown, infer _Optional, infer TNullable, unknown, unknown>
-  ? TNullable
-  : never;
+export type ColumnNullable<TColumn> = TColumn extends ColumnDef<unknown, infer _Optional, infer TNullable, unknown, unknown> ? TNullable : never;
 
 type ColumnInputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> : Exclude<ColumnValue<TColumn>, null>;
 

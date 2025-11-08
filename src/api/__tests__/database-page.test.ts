@@ -3,14 +3,7 @@ import type { GetPageResponse, CreatePageResponse, UpdatePageResponse } from "@n
 import { describe, it, expect, beforeEach } from "vitest";
 import { http, HttpResponse, type JsonBodyType } from "msw";
 import { server } from "../../../tests/setup-msw";
-import {
-  getDatabasePage,
-  createDatabasePage,
-  updateDatabasePage,
-  archiveDatabasePage,
-  restoreDatabasePage,
-  clearDatabasePageContent,
-} from "../database-page";
+import { getDatabasePage, createDatabasePage, updateDatabasePage, archiveDatabasePage, restoreDatabasePage, clearDatabasePageContent } from "../database-page";
 import dbPageGetFixture from "../../../tests/fixtures/db-page-get.json";
 import dbPageCreateFixture from "../../../tests/fixtures/db-page-create.json";
 import dbPageUpdateFixture from "../../../tests/fixtures/db-page-update.json";
@@ -21,26 +14,21 @@ const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.
 
 beforeEach(() => {
   server.use(
-    http.get<{ pageId: string }, undefined, typeof dbPageGetFixture>("https://api.notion.com/v1/pages/:pageId", () =>
-      respond(dbPageGetFixture)
-    ),
-    http.post<never, Record<string, unknown>, typeof dbPageCreateFixture>("https://api.notion.com/v1/pages", () =>
-      respond(dbPageCreateFixture)
-    ),
-    http.patch<
-      { pageId: string },
-      Record<string, unknown>,
-      typeof dbPageUpdateFixture | typeof dbPageArchiveFixture | typeof dbPageRestoreFixture
-    >("https://api.notion.com/v1/pages/:pageId", async ({ request }) => {
-      const body = (await request.json()) as { archived?: boolean };
-      if (body.archived === true) {
-        return respond(dbPageArchiveFixture);
+    http.get<{ pageId: string }, undefined, typeof dbPageGetFixture>("https://api.notion.com/v1/pages/:pageId", () => respond(dbPageGetFixture)),
+    http.post<never, Record<string, unknown>, typeof dbPageCreateFixture>("https://api.notion.com/v1/pages", () => respond(dbPageCreateFixture)),
+    http.patch<{ pageId: string }, Record<string, unknown>, typeof dbPageUpdateFixture | typeof dbPageArchiveFixture | typeof dbPageRestoreFixture>(
+      "https://api.notion.com/v1/pages/:pageId",
+      async ({ request }) => {
+        const body = (await request.json()) as { archived?: boolean };
+        if (body.archived === true) {
+          return respond(dbPageArchiveFixture);
+        }
+        if (body.archived === false) {
+          return respond(dbPageRestoreFixture);
+        }
+        return respond(dbPageUpdateFixture);
       }
-      if (body.archived === false) {
-        return respond(dbPageRestoreFixture);
-      }
-      return respond(dbPageUpdateFixture);
-    })
+    )
   );
 });
 
