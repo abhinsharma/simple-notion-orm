@@ -59,6 +59,14 @@ export type RowEnvelope<TDef extends TableDef> = {
   page: PageObjectResponse;
 };
 
+export type RelationColumnKeys<TDef extends TableDef> = {
+  [K in keyof TDef["columns"]]: TDef["columns"][K]["propertyType"] extends "relation" ? K : never;
+}[keyof TDef["columns"]];
+
+export type PopulateInstruction = true | "*" | readonly string[];
+
+export type RelationPopulateMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, PopulateInstruction>>;
+
 export type SelectOptions<TDef extends TableDef = TableDef> = {
   where?: TablePredicate<TDef>;
   orderBy?: SortDescriptor<TDef["columns"][keyof TDef["columns"]]> | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
@@ -66,6 +74,7 @@ export type SelectOptions<TDef extends TableDef = TableDef> = {
   rawSorts?: QueryDataSourceParameters["sorts"];
   pageSize?: number;
   startCursor?: string;
+  populate?: RelationPopulateMap<TDef>;
 };
 
 export type SelectResult<TDef extends TableDef> = {
@@ -100,6 +109,8 @@ export type TableHandle<TDef extends TableDef> = {
   archive: (options?: TargetOptions<TDef>) => Promise<number>;
   restore: (options?: TargetOptions<TDef>) => Promise<number>;
 };
+
+export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
 
 export type RowInput<TDef extends TableDef> = {
   [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends true ? K : never]?: ColumnInputValue<TDef["columns"][K]>;

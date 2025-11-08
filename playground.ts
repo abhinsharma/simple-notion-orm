@@ -3,7 +3,6 @@
  * playground after experiments and keep sandbox data clean.
  * Use a dedicated sandbox page/database, and reset this file after experiments.
  */
-import { asc, checkbox, contains, defineTable, number, text } from "@/orm";
 import "dotenv/config";
 
 const log = (message: string) => process.stdout.write(`${message}\n`);
@@ -11,59 +10,16 @@ const logError = (message: string) => process.stderr.write(`${message}\n`);
 
 async function main() {
   const parentId = process.env.PLAYGROUND_PAGE_ID;
+
   if (!parentId) {
-    throw new Error("Set PLAYGROUND_PAGE_ID in your .env file to run the playground.");
+    logError("Set PLAYGROUND_PAGE_ID in your .env file to run playground flows.");
+    return;
   }
 
-  const table = await defineTable(
-    `Playground Todos ${new Date().toISOString()}`,
-    {
-      title: text("Title").title(),
-      description: text("Description").optional(),
-      done: checkbox("Done").default(false),
-      points: number("Points").optional(),
-    },
-    { parentId }
-  );
-
-  log(`Created playground database: ${JSON.stringify(table.getIds())}`);
-
-  const inserted = await table.insert({
-    title: "Test task",
-    description: "Inserted via playground",
-    points: 3,
-    done: false,
-  });
-
-  log(`Inserted row for page ${inserted.page.id}`);
-
-  const selection = await table.select({
-    pageSize: 10,
-    where: contains(table.columns.title, "Test"),
-    orderBy: asc(table.columns.title),
-  });
-
-  log(`Fetched ${selection.rows.length} rows (nextCursor=${selection.nextCursor ?? "null"})`);
-
-  const updated = await table.update(
-    { done: true },
-    {
-      pageIds: [inserted.page.id],
-    }
-  );
-
-  log(`Updated row status: ${updated.data.done ? "completed" : "pending"}`);
-
-  const archived = await table.archive({ pageIds: [inserted.page.id] });
-  log(`Archived rows: ${archived}`);
-
-  const restored = await table.restore({ pageIds: [inserted.page.id] });
-  log(`Restored rows: ${restored}`);
-
-  log("Playground complete. Remember to clean up the created database.");
+  log(`Playground ready to run against parent page: ${parentId}`);
 }
 
 main().catch((error) => {
-  logError(error instanceof Error ? (error.stack ?? error.message) : String(error));
+  logError(`Playground failed: ${(error as Error).message}`);
   process.exit(1);
 });

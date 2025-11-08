@@ -1,5 +1,6 @@
 import { queryDataSource } from "@/api/database";
 import { compileQueryOptions } from "@/orm/query/compiler";
+import { populateRelations } from "@/orm/relation/populate";
 import type { TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
 import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
@@ -33,7 +34,11 @@ export async function selectRows<TDef extends TableDef>(table: TableHandle<TDef>
     ...(options?.startCursor ? { start_cursor: options.startCursor } : {}),
   });
 
-  const rows = response.results.filter(isPageObject).map((page) => buildRowEnvelope(table, page));
+  let rows = response.results.filter(isPageObject).map((page) => buildRowEnvelope(table, page));
+
+  if (options?.populate) {
+    rows = (await populateRelations(table, rows, options.populate)) as Array<(typeof rows)[number]>;
+  }
 
   return {
     rows,

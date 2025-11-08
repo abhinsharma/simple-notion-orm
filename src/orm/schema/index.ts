@@ -10,6 +10,10 @@ export type {
   SelectResult,
   TargetOptions,
   UpdateOptions,
+  RelationColumnKeys,
+  RelationPopulateMap,
+  RelationMap,
+  PopulateInstruction,
 } from "./types";
 export { defineTable } from "./define-table";
 export { text } from "./column-builders/text";
