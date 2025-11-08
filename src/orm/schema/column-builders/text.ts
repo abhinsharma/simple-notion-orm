@@ -5,8 +5,8 @@ type TextColumnBuilder<TOptional extends boolean = false, TNullable extends bool
   string,
   TOptional,
   TNullable,
-  unknown,
-  unknown
+  any,
+  any
 > & {
   optional: () => TextColumnBuilder<true, TNullable>;
   nullable: () => TextColumnBuilder<TOptional, true>;
@@ -15,7 +15,7 @@ type TextColumnBuilder<TOptional extends boolean = false, TNullable extends bool
 };
 
 function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
-  def: ColumnDef<string, TOptional, TNullable, unknown, unknown>
+  def: ColumnDef<string, TOptional, TNullable, any, any>
 ): TextColumnBuilder<TOptional, TNullable> {
   return {
     ...def,

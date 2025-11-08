@@ -1,7 +1,7 @@
 import { buildTitleProperty } from "@/factories/properties/page";
 import type { GetPageResponse, CreatePageResponse, UpdatePageResponse } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect, beforeEach } from "vitest";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, type JsonBodyType } from "msw";
 import { server } from "../../../tests/setup-msw";
 import {
   getDatabasePage,
@@ -17,7 +17,7 @@ import dbPageUpdateFixture from "../../../tests/fixtures/db-page-update.json";
 import dbPageArchiveFixture from "../../../tests/fixtures/db-page-archive.json";
 import dbPageRestoreFixture from "../../../tests/fixtures/db-page-restore.json";
 
-const respond = <BodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
+const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 
 beforeEach(() => {
   server.use(

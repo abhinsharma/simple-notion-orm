@@ -34,7 +34,7 @@ export type ColumnDef<
   propertyType: ColumnPropertyType;
 };
 
-export type AnyColumnDef = ColumnDef<unknown, boolean, boolean, unknown, unknown>;
+export type AnyColumnDef = ColumnDef<any, boolean, boolean, any, any>;
 
 export type ColumnValue<TColumn> = TColumn extends ColumnDef<
   infer TValue,

@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, type JsonBodyType } from 'msw';
 import pageGetFixture from './fixtures/page-get.json';
 import pageCreateFixture from './fixtures/page-create.json';
 import pageUpdateFixture from './fixtures/page-update.json';
@@ -17,7 +17,7 @@ import databaseQueryFixture from './fixtures/database-query.json';
 import databaseSearchFixture from './fixtures/database-search.json';
 import dbPageCreateFixture from './fixtures/db-page-create.json';
 
-const respond = <BodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
+const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 
 export const handlers = [
   http.get<never, undefined, { ok: boolean }>('https://api.notion.com/v1/ping', () =>
