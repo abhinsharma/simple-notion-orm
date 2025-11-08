@@ -26,11 +26,7 @@ describe("compileQueryOptions", () => {
 
   it("compiles compound predicates and sorts", () => {
     const compiled = compileQueryOptions<TestTableDef>({
-      where: and(
-        contains(columns.title, "Hello"),
-        gt(columns.points, 5),
-        isNull(columns.stage)
-      ),
+      where: and(contains(columns.title, "Hello"), gt(columns.points, 5), isNull(columns.stage)),
       orderBy: { column: columns.title, direction: "desc" },
     });
 
@@ -60,8 +56,6 @@ describe("compileQueryOptions", () => {
   });
 
   it("throws when using unsupported operator for a column type", () => {
-    expect(() => compileQueryOptions<TestTableDef>({ where: gt(columns.title, "10") })).toThrow(
-      /Operator 'gt' is not supported/
-    );
+    expect(() => compileQueryOptions<TestTableDef>({ where: gt(columns.title, "10") })).toThrow(/Operator 'gt' is not supported/);
   });
 });

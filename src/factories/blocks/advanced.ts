@@ -29,11 +29,7 @@ type BlockWithChildren = Record<string, unknown>;
  *   [{ type: "text", text: { content: "Query all users" } }]
  * )
  */
-export function buildCodeBlock(
-  richText: RichTextItemRequest[],
-  language: Language,
-  caption?: RichTextItemRequest[]
-) {
+export function buildCodeBlock(richText: RichTextItemRequest[], language: Language, caption?: RichTextItemRequest[]) {
   return {
     type: "code" as const,
     code: {
@@ -165,10 +161,7 @@ export function buildLinkToPageBlock(link: LinkToPageType) {
  *   [paragraphBlock]
  * )
  */
-export function buildTemplateBlock(
-  richText: RichTextItemRequest[],
-  children?: BlockWithChildren[]
-) {
+export function buildTemplateBlock(richText: RichTextItemRequest[], children?: BlockWithChildren[]) {
   return {
     type: "template" as const,
     template: {

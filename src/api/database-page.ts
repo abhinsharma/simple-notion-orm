@@ -17,9 +17,7 @@ import { getNotionClient } from "./client";
 /**
  * Get a database page by ID
  */
-export async function getDatabasePage(
-  pageId: string
-): Promise<GetPageResponse> {
+export async function getDatabasePage(pageId: string): Promise<GetPageResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.retrieve({
@@ -42,13 +40,7 @@ type CreateDatabasePageParams = {
   cover?: CreatePageParameters["cover"];
 };
 
-export async function createDatabasePage({
-  databaseId,
-  properties,
-  children,
-  icon,
-  cover,
-}: CreateDatabasePageParams): Promise<CreatePageResponse> {
+export async function createDatabasePage({ databaseId, properties, children, icon, cover }: CreateDatabasePageParams): Promise<CreatePageResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.create({
@@ -77,13 +69,7 @@ type UpdateDatabasePageParams = {
   archived?: boolean;
 };
 
-export async function updateDatabasePage({
-  pageId,
-  properties,
-  icon,
-  cover,
-  archived,
-}: UpdateDatabasePageParams): Promise<UpdatePageResponse> {
+export async function updateDatabasePage({ pageId, properties, icon, cover, archived }: UpdateDatabasePageParams): Promise<UpdatePageResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.update({
@@ -102,9 +88,7 @@ export async function updateDatabasePage({
 /**
  * Archive a database page/item
  */
-export async function archiveDatabasePage(
-  pageId: string
-): Promise<UpdatePageResponse> {
+export async function archiveDatabasePage(pageId: string): Promise<UpdatePageResponse> {
   try {
     return await updateDatabasePage({ pageId, archived: true });
   } catch (error) {
@@ -115,9 +99,7 @@ export async function archiveDatabasePage(
 /**
  * Restore an archived database page/item
  */
-export async function restoreDatabasePage(
-  pageId: string
-): Promise<UpdatePageResponse> {
+export async function restoreDatabasePage(pageId: string): Promise<UpdatePageResponse> {
   try {
     return await updateDatabasePage({ pageId, archived: false });
   } catch (error) {

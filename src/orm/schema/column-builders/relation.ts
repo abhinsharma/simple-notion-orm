@@ -18,13 +18,7 @@ type RelationColumnBuilder<TOptional extends boolean = false, TNullable extends 
 };
 
 function buildRelationColumn<TOptional extends boolean, TNullable extends boolean>(
-  def: ColumnDef<
-    RelationValue,
-    TOptional,
-    TNullable,
-    RelationPropertyPayload,
-    RelationPropertyResponse
-  >
+  def: ColumnDef<RelationValue, TOptional, TNullable, RelationPropertyPayload, RelationPropertyResponse>
 ): RelationColumnBuilder<TOptional, TNullable> {
   return {
     ...def,

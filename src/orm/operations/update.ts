@@ -17,11 +17,7 @@ function determineUpdateMode<TDef extends TableDef>(options?: UpdateOptions<TDef
   return "single";
 }
 
-async function resolveTargets<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  options: UpdateOptions<TDef> | undefined,
-  limit: number
-): Promise<string[]> {
+async function resolveTargets<TDef extends TableDef>(table: TableHandle<TDef>, options: UpdateOptions<TDef> | undefined, limit: number): Promise<string[]> {
   if (options?.pageIds?.length) {
     return options.pageIds;
   }

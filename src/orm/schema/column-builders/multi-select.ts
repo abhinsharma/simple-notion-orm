@@ -1,8 +1,5 @@
 import { multiSelectCodec } from "@/orm/codecs";
-import type {
-  MultiSelectPropertyPayload,
-  MultiSelectPropertyResponse,
-} from "@/orm/codecs/options/multi-select";
+import type { MultiSelectPropertyPayload, MultiSelectPropertyResponse } from "@/orm/codecs/options/multi-select";
 import type { SelectOptionInput } from "@/types/properties";
 import type { ColumnDef } from "../types";
 
@@ -21,13 +18,7 @@ type MultiSelectColumnBuilder<TOptional extends boolean = false, TNullable exten
 };
 
 function buildMultiSelectColumn<TOptional extends boolean, TNullable extends boolean>(
-  def: ColumnDef<
-    MultiSelectValue,
-    TOptional,
-    TNullable,
-    MultiSelectPropertyPayload,
-    MultiSelectPropertyResponse
-  >
+  def: ColumnDef<MultiSelectValue, TOptional, TNullable, MultiSelectPropertyPayload, MultiSelectPropertyResponse>
 ): MultiSelectColumnBuilder<TOptional, TNullable> {
   return {
     ...def,

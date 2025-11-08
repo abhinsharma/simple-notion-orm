@@ -1,13 +1,6 @@
 import type { TableDef, AnyColumnDef } from "@/orm/schema/types";
 import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
-import type {
-  Predicate,
-  ComparisonPredicate,
-  NullPredicate,
-  CompoundPredicate,
-  SortDescriptor,
-  TablePredicate,
-} from "./types";
+import type { Predicate, ComparisonPredicate, NullPredicate, CompoundPredicate, SortDescriptor, TablePredicate } from "./types";
 
 type NotionFilter = QueryDataSourceParameters["filter"];
 type NotionSort = NonNullable<QueryDataSourceParameters["sorts"]>[number];
@@ -42,16 +35,12 @@ const OPERATOR_SUPPORT: Record<string, Array<string>> = {
 
 export type CompileOptions<TDef extends TableDef> = {
   where?: TablePredicate<TDef>;
-  orderBy?:
-    | SortDescriptor<TDef["columns"][keyof TDef["columns"]]>
-    | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
+  orderBy?: SortDescriptor<TDef["columns"][keyof TDef["columns"]]> | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
   rawFilter?: QueryDataSourceParameters["filter"];
   rawSorts?: QueryDataSourceParameters["sorts"];
 };
 
-export function compileQueryOptions<TDef extends TableDef>(
-  options?: CompileOptions<TDef>
-): Pick<QueryDataSourceParameters, "filter" | "sorts"> {
+export function compileQueryOptions<TDef extends TableDef>(options?: CompileOptions<TDef>): Pick<QueryDataSourceParameters, "filter" | "sorts"> {
   if (!options) {
     return {};
   }
@@ -109,9 +98,7 @@ function compileCompound(predicate: CompoundPredicate): NotionFilter {
 }
 
 function compileSorts<TDef extends TableDef>(
-  descriptors?:
-    | SortDescriptor<TDef["columns"][keyof TDef["columns"]]>
-    | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>
+  descriptors?: SortDescriptor<TDef["columns"][keyof TDef["columns"]]> | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>
 ): QueryDataSourceParameters["sorts"] {
   if (!descriptors) {
     return undefined;
@@ -129,10 +116,7 @@ function compileSorts<TDef extends TableDef>(
   }));
 }
 
-function buildComparisonFilter(
-  propertyTypeKey: string,
-  predicate: ComparisonPredicate
-): Record<string, unknown> {
+function buildComparisonFilter(propertyTypeKey: string, predicate: ComparisonPredicate): Record<string, unknown> {
   const { operator, value, column } = predicate;
 
   switch (operator) {
@@ -143,21 +127,13 @@ function buildComparisonFilter(
     case "contains":
       return { contains: normalizeContainsValue(column, value) };
     case "gt":
-      return propertyTypeKey === "date"
-        ? { after: expectStringValue(column, value) }
-        : { greater_than: expectNumberValue(column, value) };
+      return propertyTypeKey === "date" ? { after: expectStringValue(column, value) } : { greater_than: expectNumberValue(column, value) };
     case "gte":
-      return propertyTypeKey === "date"
-        ? { on_or_after: expectStringValue(column, value) }
-        : { greater_than_or_equal_to: expectNumberValue(column, value) };
+      return propertyTypeKey === "date" ? { on_or_after: expectStringValue(column, value) } : { greater_than_or_equal_to: expectNumberValue(column, value) };
     case "lt":
-      return propertyTypeKey === "date"
-        ? { before: expectStringValue(column, value) }
-        : { less_than: expectNumberValue(column, value) };
+      return propertyTypeKey === "date" ? { before: expectStringValue(column, value) } : { less_than: expectNumberValue(column, value) };
     case "lte":
-      return propertyTypeKey === "date"
-        ? { on_or_before: expectStringValue(column, value) }
-        : { less_than_or_equal_to: expectNumberValue(column, value) };
+      return propertyTypeKey === "date" ? { on_or_before: expectStringValue(column, value) } : { less_than_or_equal_to: expectNumberValue(column, value) };
     default:
       throw new Error(`Unsupported comparison operator: ${operator}`);
   }
@@ -220,9 +196,7 @@ function expectBooleanValue(column: AnyColumnDef, value: unknown): boolean {
 function validateOperatorSupport(predicate: ComparisonPredicate): void {
   const allowedTypes = OPERATOR_SUPPORT[predicate.operator];
   if (!allowedTypes?.includes(predicate.column.propertyType)) {
-    throw new Error(
-      `Operator '${predicate.operator}' is not supported for column type '${predicate.column.propertyType}'.`
-    );
+    throw new Error(`Operator '${predicate.operator}' is not supported for column type '${predicate.column.propertyType}'.`);
   }
 }
 

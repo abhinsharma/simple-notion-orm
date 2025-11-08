@@ -25,10 +25,7 @@ function assertKnownColumns(columns: Record<string, AnyColumnDef>, data: Record<
   }
 }
 
-export function buildInsertProperties<TDef extends TableDef>(
-  columns: TDef["columns"],
-  data: RowInput<TDef>
-): Record<string, unknown> {
+export function buildInsertProperties<TDef extends TableDef>(columns: TDef["columns"], data: RowInput<TDef>): Record<string, unknown> {
   const record = data as Record<string, unknown>;
   const properties: Record<string, unknown> = {};
 
@@ -58,10 +55,7 @@ export function buildInsertProperties<TDef extends TableDef>(
   return properties;
 }
 
-export function buildUpdateProperties<TDef extends TableDef>(
-  columns: TDef["columns"],
-  patch: RowPatch<TDef>
-): Record<string, unknown> {
+export function buildUpdateProperties<TDef extends TableDef>(columns: TDef["columns"], patch: RowPatch<TDef>): Record<string, unknown> {
   const record = patch as Record<string, unknown>;
   const properties: Record<string, unknown> = {};
 
@@ -91,10 +85,7 @@ export function buildUpdateProperties<TDef extends TableDef>(
   return properties;
 }
 
-export function decodeRow<TDef extends TableDef>(
-  columns: TDef["columns"],
-  page: PageObjectResponse
-): RowOutput<TDef> {
+export function decodeRow<TDef extends TableDef>(columns: TDef["columns"], page: PageObjectResponse): RowOutput<TDef> {
   const row: Record<string, unknown> = {};
 
   for (const [key, columnDef] of Object.entries(columns)) {

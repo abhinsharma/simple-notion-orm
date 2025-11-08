@@ -1,5 +1,5 @@
 import { defineTable, select, text, eq, asc } from "@/orm";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, type JsonBodyType } from "msw";
 import { describe, it, expect, vi } from "vitest";
 import { server } from "../setup-msw";
 import dbPageCreateFixture from "../fixtures/db-page-create.json";
@@ -7,7 +7,7 @@ import dbPageUpdateFixture from "../fixtures/db-page-update.json";
 import pageArchiveFixture from "../fixtures/page-archive.json";
 import pageRestoreFixture from "../fixtures/page-restore.json";
 
-const respond = <BodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
+const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 const DATABASE_ID = "obf_id_1";
 
 async function createTestTable() {
@@ -97,10 +97,7 @@ describe("ORM operations", () => {
       })
     );
 
-    const envelope = await table.update(
-      { stage: { name: "Done" } },
-      { pageIds: [dbPageCreateFixture.id] }
-    );
+    const envelope = await table.update({ stage: { name: "Done" } }, { pageIds: [dbPageCreateFixture.id] });
 
     expect(patchSpy).toHaveBeenCalledWith(
       expect.objectContaining({

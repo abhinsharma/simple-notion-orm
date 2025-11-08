@@ -1,13 +1,13 @@
 # Database Page API Examples
 
-| API                    | Returns              | Description                                        |
-| ---------------------- | -------------------- | -------------------------------------------------- |
-| `getDatabasePage`      | `PageObjectResponse` | Retrieve a page inside a database.                 |
-| `createDatabasePage`   | `PageObjectResponse` | Create a new row inside a database.                |
-| `updateDatabasePage`   | `PageObjectResponse` | Update row properties.                             |
-| `archiveDatabasePage`  | `PageObjectResponse` | Archive (soft delete) a row.                       |
-| `restoreDatabasePage`  | `PageObjectResponse` | Restore an archived row.                           |
-| `clearDatabasePageContent` | `void`           | Remove all blocks from a database row.             |
+| API                        | Returns              | Description                            |
+| -------------------------- | -------------------- | -------------------------------------- |
+| `getDatabasePage`          | `PageObjectResponse` | Retrieve a page inside a database.     |
+| `createDatabasePage`       | `PageObjectResponse` | Create a new row inside a database.    |
+| `updateDatabasePage`       | `PageObjectResponse` | Update row properties.                 |
+| `archiveDatabasePage`      | `PageObjectResponse` | Archive (soft delete) a row.           |
+| `restoreDatabasePage`      | `PageObjectResponse` | Restore an archived row.               |
+| `clearDatabasePageContent` | `void`               | Remove all blocks from a database row. |
 
 All helpers live under `@/api/database-page`.
 

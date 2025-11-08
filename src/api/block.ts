@@ -33,10 +33,7 @@ export async function getBlock(blockId: string): Promise<GetBlockResponse> {
 /**
  * Retrieve children of a block
  */
-export async function getBlockChildren(
-  blockId: string,
-  params?: Omit<ListBlockChildrenParameters, "block_id">
-): Promise<ListBlockChildrenResponse> {
+export async function getBlockChildren(blockId: string, params?: Omit<ListBlockChildrenParameters, "block_id">): Promise<ListBlockChildrenResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.blocks.children.list({
@@ -78,10 +75,7 @@ type UpdateBlockParams = {
   blockId: string;
 } & Omit<UpdateBlockParameters, "block_id">;
 
-export async function updateBlock({
-  blockId,
-  ...updateParams
-}: UpdateBlockParams): Promise<UpdateBlockResponse> {
+export async function updateBlock({ blockId, ...updateParams }: UpdateBlockParams): Promise<UpdateBlockResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.blocks.update({
@@ -97,9 +91,7 @@ export async function updateBlock({
 /**
  * Delete a block
  */
-export async function deleteBlock(
-  blockId: string
-): Promise<DeleteBlockResponse> {
+export async function deleteBlock(blockId: string): Promise<DeleteBlockResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.blocks.delete({

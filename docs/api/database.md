@@ -1,12 +1,12 @@
 # Database API Examples
 
-| API               | Returns                   | Description                                                |
-| ----------------- | ------------------------- | ---------------------------------------------------------- |
-| `getDatabase`     | `{ database, dataSource}` | Retrieve a database and its primary data source metadata.  |
-| `createDatabase`  | `{ database, dataSource}` | Create a database under a parent page.                     |
-| `updateDatabase`  | `{ database, dataSource}` | Update database metadata or schema properties.             |
-| `queryDatabase`   | `QueryDataSourceResponse` | Query rows (pages) inside the database.                    |
-| `searchDatabases` | `SearchResponse`          | Search workspace databases using the Notion search API.    |
+| API               | Returns                   | Description                                               |
+| ----------------- | ------------------------- | --------------------------------------------------------- |
+| `getDatabase`     | `{ database, dataSource}` | Retrieve a database and its primary data source metadata. |
+| `createDatabase`  | `{ database, dataSource}` | Create a database under a parent page.                    |
+| `updateDatabase`  | `{ database, dataSource}` | Update database metadata or schema properties.            |
+| `queryDatabase`   | `QueryDataSourceResponse` | Query rows (pages) inside the database.                   |
+| `searchDatabases` | `SearchResponse`          | Search workspace databases using the Notion search API.   |
 
 ## Get a database
 

@@ -40,18 +40,18 @@ rows[0].assignees?.[0].id; // string
 
 ### Column Builders & Codecs
 
-| Builder        | App Type                                | Notion Property               | Notes                                                                 |
-| -------------- | ---------------------------------------- | ----------------------------- | --------------------------------------------------------------------- |
-| `text(name)`   | `string`                                 | `rich_text` / `title()`       | Call `.title()` to switch to the primary title property.              |
-| `number(name)` | `number \| null`                         | `number`                      | `.nullable()` keeps `null` in the row output.                         |
-| `date(name)`   | `DatePropertyInput \| null`              | `date`                        | Accepts `{ start, end?, time_zone? }`.                                |
-| `checkbox(name)` | `boolean`                              | `checkbox`                    | `.optional()` allows omission on insert.                              |
-| `url(name)`    | `string \| null`                         | `url`                         | `.nullable()` keeps `null`.                                           |
-| `select(name)` | `SelectOptionInput \| null`              | `select`                      | Works with `{ id }` or `{ name }` values.                             |
-| `multiSelect(name)` | `SelectOptionInput[]`               | `multi_select`                |                                                                     |
-| `status(name)` | `SelectOptionInput \| null`              | `status`                      | Creation requires the column to already exist in Notion.             |
-| `people(name)` | `{ id: string }[]`                       | `people`                      | Accepts/returns arrays of user references.                            |
-| `relation(name)` | `{ id: string }[]`                     | `relation`                    | IDs only; population happens separately (see roadmap).                |
+| Builder             | App Type                    | Notion Property         | Notes                                                    |
+| ------------------- | --------------------------- | ----------------------- | -------------------------------------------------------- |
+| `text(name)`        | `string`                    | `rich_text` / `title()` | Call `.title()` to switch to the primary title property. |
+| `number(name)`      | `number \| null`            | `number`                | `.nullable()` keeps `null` in the row output.            |
+| `date(name)`        | `DatePropertyInput \| null` | `date`                  | Accepts `{ start, end?, time_zone? }`.                   |
+| `checkbox(name)`    | `boolean`                   | `checkbox`              | `.optional()` allows omission on insert.                 |
+| `url(name)`         | `string \| null`            | `url`                   | `.nullable()` keeps `null`.                              |
+| `select(name)`      | `SelectOptionInput \| null` | `select`                | Works with `{ id }` or `{ name }` values.                |
+| `multiSelect(name)` | `SelectOptionInput[]`       | `multi_select`          |                                                          |
+| `status(name)`      | `SelectOptionInput \| null` | `status`                | Creation requires the column to already exist in Notion. |
+| `people(name)`      | `{ id: string }[]`          | `people`                | Accepts/returns arrays of user references.               |
+| `relation(name)`    | `{ id: string }[]`          | `relation`              | IDs only; population happens separately (see roadmap).   |
 
 Every builder exposes:
 
@@ -79,11 +79,11 @@ Table handles cache `{ databaseId, dataSourceId }` after the first sync and expo
 
 ### CRUD Surface
 
-| Method          | Signature                                               | Notes                                                                                  |
-| --------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `insert(data)`  | `Promise<RowOutput>`                                    | Validates against column codecs; currently writes a single page per call.              |
-| `select()`      | `Promise<RowOutput[]>`                                  | Returns decoded rows; each row field matches the builder type (`string`, `{ id }[]`, …) |
-| *(coming soon)* | `update`, `archive`, `populate`, query predicates       | Roadmap items (see `ai-docs/stories/index.md`).                                        |
+| Method          | Signature                                         | Notes                                                                                   |
+| --------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `insert(data)`  | `Promise<RowOutput>`                              | Validates against column codecs; currently writes a single page per call.               |
+| `select()`      | `Promise<RowOutput[]>`                            | Returns decoded rows; each row field matches the builder type (`string`, `{ id }[]`, …) |
+| _(coming soon)_ | `update`, `archive`, `populate`, query predicates | Roadmap items (see `ai-docs/stories/index.md`).                                         |
 
 All errors include column/table context. Codec validation happens before any network traffic.
 

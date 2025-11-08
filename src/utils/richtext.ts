@@ -65,15 +65,7 @@ export function createRichTextItem(
     };
   }
 
-  if (
-    options &&
-    (options.bold ||
-      options.italic ||
-      options.strikethrough ||
-      options.underline ||
-      options.code ||
-      options.color)
-  ) {
+  if (options && (options.bold || options.italic || options.strikethrough || options.underline || options.code || options.color)) {
     base.annotations = {
       bold: options.bold ?? false,
       italic: options.italic ?? false,

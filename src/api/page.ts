@@ -3,22 +3,14 @@
  * Here api is shaped for non database pages to reduce complexity.
  */
 import { deleteBlock, getBlockChildren } from "@/api/block";
-import type {
-  CreatePageParameters,
-  PageObjectResponse,
-  SearchResponse,
-  UpdatePageParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+import type { CreatePageParameters, PageObjectResponse, SearchResponse, UpdatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 
 /**
  * Retrieve a page by its ID
  */
-export async function getPage(
-  pageId: string,
-  filterProperties?: string[]
-): Promise<PageObjectResponse> {
+export async function getPage(pageId: string, filterProperties?: string[]): Promise<PageObjectResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.retrieve({
@@ -45,13 +37,7 @@ type CreatePageParams = {
   icon?: CreatePageParameters["icon"];
   cover?: CreatePageParameters["cover"];
 };
-export async function createPage({
-  parentId,
-  properties,
-  children,
-  icon,
-  cover,
-}: CreatePageParams): Promise<PageObjectResponse> {
+export async function createPage({ parentId, properties, children, icon, cover }: CreatePageParams): Promise<PageObjectResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.create({
@@ -82,13 +68,7 @@ type UpdatePageParams = {
   cover?: UpdatePageParameters["cover"];
   archived?: boolean;
 };
-export async function updatePage({
-  pageId,
-  properties,
-  icon,
-  cover,
-  archived,
-}: UpdatePageParams): Promise<PageObjectResponse> {
+export async function updatePage({ pageId, properties, icon, cover, archived }: UpdatePageParams): Promise<PageObjectResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.update({
@@ -99,9 +79,7 @@ export async function updatePage({
       ...(typeof archived === "boolean" ? { archived } : {}),
     });
     if (!("properties" in response)) {
-      throw new Error(
-        `Update page request for ${pageId} returned a partial page response`
-      );
+      throw new Error(`Update page request for ${pageId} returned a partial page response`);
     }
     return response;
   } catch (error) {

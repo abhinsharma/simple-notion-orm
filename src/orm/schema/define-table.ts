@@ -56,34 +56,24 @@ function getCodecType(columnDef: AnyColumnDef): string {
   return "unknown";
 }
 
-function validateSchema(
-  existingSchema: Record<string, { type: string }>,
-  providedColumns: Record<string, AnyColumnDef>
-): void {
+function validateSchema(existingSchema: Record<string, { type: string }>, providedColumns: Record<string, AnyColumnDef>): void {
   for (const [key, columnDef] of Object.entries(providedColumns)) {
     const existingProperty = existingSchema[columnDef.name];
 
     if (!existingProperty) {
-      throw new Error(
-        `Column '${key}' (property name: '${columnDef.name}') not found in database schema`
-      );
+      throw new Error(`Column '${key}' (property name: '${columnDef.name}') not found in database schema`);
     }
 
     const expectedType = existingProperty.type;
     const actualType = getCodecType(columnDef);
 
     if (expectedType !== actualType) {
-      throw new Error(
-        `Column '${key}' type mismatch: expected '${expectedType}', got '${actualType}'`
-      );
+      throw new Error(`Column '${key}' type mismatch: expected '${expectedType}', got '${actualType}'`);
     }
   }
 }
 
-async function connectToExistingDatabase(
-  databaseId: string,
-  columns: Record<string, AnyColumnDef>
-): Promise<{ databaseId: string; dataSourceId: string }> {
+async function connectToExistingDatabase(databaseId: string, columns: Record<string, AnyColumnDef>): Promise<{ databaseId: string; dataSourceId: string }> {
   const resource = await getDatabase(databaseId);
 
   validateSchema(resource.dataSource.properties, columns);
@@ -94,9 +84,7 @@ async function connectToExistingDatabase(
   };
 }
 
-export async function defineTable<
-  const TColumns extends Record<string, AnyColumnDef>,
->(
+export async function defineTable<const TColumns extends Record<string, AnyColumnDef>>(
   title: string,
   columns: TColumns,
   options: DefineTableOptions

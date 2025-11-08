@@ -13,19 +13,15 @@ export type NumberPropertyResponse = {
 };
 
 export const numberCodec = createNotionCodec<number | null, NumberPropertyPayload, NumberPropertyResponse>(
-  z.codec(
-    z.number().nullable(),
-    z.custom<NumberPropertyPayload>(),
-    {
-      decode: (value: number | null): NumberPropertyPayload => {
-        const { type: _type, ...payload } = buildNumberProperty(value);
-        return payload;
-      },
-      encode: (property: NumberPropertyResponse): number | null => {
-        return property.number;
-      },
-    }
-  ),
+  z.codec(z.number().nullable(), z.custom<NumberPropertyPayload>(), {
+    decode: (value: number | null): NumberPropertyPayload => {
+      const { type: _type, ...payload } = buildNumberProperty(value);
+      return payload;
+    },
+    encode: (property: NumberPropertyResponse): number | null => {
+      return property.number;
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

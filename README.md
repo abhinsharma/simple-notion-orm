@@ -15,6 +15,7 @@ src/
 ```
 
 ## Getting Started
+
 1. Install dependencies:
    ```bash
    pnpm install
@@ -30,6 +31,7 @@ src/
    Tweak it as needed, then restore the minimal example and run `clearPageContent` to tidy the capture page.
 
 ## Development Commands
+
 - `pnpm tsc` – Standalone type check (`tsc --noEmit`).
 - `pnpm lint` / `pnpm lint --fix` – ESLint flat config with TypeScript rules.
 - `pnpm format` / `pnpm format:check` – Prettier with `printWidth: 160`.
@@ -37,18 +39,20 @@ src/
 - `pnpm test` / `vitest run <path>` – Vitest + MSW suite (see `tests/handlers.ts`).
 - `pnpm tsx playground.ts` – Run the playground script during manual experiments.
 
-
 ## Testing
+
 - Tests are powered by [Vitest](https://vitest.dev/) and MSW.
 - Fixtures in `tests/fixtures/*.json` provide deterministic responses (IDs/URLs are obfuscated).
 - Run a single test file: `pnpm test src/api/__tests__/page.test.ts`.
 - Override handlers with `server.use(...)` when customizing MSW responses (see existing tests).
 
 ## Environment & Configuration
+
 - Required secret: `NOTION_API_KEY` (loaded via `src/api/client.ts`).
 - Use sandbox pages/databases for playground work and call `clearPageContent` after manual runs.
 
 ## Documentation
+
 - [`docs/api`](./docs/api) – API usage guides and examples.
 - [`docs/factories`](./docs/factories) – Block/property/schema builder references.
 - [`AGENTS.md`](./AGENTS.md) – Contributor workflow and repository conventions.

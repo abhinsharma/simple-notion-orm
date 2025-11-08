@@ -1,14 +1,14 @@
 # Page API Examples
 
-| API           | Returns              | Description                                        |
-| ------------- | -------------------- | -------------------------------------------------- |
-| `getPage`     | `PageObjectResponse` | Retrieve a page by ID.                             |
-| `createPage`  | `PageObjectResponse` | Create a child page under the capture page.        |
-| `updatePage`  | `PageObjectResponse` | Update page properties such as title.              |
-| `archivePage` | `PageObjectResponse` | Archive (soft delete) a page.                      |
-| `restorePage` | `PageObjectResponse` | Restore a previously archived page.                |
-| `searchPages` | `SearchResponse`     | Query pages in the workspace using Notion search.  |
-| `clearPageContent` | `void`          | Remove all child blocks (content) from a page.     |
+| API                | Returns              | Description                                       |
+| ------------------ | -------------------- | ------------------------------------------------- |
+| `getPage`          | `PageObjectResponse` | Retrieve a page by ID.                            |
+| `createPage`       | `PageObjectResponse` | Create a child page under the capture page.       |
+| `updatePage`       | `PageObjectResponse` | Update page properties such as title.             |
+| `archivePage`      | `PageObjectResponse` | Archive (soft delete) a page.                     |
+| `restorePage`      | `PageObjectResponse` | Restore a previously archived page.               |
+| `searchPages`      | `SearchResponse`     | Query pages in the workspace using Notion search. |
+| `clearPageContent` | `void`               | Remove all child blocks (content) from a page.    |
 
 All helpers live under `@/api/page` and operate on regular (non-database) Notion pages.
 

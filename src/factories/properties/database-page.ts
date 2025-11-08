@@ -7,13 +7,7 @@
  */
 
 import { textToRichText } from "@/utils/richtext";
-import type {
-  DatePropertyInput,
-  SelectOptionInput,
-  FileInput,
-  UserInput,
-  GroupInput,
-} from "@/types/properties";
+import type { DatePropertyInput, SelectOptionInput, FileInput, UserInput, GroupInput } from "@/types/properties";
 
 /**
  * Builds a rich text property value
@@ -63,11 +57,13 @@ export function buildNumberProperty(value: number | null) {
 export function buildDateProperty(date: DatePropertyInput | null) {
   return {
     type: "date" as const,
-    date: date ? {
-      start: date.start,
-      end: date.end ?? null,
-      time_zone: date.time_zone ?? null,
-    } : null,
+    date: date
+      ? {
+          start: date.start,
+          end: date.end ?? null,
+          time_zone: date.time_zone ?? null,
+        }
+      : null,
   };
 }
 
@@ -150,7 +146,7 @@ export function buildPhoneNumberProperty(phoneNumber: string | null) {
  * buildPeopleProperty([{ id: "user-id-1" }, { id: "user-id-2" }])
  */
 export function buildPeopleProperty(users: string[] | Array<UserInput | GroupInput>) {
-  const people = users.map(user => {
+  const people = users.map((user) => {
     if (typeof user === "string") {
       return { id: user };
     }
@@ -175,7 +171,7 @@ export function buildPeopleProperty(users: string[] | Array<UserInput | GroupInp
  * ])
  */
 export function buildFilesProperty(files: FileInput[]) {
-  const fileObjects = files.map(file => {
+  const fileObjects = files.map((file) => {
     if (file.type === "external") {
       return {
         type: "external" as const,
