@@ -5,10 +5,7 @@ import type { AnyColumnDef, RowEnvelope, RowOutput, TableDef, TableHandle } from
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(
-  title: string,
-  columns: TColumns
-): TableHandle<TableDef<TColumns>> {
+function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title: string, columns: TColumns): TableHandle<TableDef<TColumns>> {
   return {
     title,
     columns,
@@ -69,10 +66,7 @@ function createProjectPage(id: string, name: string): PageObjectResponse {
   };
 }
 
-function createTaskRow<TColumns extends Record<string, AnyColumnDef>>(
-  relationKey: string,
-  relationIds: string[]
-): RowEnvelope<TableDef<TColumns>> {
+function createTaskRow<TColumns extends Record<string, AnyColumnDef>>(relationKey: string, relationIds: string[]): RowEnvelope<TableDef<TColumns>> {
   const data = {
     title: "Task",
     [relationKey]: relationIds.map((relId) => ({ id: relId })),
