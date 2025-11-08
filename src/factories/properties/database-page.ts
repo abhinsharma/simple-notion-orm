@@ -275,9 +275,17 @@ export function buildStatusProperty(status: SelectOptionInput | null) {
  * buildRelationProperty(["page-id-1", "page-id-2"])
  * buildRelationProperty([]) // Clear all relations
  */
-export function buildRelationProperty(pageIds: string[]) {
+export function buildRelationProperty(relations: Array<{ id: string } | string>) {
+  const items = relations.map((value) => {
+    if (typeof value === "string") {
+      return { id: value };
+    }
+
+    return { id: value.id };
+  });
+
   return {
     type: "relation" as const,
-    relation: pageIds.map(id => ({ id })),
+    relation: items,
   };
 }

@@ -1,4 +1,5 @@
 import { buildTitleProperty } from "@/factories/properties/page";
+import type { GetPageResponse, CreatePageResponse, UpdatePageResponse } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect, beforeEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../../../tests/setup-msw";
@@ -16,23 +17,31 @@ import dbPageUpdateFixture from "../../../tests/fixtures/db-page-update.json";
 import dbPageArchiveFixture from "../../../tests/fixtures/db-page-archive.json";
 import dbPageRestoreFixture from "../../../tests/fixtures/db-page-restore.json";
 
+const respond = (data: unknown) => HttpResponse.json(data as any) as any;
+
 beforeEach(() => {
   server.use(
-    http.get("https://api.notion.com/v1/pages/:pageId", () => {
-      return HttpResponse.json(dbPageGetFixture);
-    }),
-    http.post("https://api.notion.com/v1/pages", () => {
-      return HttpResponse.json(dbPageCreateFixture);
-    }),
-    http.patch("https://api.notion.com/v1/pages/:pageId", async ({ request }) => {
+    http.get<{ pageId: string }, undefined, typeof dbPageGetFixture>(
+      "https://api.notion.com/v1/pages/:pageId",
+      () => respond(dbPageGetFixture)
+    ),
+    http.post<never, Record<string, unknown>, typeof dbPageCreateFixture>(
+      "https://api.notion.com/v1/pages",
+      () => respond(dbPageCreateFixture)
+    ),
+    http.patch<{ pageId: string }, Record<string, unknown>,
+      | typeof dbPageUpdateFixture
+      | typeof dbPageArchiveFixture
+      | typeof dbPageRestoreFixture
+    >("https://api.notion.com/v1/pages/:pageId", async ({ request }) => {
       const body = (await request.json()) as { archived?: boolean };
       if (body.archived === true) {
-        return HttpResponse.json(dbPageArchiveFixture);
+        return respond(dbPageArchiveFixture);
       }
       if (body.archived === false) {
-        return HttpResponse.json(dbPageRestoreFixture);
+        return respond(dbPageRestoreFixture);
       }
-      return HttpResponse.json(dbPageUpdateFixture);
+      return respond(dbPageUpdateFixture);
     })
   );
 });
@@ -44,7 +53,7 @@ describe("getDatabasePage", () => {
     const result = await getDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as any).parent.type).toBe("data_source_id");
+    expect((result as GetPageResponse & { parent: { type: string } }).parent.type).toBe("data_source_id");
     expect(result.id).toBeDefined();
   });
 });
@@ -59,7 +68,7 @@ describe("createDatabasePage", () => {
     });
 
     expect(result.object).toBe("page");
-    expect((result as any).parent.type).toBe("data_source_id");
+    expect((result as CreatePageResponse & { parent: { type: string } }).parent.type).toBe("data_source_id");
     expect(result.id).toBeDefined();
   });
 });
@@ -87,8 +96,8 @@ describe("archiveDatabasePage", () => {
     const result = await archiveDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as any).archived).toBe(true);
-    expect((result as any).in_trash).toBe(true);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(true);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(true);
   });
 });
 
@@ -99,8 +108,8 @@ describe("restoreDatabasePage", () => {
     const result = await restoreDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as any).archived).toBe(false);
-    expect((result as any).in_trash).toBe(false);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(false);
+    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(false);
   });
 });
 
