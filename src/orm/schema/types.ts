@@ -34,7 +34,12 @@ export type ColumnDef<
   propertyType: ColumnPropertyType;
 };
 
-export type AnyColumnDef = ColumnDef<any, boolean, boolean, any, any>;
+type BaseAnyColumnDef = ColumnDef<unknown, boolean, boolean, unknown, unknown>;
+
+export type AnyColumnDef = Omit<BaseAnyColumnDef, "codec"> & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- heterogeneous column registries need a shared codec type
+  codec: NotionCodec<any, any, any>;
+};
 
 export type ColumnValue<TColumn> = TColumn extends ColumnDef<
   infer TValue,
