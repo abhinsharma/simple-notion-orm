@@ -14,38 +14,18 @@ import type {
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 
-type PageResponse =
-  | CreatePageResponse
-  | GetPageResponse
-  | UpdatePageResponse
-  | PageObjectResponse;
-
-function ensureFullPageResponse(
-  response: PageResponse,
-  context: string
-): PageObjectResponse {
-  if (!("properties" in response)) {
-    throw new Error(`${context} returned a partial page response`);
-  }
-
-  return response;
-}
-
 /**
  * Get a database page by ID
  */
 export async function getDatabasePage(
   pageId: string
-): Promise<PageObjectResponse> {
+): Promise<GetPageResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.retrieve({
       page_id: pageId,
     });
-    return ensureFullPageResponse(
-      response,
-      `Retrieving database page ${pageId}`
-    );
+    return response as PageObjectResponse;
   } catch (error) {
     throw wrapError(`Failed to retrieve database page ${pageId}`, error);
   }
@@ -68,7 +48,7 @@ export async function createDatabasePage({
   children,
   icon,
   cover,
-}: CreateDatabasePageParams): Promise<PageObjectResponse> {
+}: CreateDatabasePageParams): Promise<CreatePageResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.create({
@@ -80,10 +60,7 @@ export async function createDatabasePage({
       ...(icon !== undefined ? { icon } : {}),
       ...(cover !== undefined ? { cover } : {}),
     });
-    return ensureFullPageResponse(
-      response,
-      `Creating page in database ${databaseId}`
-    );
+    return response as PageObjectResponse;
   } catch (error) {
     throw wrapError(`Failed to create page in database ${databaseId}`, error);
   }
@@ -106,7 +83,7 @@ export async function updateDatabasePage({
   icon,
   cover,
   archived,
-}: UpdateDatabasePageParams): Promise<PageObjectResponse> {
+}: UpdateDatabasePageParams): Promise<UpdatePageResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.pages.update({
@@ -116,10 +93,7 @@ export async function updateDatabasePage({
       ...(cover !== undefined ? { cover } : {}),
       ...(typeof archived === "boolean" ? { archived } : {}),
     });
-    return ensureFullPageResponse(
-      response,
-      `Updating database page ${pageId}`
-    );
+    return response as PageObjectResponse;
   } catch (error) {
     throw wrapError(`Failed to update database page ${pageId}`, error);
   }
@@ -130,7 +104,7 @@ export async function updateDatabasePage({
  */
 export async function archiveDatabasePage(
   pageId: string
-): Promise<PageObjectResponse> {
+): Promise<UpdatePageResponse> {
   try {
     return await updateDatabasePage({ pageId, archived: true });
   } catch (error) {
@@ -143,7 +117,7 @@ export async function archiveDatabasePage(
  */
 export async function restoreDatabasePage(
   pageId: string
-): Promise<PageObjectResponse> {
+): Promise<UpdatePageResponse> {
   try {
     return await updateDatabasePage({ pageId, archived: false });
   } catch (error) {

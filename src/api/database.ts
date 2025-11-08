@@ -254,7 +254,7 @@ export async function searchDatabases(query: string): Promise<SearchResponse> {
       query,
       filter: {
         property: "object",
-        value: "database",
+        value: "data_source",
       },
     });
     return response;
