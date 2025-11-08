@@ -35,6 +35,7 @@ function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     nullable: () =>
       buildPeopleColumn({
@@ -43,6 +44,7 @@ function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>
         isOptional: def.isOptional,
         isNullable: true as const,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     default: (value: PeopleValue) =>
       buildPeopleColumn({
@@ -51,6 +53,7 @@ function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: value,
+        propertyType: def.propertyType,
       }),
   };
 }
@@ -61,5 +64,6 @@ export function people(name: string): PeopleColumnBuilder {
     codec: peopleCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "people",
   });
 }

@@ -17,7 +17,6 @@ export default defineConfig({
       '@/types': path.resolve(root, 'src/types'),
       '@/constants': path.resolve(root, 'src/constants'),
       '@/factories': path.resolve(root, 'src/factories'),
-      '@/transform': path.resolve(root, 'src/transform'),
     },
   },
 });

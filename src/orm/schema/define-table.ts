@@ -1,11 +1,12 @@
-import { createDatabase, getDatabase, queryDataSource } from "@/api/database";
-import { createDatabasePage } from "@/api/database-page";
+import { createDatabase, getDatabase } from "@/api/database";
 import type {
   CreateDatabaseParameters,
-  CreatePageParameters,
-  PageObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import type { AnyColumnDef, RowInput, RowOutput, TableHandle, TableDef } from "./types";
+import type { AnyColumnDef, RowInput, TableHandle, TableDef } from "./types";
+import { insertRows } from "@/orm/operations/insert";
+import { selectRows } from "@/orm/operations/select";
+import { updateRows } from "@/orm/operations/update";
+import { archiveRows, restoreRows } from "@/orm/operations/archive";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
@@ -95,22 +96,6 @@ async function connectToExistingDatabase(
   };
 }
 
-function cloneDefaultValue<T>(value: T): T {
-  if (value === null || typeof value !== "object") {
-    return value;
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => cloneDefaultValue(item)) as T;
-  }
-
-  const cloned: Record<string, unknown> = {};
-  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
-    cloned[key] = cloneDefaultValue(nested);
-  }
-  return cloned as T;
-}
-
 export async function defineTable<
   const TColumns extends Record<string, AnyColumnDef>,
 >(
@@ -130,68 +115,27 @@ export async function defineTable<
     cachedIds = await createNewDatabase(title, columns, options.parentId!);
   }
 
-  return {
+  const handle: TableHandle<TableDefType<TColumns>> = {
     title,
     columns,
-    getIds: () => cachedIds,
-    cacheIds: () => {},
-    insert: async (data: RowInput<TableDefType<TColumns>>) => {
-      const properties: Record<string, unknown> = {};
-      const resolvedRow: Record<string, unknown> = {};
-
-      for (const key of Object.keys(data as Record<string, unknown>)) {
-        if (!Object.prototype.hasOwnProperty.call(columns, key)) {
-          throw new Error(`Unknown column: ${key}`);
-        }
-      }
-
-      for (const [key, columnDef] of Object.entries(columns)) {
-        const hasValue = Object.prototype.hasOwnProperty.call(data as object, key);
-        let value = hasValue ? (data as Record<string, unknown>)[key] : undefined;
-
-        if (!hasValue || value === undefined) {
-          if (columnDef.defaultValue !== undefined) {
-            value = cloneDefaultValue(columnDef.defaultValue);
-          } else if (columnDef.isOptional) {
-            continue;
-          } else {
-            throw new Error(`Missing required column: ${key}`);
-          }
-        }
-
-        if (value === null && !columnDef.isNullable) {
-          throw new Error(`Column '${key}' does not allow null values`);
-        }
-
-        resolvedRow[key] = value;
-
-        const encoded = columnDef.codec.parse(value as never);
-        properties[columnDef.name] = encoded;
-      }
-
-      await createDatabasePage({
-        databaseId: cachedIds.databaseId,
-        properties: properties as CreatePageParameters["properties"],
-      });
-
-      return resolvedRow as RowOutput<TableDefType<TColumns>>;
+    getIds: () => ({ ...cachedIds }),
+    cacheIds: (ids) => {
+      cachedIds = {
+        databaseId: ids.databaseId ?? cachedIds.databaseId,
+        dataSourceId: ids.dataSourceId ?? cachedIds.dataSourceId,
+      };
     },
-    select: async () => {
-      const response = await queryDataSource(cachedIds.dataSourceId);
-
-      return response.results.map((page) => {
-        const row: Record<string, unknown> = {};
-        const pageObj = page as PageObjectResponse;
-
-        for (const [key, columnDef] of Object.entries(columns)) {
-          const propertyValue = pageObj.properties[columnDef.name];
-          if (propertyValue) {
-            row[key] = columnDef.codec.encode(propertyValue as never);
-          }
-        }
-
-        return row as RowOutput<TableDefType<TColumns>>;
-      });
-    },
+    insert: ((data: RowInput<TableDefType<TColumns>> | Array<RowInput<TableDefType<TColumns>>>) => {
+      if (Array.isArray(data)) {
+        return insertRows(handle, data);
+      }
+      return insertRows(handle, data);
+    }) as TableHandle<TableDefType<TColumns>>["insert"],
+    select: (options) => selectRows(handle, options),
+    update: ((patch, options) => updateRows(handle, patch, options)) as TableHandle<TableDefType<TColumns>>["update"],
+    archive: (options) => archiveRows(handle, options),
+    restore: (options) => restoreRows(handle, options),
   };
+
+  return handle;
 }

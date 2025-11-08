@@ -35,6 +35,7 @@ function buildRelationColumn<TOptional extends boolean, TNullable extends boolea
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     nullable: () =>
       buildRelationColumn({
@@ -43,6 +44,7 @@ function buildRelationColumn<TOptional extends boolean, TNullable extends boolea
         isOptional: def.isOptional,
         isNullable: true as const,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     default: (value: RelationValue) =>
       buildRelationColumn({
@@ -51,6 +53,7 @@ function buildRelationColumn<TOptional extends boolean, TNullable extends boolea
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: value,
+        propertyType: def.propertyType,
       }),
   };
 }
@@ -61,5 +64,6 @@ export function relation(name: string): RelationColumnBuilder {
     codec: relationCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "relation",
   });
 }

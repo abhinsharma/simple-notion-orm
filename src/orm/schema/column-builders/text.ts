@@ -26,6 +26,7 @@ function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     nullable: () =>
       buildTextColumn({
@@ -34,6 +35,7 @@ function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: true as const,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     default: (value: string) =>
       buildTextColumn({
@@ -42,6 +44,7 @@ function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: value,
+        propertyType: def.propertyType,
       }),
     title: () =>
       buildTextColumn({
@@ -50,6 +53,7 @@ function buildTextColumn<TOptional extends boolean, TNullable extends boolean>(
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: "title",
       }),
   };
 }
@@ -60,5 +64,6 @@ export function text(name: string): TextColumnBuilder {
     codec: richTextCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "rich_text",
   });
 }

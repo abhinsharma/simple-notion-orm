@@ -5,7 +5,7 @@
   - `api/` – Notion wrappers (pages, blocks, databases).
   - `factories/` – block/property payload builders.
   - `orm/` – (future) higher-level abstractions for the ORM surface.
-  - `transform/`, `utils/`, `types/` – shared transforms, helpers, and type definitions.
+  - `utils/`, `types/` – shared helpers and type definitions.
 - `tests/fixtures/` contains obfuscated JSON responses used by MSW-based tests.
 - `docs/` and `ai-docs/` hold reference material (API usage, design stories, factories).
 - `playground.ts` is a scratch pad for manual flows (reset to minimal use after each run).
@@ -28,7 +28,7 @@
 ## Architecture Overview
 - **API layer (`src/api/`)** wraps `@notionhq/client` calls (pages, blocks, databases, database pages). `database.ts` returns `{ database, dataSource }`.
 - **Factories (`src/factories/`)** build payloads for properties, schemas, and blocks.
-- **Transform/utils/types** host cross-cutting helpers; path aliases point to these modules (`@/api/*`, `@/factories/*`, etc.).
+- **Utils/types** host cross-cutting helpers; path aliases point to these modules (`@/api/*`, `@/factories/*`, etc.).
 
 ## Path Aliases
 Configured in `tsconfig.json` and `vitest.config.ts`:
@@ -39,7 +39,6 @@ Configured in `tsconfig.json` and `vitest.config.ts`:
 @/utils/*      -> src/utils/*
 @/types/*      -> src/types/*
 @/constants/*  -> src/constants/*
-@/transform/*  -> src/transform/*
 ```
 Prefer these over relative imports.
 

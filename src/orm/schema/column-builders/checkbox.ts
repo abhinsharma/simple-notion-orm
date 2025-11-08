@@ -25,6 +25,7 @@ function buildCheckboxColumn<TOptional extends boolean>(
         isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: def.defaultValue,
+        propertyType: def.propertyType,
       }),
     default: (value: boolean) =>
       buildCheckboxColumn({
@@ -33,6 +34,7 @@ function buildCheckboxColumn<TOptional extends boolean>(
         isOptional: def.isOptional,
         isNullable: def.isNullable,
         defaultValue: value,
+        propertyType: def.propertyType,
       }),
   };
 }
@@ -43,5 +45,6 @@ export function checkbox(name: string): CheckboxColumnBuilder {
     codec: checkboxCodec,
     isOptional: false as const,
     isNullable: false as const,
+    propertyType: "checkbox",
   });
 }
