@@ -14,17 +14,29 @@ export type RelationPropertyResponse = {
   }>;
 };
 
-export const relationCodec = createNotionCodec(
+type RelationReference = { id: string };
+
+export const relationCodec = createNotionCodec<
+  RelationReference[],
+  RelationPropertyPayload,
+  RelationPropertyResponse
+>(
   z.codec(
-    z.array(z.string()),
+    z.array(
+      z.object({
+        id: z.string(),
+      })
+    ),
     z.custom<RelationPropertyPayload>(),
     {
-      decode: (value: string[]): RelationPropertyPayload => {
+      decode: (value: RelationReference[]): RelationPropertyPayload => {
         const { type: _type, ...payload } = buildRelationProperty(value);
         return payload;
       },
-      encode: (property: RelationPropertyResponse): string[] => {
-        return property.relation.map((rel) => rel.id);
+      encode: (property: RelationPropertyResponse): RelationReference[] => {
+        return property.relation.map((rel) => ({
+          id: rel.id,
+        }));
       },
     }
   ),

@@ -15,17 +15,25 @@ export type PeoplePropertyResponse = {
   }>;
 };
 
-export const peopleCodec = createNotionCodec(
+type PersonReference = { id: string };
+
+export const peopleCodec = createNotionCodec<PersonReference[], PeoplePropertyPayload, PeoplePropertyResponse>(
   z.codec(
-    z.array(z.string()),
+    z.array(
+      z.object({
+        id: z.string(),
+      })
+    ),
     z.custom<PeoplePropertyPayload>(),
     {
-      decode: (value: string[]): PeoplePropertyPayload => {
+      decode: (value: PersonReference[]): PeoplePropertyPayload => {
         const { type: _type, ...payload } = buildPeopleProperty(value);
         return payload;
       },
-      encode: (property: PeoplePropertyResponse): string[] => {
-        return property.people.map((person) => person.id);
+      encode: (property: PeoplePropertyResponse): PersonReference[] => {
+        return property.people.map((person) => ({
+          id: person.id,
+        }));
       },
     }
   ),

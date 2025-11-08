@@ -17,7 +17,7 @@ export type StatusPropertyResponse = {
   } | null;
 };
 
-export const statusCodec = createNotionCodec(
+export const statusCodec = createNotionCodec<SelectOptionInput | null, StatusPropertyPayload, StatusPropertyResponse>(
   z.codec(
     z.custom<SelectOptionInput>().nullable(),
     z.custom<StatusPropertyPayload>(),

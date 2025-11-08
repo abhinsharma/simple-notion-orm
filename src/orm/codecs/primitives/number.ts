@@ -12,7 +12,7 @@ export type NumberPropertyResponse = {
   number: number | null;
 };
 
-export const numberCodec = createNotionCodec(
+export const numberCodec = createNotionCodec<number | null, NumberPropertyPayload, NumberPropertyResponse>(
   z.codec(
     z.number().nullable(),
     z.custom<NumberPropertyPayload>(),

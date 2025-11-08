@@ -37,7 +37,7 @@ function extractTextFromRichText(richTextArray: RichTextPropertyResponse["rich_t
   return richTextArray.map((block) => block.text?.content ?? block.plain_text ?? "").join("");
 }
 
-export const richTextCodec = createNotionCodec(
+export const richTextCodec = createNotionCodec<string, RichTextPropertyPayload, RichTextPropertyResponse>(
   z.codec(
     z.string(),
     z.custom<RichTextPropertyPayload>(),

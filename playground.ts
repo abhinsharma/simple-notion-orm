@@ -56,7 +56,7 @@ async function main() {
   const projects = await techProjects.select();
   const features = await prdFeatures.select();
   const stories = await techStories.select();
-  const _todos = await techTodos.select();
+  await techTodos.select();
 
   console.log(`Tech projects: ${projects.length} records`);
   console.log(`PRD features: ${features.length} records`);

@@ -10,24 +10,22 @@ import { type z } from "zod";
 /**
  * Notion codec with validation, encoding/decoding, and config generation
  */
-export type NotionCodec = {
-  parse: (value: unknown) => unknown;
-  decode: (value: unknown) => unknown;
-  encode: (value: unknown) => unknown;
+export type NotionCodec<TAppValue, TPropertyPayload, TPropertyResponse> = {
+  parse: (value: TAppValue) => TPropertyPayload;
+  encode: (value: TPropertyResponse) => TAppValue;
   config: (name: string) => Record<string, unknown>;
 };
 
 /**
  * Create a Notion codec from a Zod codec and config function
  */
-export function createNotionCodec(
+export function createNotionCodec<TAppValue, TPropertyPayload, TPropertyResponse>(
   zodCodec: z.ZodCodec<z.ZodTypeAny, z.ZodTypeAny>,
   configFn: (name: string) => Record<string, unknown>
-): NotionCodec {
+): NotionCodec<TAppValue, TPropertyPayload, TPropertyResponse> {
   return {
-    parse: (value: unknown) => zodCodec.parse(value),
-    decode: (value: unknown) => zodCodec.decode(value),
-    encode: (value: unknown) => zodCodec.encode(value),
+    parse: (value: TAppValue) => zodCodec.parse(value) as TPropertyPayload,
+    encode: (value: TPropertyResponse) => zodCodec.encode(value as unknown as TPropertyPayload) as TAppValue,
     config: configFn,
   };
 }

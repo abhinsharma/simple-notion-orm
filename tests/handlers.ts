@@ -17,86 +17,110 @@ import databaseQueryFixture from './fixtures/database-query.json';
 import databaseSearchFixture from './fixtures/database-search.json';
 import dbPageCreateFixture from './fixtures/db-page-create.json';
 
+const respond = (data: unknown) => HttpResponse.json(data as any) as any;
+
 export const handlers = [
-  http.get('https://api.notion.com/v1/ping', () => {
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }),
+  http.get<never, undefined, { ok: boolean }>('https://api.notion.com/v1/ping', () =>
+    respond({ ok: true })
+  ),
 
-  http.get('https://api.notion.com/v1/pages/:pageId', () => {
-    return HttpResponse.json(pageGetFixture);
-  }),
+  http.get<{ pageId: string }, undefined, typeof pageGetFixture>(
+    'https://api.notion.com/v1/pages/:pageId',
+    () => respond(pageGetFixture)
+  ),
 
-  http.post('https://api.notion.com/v1/pages', async ({ request }) => {
-    const body = await request.json() as { parent?: { database_id?: string; page_id?: string } };
+  http.post<
+    never,
+    Record<string, unknown>,
+    typeof dbPageCreateFixture | typeof pageCreateFixture
+  >('https://api.notion.com/v1/pages', async ({ request }) => {
+    const body = (await request.json()) as { parent?: { database_id?: string; page_id?: string } };
     if (body.parent?.database_id) {
-      return HttpResponse.json(dbPageCreateFixture);
+      return respond(dbPageCreateFixture);
     }
-    return HttpResponse.json(pageCreateFixture);
+
+    return respond(pageCreateFixture);
   }),
 
-  http.patch('https://api.notion.com/v1/pages/:pageId', async ({ request }) => {
-    const body = await request.json() as { archived?: boolean };
+  http.patch<
+    { pageId: string },
+    Record<string, unknown>,
+    typeof pageUpdateFixture | typeof pageArchiveFixture | typeof pageRestoreFixture
+  >('https://api.notion.com/v1/pages/:pageId', async ({ request }) => {
+    const body = (await request.json()) as { archived?: boolean };
 
     if (body.archived === true) {
-      return HttpResponse.json(pageArchiveFixture);
+      return respond(pageArchiveFixture);
     }
     if (body.archived === false) {
-      return HttpResponse.json(pageRestoreFixture);
+      return respond(pageRestoreFixture);
     }
-    return HttpResponse.json(pageUpdateFixture);
+    return respond(pageUpdateFixture);
   }),
 
-  http.post('https://api.notion.com/v1/search', async ({ request }) => {
-    const body = await request.json() as { filter?: { value?: string } };
-    if (body.filter?.value === 'data_source') {
-      return HttpResponse.json(databaseSearchFixture);
+  http.post<never, Record<string, unknown>, typeof databaseSearchFixture | typeof pageSearchFixture>(
+    'https://api.notion.com/v1/search',
+    async ({ request }) => {
+      const body = (await request.json()) as { filter?: { value?: string } };
+      if (body.filter?.value === 'data_source') {
+        return respond(databaseSearchFixture);
+      }
+      return respond(pageSearchFixture);
     }
-    return HttpResponse.json(pageSearchFixture);
-  }),
+  ),
 
-  http.get('https://api.notion.com/v1/blocks/:blockId', () => {
-    return HttpResponse.json(blockGetFixture);
-  }),
+  http.get<{ blockId: string }, undefined, typeof blockGetFixture>(
+    'https://api.notion.com/v1/blocks/:blockId',
+    () => respond(blockGetFixture)
+  ),
 
-  http.get('https://api.notion.com/v1/blocks/:blockId/children', () => {
-    return HttpResponse.json(blockChildrenFixture);
-  }),
+  http.get<{ blockId: string }, undefined, typeof blockChildrenFixture>(
+    'https://api.notion.com/v1/blocks/:blockId/children',
+    () => respond(blockChildrenFixture)
+  ),
 
-  http.patch('https://api.notion.com/v1/blocks/:blockId/children', () => {
-    return HttpResponse.json(blockAppendFixture);
-  }),
+  http.patch<{ blockId: string }, Record<string, unknown>, typeof blockAppendFixture>(
+    'https://api.notion.com/v1/blocks/:blockId/children',
+    () => respond(blockAppendFixture)
+  ),
 
-  http.patch('https://api.notion.com/v1/blocks/:blockId', () => {
-    return HttpResponse.json(blockUpdateFixture);
-  }),
+  http.patch<{ blockId: string }, Record<string, unknown>, typeof blockUpdateFixture>(
+    'https://api.notion.com/v1/blocks/:blockId',
+    () => respond(blockUpdateFixture)
+  ),
 
-  http.delete('https://api.notion.com/v1/blocks/:blockId', () => {
-    return HttpResponse.json(blockDeleteFixture);
-  }),
+  http.delete<{ blockId: string }, undefined, typeof blockDeleteFixture>(
+    'https://api.notion.com/v1/blocks/:blockId',
+    () => respond(blockDeleteFixture)
+  ),
 
-  http.get('https://api.notion.com/v1/databases/:databaseId', () => {
-    return HttpResponse.json(databaseGetFixture.database);
-  }),
+  http.get<{ databaseId: string }, undefined, typeof databaseGetFixture.database>(
+    'https://api.notion.com/v1/databases/:databaseId',
+    () => respond(databaseGetFixture.database)
+  ),
 
-  http.get('https://api.notion.com/v1/data_sources/:dataSourceId', () => {
-    return HttpResponse.json(databaseGetFixture.dataSource);
-  }),
+  http.get<{ dataSourceId: string }, undefined, typeof databaseGetFixture.dataSource>(
+    'https://api.notion.com/v1/data_sources/:dataSourceId',
+    () => respond(databaseGetFixture.dataSource)
+  ),
 
-  http.post('https://api.notion.com/v1/databases', () => {
-    return HttpResponse.json(databaseCreateFixture.database);
-  }),
+  http.post<never, Record<string, unknown>, typeof databaseCreateFixture.database>(
+    'https://api.notion.com/v1/databases',
+    () => respond(databaseCreateFixture.database)
+  ),
 
-  http.patch('https://api.notion.com/v1/databases/:databaseId', () => {
-    return HttpResponse.json(databaseUpdateFixture.database);
-  }),
+  http.patch<{ databaseId: string }, Record<string, unknown>, typeof databaseUpdateFixture.database>(
+    'https://api.notion.com/v1/databases/:databaseId',
+    () => respond(databaseUpdateFixture.database)
+  ),
 
-  http.patch('https://api.notion.com/v1/data_sources/:dataSourceId', () => {
-    return HttpResponse.json(databaseUpdateFixture.dataSource);
-  }),
+  http.patch<{ dataSourceId: string }, Record<string, unknown>, typeof databaseUpdateFixture.dataSource>(
+    'https://api.notion.com/v1/data_sources/:dataSourceId',
+    () => respond(databaseUpdateFixture.dataSource)
+  ),
 
-  http.post('https://api.notion.com/v1/data_sources/:dataSourceId/query', () => {
-    return HttpResponse.json(databaseQueryFixture);
-  }),
+  http.post<never, Record<string, unknown>, typeof databaseQueryFixture>(
+    'https://api.notion.com/v1/data_sources/:dataSourceId/query',
+    () => respond(databaseQueryFixture)
+  ),
 ];

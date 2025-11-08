@@ -17,7 +17,7 @@ export type SelectPropertyResponse = {
   } | null;
 };
 
-export const selectCodec = createNotionCodec(
+export const selectCodec = createNotionCodec<SelectOptionInput | null, SelectPropertyPayload, SelectPropertyResponse>(
   z.codec(
     z.custom<SelectOptionInput>().nullable(),
     z.custom<SelectPropertyPayload>(),

@@ -78,7 +78,7 @@ function extractTextFromRichText(richTextArray: TitlePropertyResponse["title"]):
  * // => { Name: { title: {} } }
  * ```
  */
-export const titleCodec = createNotionCodec(
+export const titleCodec = createNotionCodec<string, TitlePropertyPayload, TitlePropertyResponse>(
   z.codec(
     // Schema: string (validation happens in decode function)
     z.string(),

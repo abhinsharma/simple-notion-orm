@@ -1,26 +1,65 @@
 import { peopleCodec } from "@/orm/codecs";
+import type { PeoplePropertyPayload, PeoplePropertyResponse } from "@/orm/codecs/references/people";
 import type { ColumnDef } from "../types";
 
-type PeopleColumnBuilder = ColumnDef & {
-  optional: () => PeopleColumnBuilder;
-  nullable: () => PeopleColumnBuilder;
-  default: (value: string[]) => PeopleColumnBuilder;
+type PersonReference = { id: string };
+type PeopleValue = PersonReference[];
+
+type PeopleColumnBuilder<TOptional extends boolean = false, TNullable extends boolean = false> = ColumnDef<
+  PeopleValue,
+  TOptional,
+  TNullable,
+  PeoplePropertyPayload,
+  PeoplePropertyResponse
+> & {
+  optional: () => PeopleColumnBuilder<true, TNullable>;
+  nullable: () => PeopleColumnBuilder<TOptional, true>;
+  default: (value: PeopleValue) => PeopleColumnBuilder<TOptional, TNullable>;
 };
 
-function buildPeopleColumn(def: ColumnDef): PeopleColumnBuilder {
-  return Object.assign(def, {
-    optional: () => buildPeopleColumn({ ...def, optional: true }),
-    nullable: () => buildPeopleColumn({ ...def, nullable: true }),
-    default: (value: string[]) => buildPeopleColumn({ ...def, defaultValue: value }),
-  });
+function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>(
+  def: ColumnDef<
+    PeopleValue,
+    TOptional,
+    TNullable,
+    PeoplePropertyPayload,
+    PeoplePropertyResponse
+  >
+): PeopleColumnBuilder<TOptional, TNullable> {
+  return {
+    ...def,
+    optional: () =>
+      buildPeopleColumn({
+        name: def.name,
+        codec: def.codec,
+        isOptional: true as const,
+        isNullable: def.isNullable,
+        defaultValue: def.defaultValue,
+      }),
+    nullable: () =>
+      buildPeopleColumn({
+        name: def.name,
+        codec: def.codec,
+        isOptional: def.isOptional,
+        isNullable: true as const,
+        defaultValue: def.defaultValue,
+      }),
+    default: (value: PeopleValue) =>
+      buildPeopleColumn({
+        name: def.name,
+        codec: def.codec,
+        isOptional: def.isOptional,
+        isNullable: def.isNullable,
+        defaultValue: value,
+      }),
+  };
 }
 
 export function people(name: string): PeopleColumnBuilder {
   return buildPeopleColumn({
     name,
     codec: peopleCodec,
-    optional: false,
-    nullable: false,
-    __type: undefined as unknown as Array<{ id: string; name?: string }>,
+    isOptional: false as const,
+    isNullable: false as const,
   });
 }

@@ -17,7 +17,11 @@ export type MultiSelectPropertyResponse = {
   }>;
 };
 
-export const multiSelectCodec = createNotionCodec(
+export const multiSelectCodec = createNotionCodec<
+  SelectOptionInput[],
+  MultiSelectPropertyPayload,
+  MultiSelectPropertyResponse
+>(
   z.codec(
     z.array(z.custom<SelectOptionInput>()),
     z.custom<MultiSelectPropertyPayload>(),

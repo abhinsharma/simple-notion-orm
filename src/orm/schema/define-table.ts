@@ -5,11 +5,11 @@ import type {
   CreatePageParameters,
   PageObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import type { ColumnDef, RowInput, RowOutput, TableHandle } from "./types";
+import type { AnyColumnDef, RowInput, RowOutput, TableHandle, TableDef } from "./types";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
-type TableDefType<TColumns extends Record<string, ColumnDef>> = {
+type TableDefType<TColumns extends Record<string, AnyColumnDef>> = TableDef<TColumns> & {
   title: string;
   columns: TColumns;
   ids: { databaseId: string; dataSourceId: string };
@@ -22,7 +22,7 @@ type DefineTableOptions = {
 
 async function createNewDatabase(
   title: string,
-  columns: Record<string, ColumnDef>,
+  columns: Record<string, AnyColumnDef>,
   parentId: string
 ): Promise<{ databaseId: string; dataSourceId: string }> {
   const schema: Record<string, unknown> = {};
@@ -43,7 +43,7 @@ async function createNewDatabase(
   };
 }
 
-function getCodecType(columnDef: ColumnDef): string {
+function getCodecType(columnDef: AnyColumnDef): string {
   const config = columnDef.codec.config(columnDef.name);
   const propertyConfig = config[columnDef.name];
 
@@ -59,7 +59,7 @@ function getCodecType(columnDef: ColumnDef): string {
 
 function validateSchema(
   existingSchema: Record<string, { type: string }>,
-  providedColumns: Record<string, ColumnDef>
+  providedColumns: Record<string, AnyColumnDef>
 ): void {
   for (const [key, columnDef] of Object.entries(providedColumns)) {
     const existingProperty = existingSchema[columnDef.name];
@@ -83,7 +83,7 @@ function validateSchema(
 
 async function connectToExistingDatabase(
   databaseId: string,
-  columns: Record<string, ColumnDef>
+  columns: Record<string, AnyColumnDef>
 ): Promise<{ databaseId: string; dataSourceId: string }> {
   const resource = await getDatabase(databaseId);
 
@@ -95,8 +95,24 @@ async function connectToExistingDatabase(
   };
 }
 
+function cloneDefaultValue<T>(value: T): T {
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => cloneDefaultValue(item)) as T;
+  }
+
+  const cloned: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+    cloned[key] = cloneDefaultValue(nested);
+  }
+  return cloned as T;
+}
+
 export async function defineTable<
-  const TColumns extends Record<string, ColumnDef>,
+  const TColumns extends Record<string, AnyColumnDef>,
 >(
   title: string,
   columns: TColumns,
@@ -121,14 +137,35 @@ export async function defineTable<
     cacheIds: () => {},
     insert: async (data: RowInput<TableDefType<TColumns>>) => {
       const properties: Record<string, unknown> = {};
+      const resolvedRow: Record<string, unknown> = {};
 
-      for (const [key, value] of Object.entries(data)) {
-        const columnDef = columns[key];
-        if (!columnDef) {
+      for (const key of Object.keys(data as Record<string, unknown>)) {
+        if (!Object.prototype.hasOwnProperty.call(columns, key)) {
           throw new Error(`Unknown column: ${key}`);
         }
+      }
 
-        const encoded = columnDef.codec.parse(value);
+      for (const [key, columnDef] of Object.entries(columns)) {
+        const hasValue = Object.prototype.hasOwnProperty.call(data as object, key);
+        let value = hasValue ? (data as Record<string, unknown>)[key] : undefined;
+
+        if (!hasValue || value === undefined) {
+          if (columnDef.defaultValue !== undefined) {
+            value = cloneDefaultValue(columnDef.defaultValue);
+          } else if (columnDef.isOptional) {
+            continue;
+          } else {
+            throw new Error(`Missing required column: ${key}`);
+          }
+        }
+
+        if (value === null && !columnDef.isNullable) {
+          throw new Error(`Column '${key}' does not allow null values`);
+        }
+
+        resolvedRow[key] = value;
+
+        const encoded = columnDef.codec.parse(value as never);
         properties[columnDef.name] = encoded;
       }
 
@@ -137,7 +174,7 @@ export async function defineTable<
         properties: properties as CreatePageParameters["properties"],
       });
 
-      return data as unknown as RowOutput<TableDefType<TColumns>>;
+      return resolvedRow as RowOutput<TableDefType<TColumns>>;
     },
     select: async () => {
       const response = await queryDataSource(cachedIds.dataSourceId);
@@ -149,7 +186,7 @@ export async function defineTable<
         for (const [key, columnDef] of Object.entries(columns)) {
           const propertyValue = pageObj.properties[columnDef.name];
           if (propertyValue) {
-            row[key] = columnDef.codec.encode(propertyValue);
+            row[key] = columnDef.codec.encode(propertyValue as never);
           }
         }
 

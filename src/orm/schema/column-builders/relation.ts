@@ -1,26 +1,65 @@
 import { relationCodec } from "@/orm/codecs";
+import type { RelationPropertyPayload, RelationPropertyResponse } from "@/orm/codecs/references/relation";
 import type { ColumnDef } from "../types";
 
-type RelationColumnBuilder = ColumnDef & {
-  optional: () => RelationColumnBuilder;
-  nullable: () => RelationColumnBuilder;
-  default: (value: string[]) => RelationColumnBuilder;
+type RelationReference = { id: string };
+type RelationValue = RelationReference[];
+
+type RelationColumnBuilder<TOptional extends boolean = false, TNullable extends boolean = false> = ColumnDef<
+  RelationValue,
+  TOptional,
+  TNullable,
+  RelationPropertyPayload,
+  RelationPropertyResponse
+> & {
+  optional: () => RelationColumnBuilder<true, TNullable>;
+  nullable: () => RelationColumnBuilder<TOptional, true>;
+  default: (value: RelationValue) => RelationColumnBuilder<TOptional, TNullable>;
 };
 
-function buildRelationColumn(def: ColumnDef): RelationColumnBuilder {
-  return Object.assign(def, {
-    optional: () => buildRelationColumn({ ...def, optional: true }),
-    nullable: () => buildRelationColumn({ ...def, nullable: true }),
-    default: (value: string[]) => buildRelationColumn({ ...def, defaultValue: value }),
-  });
+function buildRelationColumn<TOptional extends boolean, TNullable extends boolean>(
+  def: ColumnDef<
+    RelationValue,
+    TOptional,
+    TNullable,
+    RelationPropertyPayload,
+    RelationPropertyResponse
+  >
+): RelationColumnBuilder<TOptional, TNullable> {
+  return {
+    ...def,
+    optional: () =>
+      buildRelationColumn({
+        name: def.name,
+        codec: def.codec,
+        isOptional: true as const,
+        isNullable: def.isNullable,
+        defaultValue: def.defaultValue,
+      }),
+    nullable: () =>
+      buildRelationColumn({
+        name: def.name,
+        codec: def.codec,
+        isOptional: def.isOptional,
+        isNullable: true as const,
+        defaultValue: def.defaultValue,
+      }),
+    default: (value: RelationValue) =>
+      buildRelationColumn({
+        name: def.name,
+        codec: def.codec,
+        isOptional: def.isOptional,
+        isNullable: def.isNullable,
+        defaultValue: value,
+      }),
+  };
 }
 
 export function relation(name: string): RelationColumnBuilder {
   return buildRelationColumn({
     name,
     codec: relationCodec,
-    optional: false,
-    nullable: false,
-    __type: undefined as unknown as Array<{ id: string }>,
+    isOptional: false as const,
+    isNullable: false as const,
   });
 }

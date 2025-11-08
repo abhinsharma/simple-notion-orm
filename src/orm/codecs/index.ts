@@ -18,6 +18,8 @@ export { numberCodec } from "./primitives/number";
 export { dateCodec } from "./primitives/date";
 export { checkboxCodec } from "./primitives/checkbox";
 export { urlCodec } from "./primitives/url";
+export { emailCodec } from "./primitives/email";
+export { phoneNumberCodec } from "./primitives/phone-number";
 
 // Option codecs
 export { selectCodec } from "./options/select";
@@ -27,3 +29,6 @@ export { statusCodec } from "./options/status";
 // Reference codecs
 export { peopleCodec } from "./references/people";
 export { relationCodec } from "./references/relation";
+
+// File codecs
+export { filesCodec } from "./files/files";

@@ -21,7 +21,7 @@ export type DatePropertyResponse = {
   } | null;
 };
 
-export const dateCodec = createNotionCodec(
+export const dateCodec = createNotionCodec<DatePropertyInput | null, DatePropertyPayload, DatePropertyResponse>(
   z.codec(
     z.custom<DatePropertyInput>().nullable(),
     z.custom<DatePropertyPayload>(),

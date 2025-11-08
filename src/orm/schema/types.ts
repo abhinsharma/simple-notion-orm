@@ -1,24 +1,51 @@
 import type { NotionCodec } from "@/orm/codecs/base/codec";
 
-export type ColumnDef = {
+export type ColumnDef<
+  TValue,
+  TOptional extends boolean,
+  TNullable extends boolean,
+  TPropertyPayload = unknown,
+  TPropertyResponse = unknown,
+> = {
   name: string;
-  codec: NotionCodec;
-  optional: boolean;
-  nullable: boolean;
-  defaultValue?: unknown;
-  __type?: unknown;
+  codec: NotionCodec<TValue, TPropertyPayload, TPropertyResponse>;
+  isOptional: TOptional;
+  isNullable: TNullable;
+  defaultValue?: TValue;
 };
 
-export type TableDef = {
+export type AnyColumnDef = ColumnDef<any, boolean, boolean, any, any>;
+
+export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, any, any, any, any>
+  ? TValue
+  : never;
+
+export type ColumnOptional<TColumn> = TColumn extends ColumnDef<any, infer TOptional, any, any, any>
+  ? TOptional
+  : never;
+
+export type ColumnNullable<TColumn> = TColumn extends ColumnDef<any, any, infer TNullable, any, any>
+  ? TNullable
+  : never;
+
+type ColumnInputValue<TColumn> = ColumnNullable<TColumn> extends true
+  ? ColumnValue<TColumn>
+  : Exclude<ColumnValue<TColumn>, null>;
+
+type ColumnOutputValue<TColumn> = ColumnNullable<TColumn> extends true
+  ? ColumnValue<TColumn> | null
+  : Exclude<ColumnValue<TColumn>, null>;
+
+export type TableDef<TColumns extends Record<string, AnyColumnDef> = Record<string, AnyColumnDef>> = {
   title: string;
-  columns: Record<string, ColumnDef>;
+  columns: TColumns;
   ids?: {
     databaseId?: string;
     dataSourceId?: string;
   };
 };
 
-export type TableHandle<TDef extends TableDef = TableDef> = {
+export type TableHandle<TDef extends TableDef> = {
   title: string;
   columns: TDef["columns"];
   getIds: () => { databaseId?: string; dataSourceId?: string };
@@ -28,13 +55,15 @@ export type TableHandle<TDef extends TableDef = TableDef> = {
 };
 
 export type RowInput<TDef extends TableDef> = {
-  [K in keyof TDef["columns"] as TDef["columns"][K]["optional"] extends true ? K : never]?: TDef["columns"][K]["__type"];
+  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends true ? K : never]?: ColumnInputValue<
+    TDef["columns"][K]
+  >;
 } & {
-  [K in keyof TDef["columns"] as TDef["columns"][K]["optional"] extends false ? K : never]: TDef["columns"][K]["__type"];
+  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends false ? K : never]: ColumnInputValue<
+    TDef["columns"][K]
+  >;
 };
 
 export type RowOutput<TDef extends TableDef> = {
-  [K in keyof TDef["columns"]]: TDef["columns"][K]["nullable"] extends true
-    ? TDef["columns"][K]["__type"] | null
-    : TDef["columns"][K]["__type"];
+  [K in keyof TDef["columns"]]: ColumnOutputValue<TDef["columns"][K]>;
 };

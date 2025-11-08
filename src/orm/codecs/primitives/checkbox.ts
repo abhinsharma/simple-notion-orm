@@ -12,7 +12,7 @@ export type CheckboxPropertyResponse = {
   checkbox: boolean;
 };
 
-export const checkboxCodec = createNotionCodec(
+export const checkboxCodec = createNotionCodec<boolean, CheckboxPropertyPayload, CheckboxPropertyResponse>(
   z.codec(
     z.boolean(),
     z.custom<CheckboxPropertyPayload>(),

@@ -12,7 +12,7 @@ export type UrlPropertyResponse = {
   url: string | null;
 };
 
-export const urlCodec = createNotionCodec(
+export const urlCodec = createNotionCodec<string | null, UrlPropertyPayload, UrlPropertyResponse>(
   z.codec(
     z.string().nullable(),
     z.custom<UrlPropertyPayload>(),
