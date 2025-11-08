@@ -64,6 +64,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  logError(error instanceof Error ? error.stack ?? error.message : String(error));
+  logError(error instanceof Error ? (error.stack ?? error.message) : String(error));
   process.exit(1);
 });

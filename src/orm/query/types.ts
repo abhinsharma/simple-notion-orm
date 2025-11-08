@@ -40,10 +40,7 @@ export type CompoundPredicate = {
   predicates: Predicate[];
 };
 
-export type Predicate<TColumn extends AnyColumnDef = AnyColumnDef> =
-  | ComparisonPredicate<TColumn>
-  | NullPredicate<TColumn>
-  | CompoundPredicate;
+export type Predicate<TColumn extends AnyColumnDef = AnyColumnDef> = ComparisonPredicate<TColumn> | NullPredicate<TColumn> | CompoundPredicate;
 
 export type TablePredicate<TDef extends TableDef> = Predicate<TDef["columns"][keyof TDef["columns"]]>;
 

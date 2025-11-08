@@ -19,10 +19,7 @@ import type { RichTextItemRequest, FileSource } from "@/types/blocks";
  *   [{ type: "text", text: { content: "Figure 1: Example" } }]
  * )
  */
-export function buildImageBlock(
-  source: FileSource,
-  caption?: RichTextItemRequest[]
-) {
+export function buildImageBlock(source: FileSource, caption?: RichTextItemRequest[]) {
   if (source.type === "external") {
     return {
       type: "image" as const,
@@ -54,10 +51,7 @@ export function buildImageBlock(
  * @example
  * buildVideoBlock({ type: "external", url: "https://youtube.com/watch?v=..." })
  */
-export function buildVideoBlock(
-  source: FileSource,
-  caption?: RichTextItemRequest[]
-) {
+export function buildVideoBlock(source: FileSource, caption?: RichTextItemRequest[]) {
   if (source.type === "external") {
     return {
       type: "video" as const,
@@ -93,10 +87,7 @@ export function buildVideoBlock(
  *   [{ type: "text", text: { content: "Notion homepage" } }]
  * )
  */
-export function buildBookmarkBlock(
-  url: string,
-  caption?: RichTextItemRequest[]
-) {
+export function buildBookmarkBlock(url: string, caption?: RichTextItemRequest[]) {
   return {
     type: "bookmark" as const,
     bookmark: {
@@ -116,10 +107,7 @@ export function buildBookmarkBlock(
  * @example
  * buildEmbedBlock("https://www.figma.com/embed?...")
  */
-export function buildEmbedBlock(
-  url: string,
-  caption?: RichTextItemRequest[]
-) {
+export function buildEmbedBlock(url: string, caption?: RichTextItemRequest[]) {
   return {
     type: "embed" as const,
     embed: {
@@ -139,10 +127,7 @@ export function buildEmbedBlock(
  * @example
  * buildPdfBlock({ type: "external", url: "https://example.com/doc.pdf" })
  */
-export function buildPdfBlock(
-  source: FileSource,
-  caption?: RichTextItemRequest[]
-) {
+export function buildPdfBlock(source: FileSource, caption?: RichTextItemRequest[]) {
   if (source.type === "external") {
     return {
       type: "pdf" as const,
@@ -175,11 +160,7 @@ export function buildPdfBlock(
  * @example
  * buildFileBlock({ type: "external", url: "https://example.com/file.zip" }, "archive.zip")
  */
-export function buildFileBlock(
-  source: FileSource,
-  name?: string,
-  caption?: RichTextItemRequest[]
-) {
+export function buildFileBlock(source: FileSource, name?: string, caption?: RichTextItemRequest[]) {
   if (source.type === "external") {
     return {
       type: "file" as const,
@@ -213,10 +194,7 @@ export function buildFileBlock(
  * @example
  * buildAudioBlock({ type: "external", url: "https://example.com/audio.mp3" })
  */
-export function buildAudioBlock(
-  source: FileSource,
-  caption?: RichTextItemRequest[]
-) {
+export function buildAudioBlock(source: FileSource, caption?: RichTextItemRequest[]) {
   if (source.type === "external") {
     return {
       type: "audio" as const,

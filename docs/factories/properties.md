@@ -4,8 +4,8 @@ Property factories map application values to the shapes expected by Notion page 
 
 ## Page-level properties
 
-| Factory | Description |
-| ------- | ----------- |
+| Factory                    | Description                       |
+| -------------------------- | --------------------------------- |
 | `buildTitleProperty(text)` | Primary title property for pages. |
 
 ### Example
@@ -24,21 +24,21 @@ await createPage({
 
 ## Database page properties
 
-| Factory | Description |
-| ------- | ----------- |
-| `buildRichTextProperty(text)` | Rich text property payload. |
-| `buildNumberProperty(value)` | Number property (supports clearing via `null`). |
-| `buildDateProperty(date?)` | Date range with optional time zone. |
-| `buildCheckboxProperty(checked)` | Checkbox property. |
-| `buildUrlProperty(url?)` | URL property (trimmed, nullable). |
-| `buildEmailProperty(email?)` | Email property. |
-| `buildPhoneNumberProperty(phone?)` | Phone number property. |
-| `buildPeopleProperty(users)` | People property (IDs or user/group objects). |
-| `buildFilesProperty(files)` | Files property for external/file uploads. |
-| `buildSelectProperty(option)` | Single select option by name or id. |
-| `buildMultiSelectProperty(options)` | Multi-select property. |
-| `buildStatusProperty(option)` | Status property value by name or id. |
-| `buildRelationProperty(pageIds)` | Relation property linking to other pages. |
+| Factory                             | Description                                     |
+| ----------------------------------- | ----------------------------------------------- |
+| `buildRichTextProperty(text)`       | Rich text property payload.                     |
+| `buildNumberProperty(value)`        | Number property (supports clearing via `null`). |
+| `buildDateProperty(date?)`          | Date range with optional time zone.             |
+| `buildCheckboxProperty(checked)`    | Checkbox property.                              |
+| `buildUrlProperty(url?)`            | URL property (trimmed, nullable).               |
+| `buildEmailProperty(email?)`        | Email property.                                 |
+| `buildPhoneNumberProperty(phone?)`  | Phone number property.                          |
+| `buildPeopleProperty(users)`        | People property (IDs or user/group objects).    |
+| `buildFilesProperty(files)`         | Files property for external/file uploads.       |
+| `buildSelectProperty(option)`       | Single select option by name or id.             |
+| `buildMultiSelectProperty(options)` | Multi-select property.                          |
+| `buildStatusProperty(option)`       | Status property value by name or id.            |
+| `buildRelationProperty(pageIds)`    | Relation property linking to other pages.       |
 
 > **Status note**: Notion's public API still rejects status options during database creation. Use `buildStatusProperty` for updates against an existing status column, and avoid `buildStatusConfig()` unless the property is already provisioned in Notion.
 >
@@ -46,7 +46,7 @@ await createPage({
 
 ### Example: create a database row
 
-```ts
+````ts
 import { createDatabasePage } from "@/api/database-page";
 import {
   buildTitleProperty,
@@ -85,8 +85,9 @@ await updateDatabasePage({
     Relation: buildRelationProperty(["linked-page-id"]),
   },
 });
-```
-```
+````
+
+````
 
 ## Schema helpers
 
@@ -111,6 +112,6 @@ await createDatabase({
     ]),
   },
 });
-```
+````
 
 These helpers keep property payloads consistent with Notion’s expected JSON and guard against typos when you need to set, update, or provision database columns.

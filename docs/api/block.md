@@ -1,12 +1,12 @@
 # Block API Examples
 
-| API                   | Returns                      | Description                                         |
-| --------------------- | ---------------------------- | --------------------------------------------------- |
-| `getBlock`            | `GetBlockResponse`           | Retrieve a block by its ID.                         |
-| `getBlockChildren`    | `ListBlockChildrenResponse`  | List children under a block or page.                |
-| `appendBlockChildren` | `AppendBlockChildrenResponse`| Append child blocks beneath a target block or page. |
-| `updateBlock`         | `UpdateBlockResponse`        | Update an existing block.                           |
-| `deleteBlock`         | `DeleteBlockResponse`        | Soft-delete (archive) a block.                      |
+| API                   | Returns                       | Description                                         |
+| --------------------- | ----------------------------- | --------------------------------------------------- |
+| `getBlock`            | `GetBlockResponse`            | Retrieve a block by its ID.                         |
+| `getBlockChildren`    | `ListBlockChildrenResponse`   | List children under a block or page.                |
+| `appendBlockChildren` | `AppendBlockChildrenResponse` | Append child blocks beneath a target block or page. |
+| `updateBlock`         | `UpdateBlockResponse`         | Update an existing block.                           |
+| `deleteBlock`         | `DeleteBlockResponse`         | Soft-delete (archive) a block.                      |
 
 All helpers live under `@/api/block`.
 
@@ -33,9 +33,7 @@ import { appendBlockChildren } from "@/api/block";
 import { buildParagraphBlock } from "@/factories/blocks/text";
 import { textToRichText } from "@/utils/richtext";
 
-await appendBlockChildren("notion-page-id", [
-  buildParagraphBlock(textToRichText("Hello from the playground")),
-]);
+await appendBlockChildren("notion-page-id", [buildParagraphBlock(textToRichText("Hello from the playground"))]);
 ```
 
 ## Update a block

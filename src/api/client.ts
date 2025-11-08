@@ -21,9 +21,7 @@ export function getNotionClient(): Client {
   const notionApiKey = process.env.NOTION_API_KEY;
 
   if (!notionApiKey) {
-    throw new Error(
-      'NOTION_API_KEY is not set in the environment variables. Please ensure you have a .env file with NOTION_API_KEY="your_key_here"'
-    );
+    throw new Error('NOTION_API_KEY is not set in the environment variables. Please ensure you have a .env file with NOTION_API_KEY="your_key_here"');
   }
 
   client = new Client({

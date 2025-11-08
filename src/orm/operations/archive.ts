@@ -15,10 +15,7 @@ function resolveLimit<TDef extends TableDef>(options?: TargetOptions<TDef>): num
   return MAX_PAGE_SIZE;
 }
 
-async function resolvePageIds<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  options?: TargetOptions<TDef>
-): Promise<string[]> {
+async function resolvePageIds<TDef extends TableDef>(table: TableHandle<TDef>, options?: TargetOptions<TDef>): Promise<string[]> {
   if (options?.pageIds?.length) {
     return options.pageIds;
   }
@@ -36,10 +33,7 @@ async function resolvePageIds<TDef extends TableDef>(
   return selection.rows.map((row) => row.page.id);
 }
 
-async function applyArchiveState(
-  pageIds: string[],
-  archived: boolean
-): Promise<number> {
+async function applyArchiveState(pageIds: string[], archived: boolean): Promise<number> {
   let count = 0;
   for (const id of pageIds) {
     await updateDatabasePage({
@@ -51,10 +45,7 @@ async function applyArchiveState(
   return count;
 }
 
-export async function archiveRows<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  options?: TargetOptions<TDef>
-): Promise<number> {
+export async function archiveRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: TargetOptions<TDef>): Promise<number> {
   ensureTableIds(table);
   const pageIds = await resolvePageIds(table, options);
   if (!pageIds.length) {
@@ -64,10 +55,7 @@ export async function archiveRows<TDef extends TableDef>(
   return applyArchiveState(pageIds, true);
 }
 
-export async function restoreRows<TDef extends TableDef>(
-  table: TableHandle<TDef>,
-  options?: TargetOptions<TDef>
-): Promise<number> {
+export async function restoreRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: TargetOptions<TDef>): Promise<number> {
   ensureTableIds(table);
   const pageIds = await resolvePageIds(table, options);
   if (!pageIds.length) {

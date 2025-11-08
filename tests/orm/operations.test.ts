@@ -97,10 +97,7 @@ describe("ORM operations", () => {
       })
     );
 
-    const envelope = await table.update(
-      { stage: { name: "Done" } },
-      { pageIds: [dbPageCreateFixture.id] }
-    );
+    const envelope = await table.update({ stage: { name: "Done" } }, { pageIds: [dbPageCreateFixture.id] });
 
     expect(patchSpy).toHaveBeenCalledWith(
       expect.objectContaining({

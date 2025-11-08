@@ -12,7 +12,7 @@ type TextColumnBuilder<
   TOptional extends boolean = false,
   TNullable extends boolean = false,
   TPayload = RichTextPropertyPayload,
-  TResponse = RichTextPropertyResponse
+  TResponse = RichTextPropertyResponse,
 > = ColumnDef<string, TOptional, TNullable, TPayload, TResponse> & {
   optional: () => TextColumnBuilder<true, TNullable, TPayload, TResponse>;
   nullable: () => TextColumnBuilder<TOptional, true, TPayload, TResponse>;
@@ -20,12 +20,9 @@ type TextColumnBuilder<
   title: () => TextColumnBuilder<TOptional, TNullable, TitlePropertyPayload, TitlePropertyResponse>;
 };
 
-function buildTextColumn<
-  TOptional extends boolean,
-  TNullable extends boolean,
-  TPayload,
-  TResponse
->(def: ColumnDef<string, TOptional, TNullable, TPayload, TResponse>): TextColumnBuilder<TOptional, TNullable, TPayload, TResponse> {
+function buildTextColumn<TOptional extends boolean, TNullable extends boolean, TPayload, TResponse>(
+  def: ColumnDef<string, TOptional, TNullable, TPayload, TResponse>
+): TextColumnBuilder<TOptional, TNullable, TPayload, TResponse> {
   return {
     ...def,
     optional: () =>

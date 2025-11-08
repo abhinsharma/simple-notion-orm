@@ -47,37 +47,33 @@ const fileInputSchema: z.ZodType<FileInput> = z.union([
 ]);
 
 export const filesCodec = createNotionCodec<FileInput[], FilesPropertyPayload, FilesPropertyResponse>(
-  z.codec(
-    z.array(fileInputSchema),
-    z.custom<FilesPropertyPayload>(),
-    {
-      decode: (value: FileInput[]): FilesPropertyPayload => {
-        const { type: _type, ...payload } = buildFilesProperty(value);
-        return payload;
-      },
-      encode: (property: FilesPropertyResponse): FileInput[] => {
-        return property.files.map((file) => {
-          const base = {
-            name: file.name ?? "",
-          };
+  z.codec(z.array(fileInputSchema), z.custom<FilesPropertyPayload>(), {
+    decode: (value: FileInput[]): FilesPropertyPayload => {
+      const { type: _type, ...payload } = buildFilesProperty(value);
+      return payload;
+    },
+    encode: (property: FilesPropertyResponse): FileInput[] => {
+      return property.files.map((file) => {
+        const base = {
+          name: file.name ?? "",
+        };
 
-          if (file.type === "file") {
-            return {
-              type: "file" as const,
-              url: file.file?.url ?? "",
-              ...(base.name ? { name: base.name } : {}),
-            };
-          }
-
+        if (file.type === "file") {
           return {
-            type: "external" as const,
-            url: file.external?.url ?? "",
+            type: "file" as const,
+            url: file.file?.url ?? "",
             ...(base.name ? { name: base.name } : {}),
           };
-        });
-      },
-    }
-  ),
+        }
+
+        return {
+          type: "external" as const,
+          url: file.external?.url ?? "",
+          ...(base.name ? { name: base.name } : {}),
+        };
+      });
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

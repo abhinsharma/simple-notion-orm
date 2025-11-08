@@ -19,9 +19,7 @@ import { getNotionClient } from "./client";
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
 
-async function retrieveDatabase(
-  databaseId: string
-): Promise<DatabaseObjectResponse> {
+async function retrieveDatabase(databaseId: string): Promise<DatabaseObjectResponse> {
   const notionClient = getNotionClient();
   const response = await notionClient.databases.retrieve({
     database_id: databaseId,
@@ -38,26 +36,20 @@ function getPrimaryDataSourceId(database: DatabaseObjectResponse): string {
   const primaryDataSource = database.data_sources?.[0];
 
   if (!primaryDataSource) {
-    throw new Error(
-      `Database ${database.id} has no associated data sources. Ensure the workspace has migrated to data sources.`
-    );
+    throw new Error(`Database ${database.id} has no associated data sources. Ensure the workspace has migrated to data sources.`);
   }
 
   return primaryDataSource.id;
 }
 
-async function retrieveDataSource(
-  dataSourceId: string
-): Promise<DataSourceObjectResponse> {
+async function retrieveDataSource(dataSourceId: string): Promise<DataSourceObjectResponse> {
   const notionClient = getNotionClient();
   const response = await notionClient.dataSources.retrieve({
     data_source_id: dataSourceId,
   });
 
   if ((response as DataSourceObjectResponse).object !== "data_source") {
-    throw new Error(
-      `Received unexpected response when fetching data source ${dataSourceId}`
-    );
+    throw new Error(`Received unexpected response when fetching data source ${dataSourceId}`);
   }
 
   return response as DataSourceObjectResponse;
@@ -77,9 +69,7 @@ async function loadDatabaseResource(databaseId: string): Promise<DatabaseResourc
 /**
  * Retrieve a database by its ID
  */
-export async function getDatabase(
-  databaseId: string
-): Promise<DatabaseResource> {
+export async function getDatabase(databaseId: string): Promise<DatabaseResource> {
   try {
     return await loadDatabaseResource(databaseId);
   } catch (error) {
@@ -156,26 +146,13 @@ type UpdateDatabaseParams = {
   properties?: DatabaseProperties;
 };
 
-export async function updateDatabase({
-  databaseId,
-  title,
-  description,
-  isInline,
-  icon,
-  cover,
-  properties,
-}: UpdateDatabaseParams): Promise<DatabaseResource> {
+export async function updateDatabase({ databaseId, title, description, isInline, icon, cover, properties }: UpdateDatabaseParams): Promise<DatabaseResource> {
   try {
     const notionClient = getNotionClient();
     const database = await retrieveDatabase(databaseId);
     const dataSourceId = getPrimaryDataSourceId(database);
 
-    const shouldUpdateDatabase =
-      Boolean(title) ||
-      Boolean(description) ||
-      typeof isInline === "boolean" ||
-      icon !== undefined ||
-      cover !== undefined;
+    const shouldUpdateDatabase = Boolean(title) || Boolean(description) || typeof isInline === "boolean" || icon !== undefined || cover !== undefined;
 
     if (shouldUpdateDatabase) {
       await notionClient.databases.update({
@@ -188,8 +165,7 @@ export async function updateDatabase({
       });
     }
 
-    const shouldUpdateDataSource =
-      Boolean(properties) || Boolean(title) || icon !== undefined;
+    const shouldUpdateDataSource = Boolean(properties) || Boolean(title) || icon !== undefined;
 
     if (shouldUpdateDataSource) {
       await notionClient.dataSources.update({
@@ -197,9 +173,7 @@ export async function updateDatabase({
         ...(title && { title }),
         ...(icon !== undefined && { icon }),
         ...(properties && {
-          properties: properties as NonNullable<
-            UpdateDataSourceParameters["properties"]
-          >,
+          properties: properties as NonNullable<UpdateDataSourceParameters["properties"]>,
         }),
       });
     }
@@ -213,10 +187,7 @@ export async function updateDatabase({
 /**
  * Query database items (pages within the database)
  */
-export async function queryDataSource(
-  dataSourceId: string,
-  params?: Omit<QueryDataSourceParameters, "data_source_id">
-): Promise<QueryDataSourceResponse> {
+export async function queryDataSource(dataSourceId: string, params?: Omit<QueryDataSourceParameters, "data_source_id">): Promise<QueryDataSourceResponse> {
   try {
     const notionClient = getNotionClient();
     const response = await notionClient.dataSources.query({
@@ -230,10 +201,7 @@ export async function queryDataSource(
   }
 }
 
-export async function queryDatabase(
-  databaseId: string,
-  params?: Omit<QueryDataSourceParameters, "data_source_id">
-): Promise<QueryDataSourceResponse> {
+export async function queryDatabase(databaseId: string, params?: Omit<QueryDataSourceParameters, "data_source_id">): Promise<QueryDataSourceResponse> {
   try {
     const database = await retrieveDatabase(databaseId);
     const dataSourceId = getPrimaryDataSourceId(database);

@@ -135,21 +135,14 @@ export type HeadingLevel = 1 | 2 | 3;
 /**
  * Icon types for callout blocks and pages
  */
-export type IconType =
-  | { type: "emoji"; emoji: string }
-  | { type: "external"; external: { url: string } };
+export type IconType = { type: "emoji"; emoji: string } | { type: "external"; external: { url: string } };
 
 /**
  * File source types for media blocks
  */
-export type FileSource =
-  | { type: "external"; url: string }
-  | { type: "file"; url: string };
+export type FileSource = { type: "external"; url: string } | { type: "file"; url: string };
 
 /**
  * Link to page types
  */
-export type LinkToPageType =
-  | { type: "page_id"; page_id: string }
-  | { type: "database_id"; database_id: string }
-  | { type: "comment_id"; comment_id: string };
+export type LinkToPageType = { type: "page_id"; page_id: string } | { type: "database_id"; database_id: string } | { type: "comment_id"; comment_id: string };

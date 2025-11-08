@@ -22,27 +22,23 @@ export type DatePropertyResponse = {
 };
 
 export const dateCodec = createNotionCodec<DatePropertyInput | null, DatePropertyPayload, DatePropertyResponse>(
-  z.codec(
-    z.custom<DatePropertyInput>().nullable(),
-    z.custom<DatePropertyPayload>(),
-    {
-      decode: (value: DatePropertyInput | null): DatePropertyPayload => {
-        const { type: _type, ...payload } = buildDateProperty(value);
-        return payload;
-      },
-      encode: (property: DatePropertyResponse): DatePropertyInput | null => {
-        if (!property.date) {
-          return null;
-        }
+  z.codec(z.custom<DatePropertyInput>().nullable(), z.custom<DatePropertyPayload>(), {
+    decode: (value: DatePropertyInput | null): DatePropertyPayload => {
+      const { type: _type, ...payload } = buildDateProperty(value);
+      return payload;
+    },
+    encode: (property: DatePropertyResponse): DatePropertyInput | null => {
+      if (!property.date) {
+        return null;
+      }
 
-        return {
-          start: property.date.start,
-          end: property.date.end ?? undefined,
-          time_zone: property.date.time_zone ?? undefined,
-        };
-      },
-    }
-  ),
+      return {
+        start: property.date.start,
+        end: property.date.end ?? undefined,
+        time_zone: property.date.time_zone ?? undefined,
+      };
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

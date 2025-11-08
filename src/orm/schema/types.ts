@@ -19,13 +19,7 @@ export type ColumnPropertyType =
   | "relation"
   | "unique_id";
 
-export type ColumnDef<
-  TValue,
-  TOptional extends boolean,
-  TNullable extends boolean,
-  TPropertyPayload = unknown,
-  TPropertyResponse = unknown,
-> = {
+export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boolean, TPropertyPayload = unknown, TPropertyResponse = unknown> = {
   name: string;
   codec: NotionCodec<TValue, TPropertyPayload, TPropertyResponse>;
   isOptional: TOptional;
@@ -41,43 +35,15 @@ export type AnyColumnDef = Omit<BaseAnyColumnDef, "codec"> & {
   codec: NotionCodec<any, any, any>;
 };
 
-export type ColumnValue<TColumn> = TColumn extends ColumnDef<
-  infer TValue,
-  infer _Optional,
-  infer _Nullable,
-  infer _Payload,
-  infer _Response
->
-  ? TValue
-  : never;
+export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, infer _Optional, infer _Nullable, infer _Payload, infer _Response> ? TValue : never;
 
-export type ColumnOptional<TColumn> = TColumn extends ColumnDef<
-  unknown,
-  infer TOptional,
-  infer _Nullable,
-  unknown,
-  unknown
->
-  ? TOptional
-  : never;
+export type ColumnOptional<TColumn> = TColumn extends ColumnDef<unknown, infer TOptional, infer _Nullable, unknown, unknown> ? TOptional : never;
 
-export type ColumnNullable<TColumn> = TColumn extends ColumnDef<
-  unknown,
-  infer _Optional,
-  infer TNullable,
-  unknown,
-  unknown
->
-  ? TNullable
-  : never;
+export type ColumnNullable<TColumn> = TColumn extends ColumnDef<unknown, infer _Optional, infer TNullable, unknown, unknown> ? TNullable : never;
 
-type ColumnInputValue<TColumn> = ColumnNullable<TColumn> extends true
-  ? ColumnValue<TColumn>
-  : Exclude<ColumnValue<TColumn>, null>;
+type ColumnInputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> : Exclude<ColumnValue<TColumn>, null>;
 
-type ColumnOutputValue<TColumn> = ColumnNullable<TColumn> extends true
-  ? ColumnValue<TColumn> | null
-  : Exclude<ColumnValue<TColumn>, null>;
+type ColumnOutputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> | null : Exclude<ColumnValue<TColumn>, null>;
 
 export type TableDef<TColumns extends Record<string, AnyColumnDef> = Record<string, AnyColumnDef>> = {
   title: string;
@@ -95,9 +61,7 @@ export type RowEnvelope<TDef extends TableDef> = {
 
 export type SelectOptions<TDef extends TableDef = TableDef> = {
   where?: TablePredicate<TDef>;
-  orderBy?:
-    | SortDescriptor<TDef["columns"][keyof TDef["columns"]]>
-    | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
+  orderBy?: SortDescriptor<TDef["columns"][keyof TDef["columns"]]> | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
   rawFilter?: QueryDataSourceParameters["filter"];
   rawSorts?: QueryDataSourceParameters["sorts"];
   pageSize?: number;
@@ -138,13 +102,9 @@ export type TableHandle<TDef extends TableDef> = {
 };
 
 export type RowInput<TDef extends TableDef> = {
-  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends true ? K : never]?: ColumnInputValue<
-    TDef["columns"][K]
-  >;
+  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends true ? K : never]?: ColumnInputValue<TDef["columns"][K]>;
 } & {
-  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends false ? K : never]: ColumnInputValue<
-    TDef["columns"][K]
-  >;
+  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends false ? K : never]: ColumnInputValue<TDef["columns"][K]>;
 };
 
 export type RowOutput<TDef extends TableDef> = {
