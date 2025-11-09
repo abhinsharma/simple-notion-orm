@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   rules: {
     "import/default": "off",
     "import/export": "off",

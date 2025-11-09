@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   rules: {
     "no-unexpected-multiline": "error",
     "no-label-var": "error",

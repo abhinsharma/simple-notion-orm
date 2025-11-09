@@ -1,21 +1,51 @@
 {
   "name": "simple-notion-orm",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "Simple TypeScript ORM helpers for Notion's Data Sources API.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "notion",
+    "orm",
+    "notion-api",
+    "notion-database"
+  ],
+  "author": "Abhin Sharma",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhinsharma/simple-notion-orm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abhinsharma/simple-notion-orm/issues"
+  },
+  "homepage": "https://github.com/abhinsharma/simple-notion-orm#readme",
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
-    "build": "tsc --noEmit",
+    "tsc": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm run build",
     "lint": "eslint .",
     "test": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.17.1",
-  "engines": {
-    "node": ">=22.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.8.1",
@@ -37,5 +67,8 @@
     "@notionhq/client": "^5.3.0",
     "dotenv": "^17.2.3",
     "zod": "^4.1.12"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

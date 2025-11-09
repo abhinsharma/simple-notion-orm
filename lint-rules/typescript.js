@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   rules: {
     "@typescript-eslint/consistent-type-definitions": ["error", "type"],
     "@typescript-eslint/no-loop-func": "error",

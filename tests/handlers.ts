@@ -4,6 +4,10 @@ import pageCreateFixture from "./fixtures/page-create.json";
 import pageUpdateFixture from "./fixtures/page-update.json";
 import pageArchiveFixture from "./fixtures/page-archive.json";
 import pageRestoreFixture from "./fixtures/page-restore.json";
+import dbPageGetFixture from "./fixtures/db-page-get.json";
+import dbPageUpdateFixture from "./fixtures/db-page-update.json";
+import dbPageArchiveFixture from "./fixtures/db-page-archive.json";
+import dbPageRestoreFixture from "./fixtures/db-page-restore.json";
 import pageSearchFixture from "./fixtures/page-search.json";
 import blockGetFixture from "./fixtures/block-get.json";
 import blockChildrenFixture from "./fixtures/block-children.json";
@@ -13,8 +17,8 @@ import blockDeleteFixture from "./fixtures/block-delete.json";
 import databaseGetFixture from "./fixtures/database-get.json";
 import databaseCreateFixture from "./fixtures/database-create.json";
 import databaseUpdateFixture from "./fixtures/database-update.json";
-import databaseQueryFixture from "./fixtures/database-query.json";
 import databaseSearchFixture from "./fixtures/database-search.json";
+import databaseQueryFixture from "./fixtures/database-query.json";
 import dbPageCreateFixture from "./fixtures/db-page-create.json";
 
 const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
@@ -22,7 +26,12 @@ const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.
 export const handlers = [
   http.get<never, undefined, { ok: boolean }>("https://api.notion.com/v1/ping", () => respond({ ok: true })),
 
-  http.get<{ pageId: string }, undefined, typeof pageGetFixture>("https://api.notion.com/v1/pages/:pageId", () => respond(pageGetFixture)),
+  http.get<{ pageId: string }, undefined, typeof pageGetFixture | typeof dbPageGetFixture>("https://api.notion.com/v1/pages/:pageId", ({ params }) => {
+    if (params.pageId === dbPageGetFixture.id) {
+      return respond(dbPageGetFixture);
+    }
+    return respond(pageGetFixture);
+  }),
 
   http.post<never, Record<string, unknown>, typeof dbPageCreateFixture | typeof pageCreateFixture>("https://api.notion.com/v1/pages", async ({ request }) => {
     const body = (await request.json()) as { parent?: { database_id?: string; page_id?: string } };
@@ -33,20 +42,36 @@ export const handlers = [
     return respond(pageCreateFixture);
   }),
 
-  http.patch<{ pageId: string }, Record<string, unknown>, typeof pageUpdateFixture | typeof pageArchiveFixture | typeof pageRestoreFixture>(
-    "https://api.notion.com/v1/pages/:pageId",
-    async ({ request }) => {
-      const body = (await request.json()) as { archived?: boolean };
+  http.patch<
+    { pageId: string },
+    Record<string, unknown>,
+    | typeof pageUpdateFixture
+    | typeof pageArchiveFixture
+    | typeof pageRestoreFixture
+    | typeof dbPageUpdateFixture
+    | typeof dbPageArchiveFixture
+    | typeof dbPageRestoreFixture
+  >("https://api.notion.com/v1/pages/:pageId", async ({ request, params }) => {
+    const body = (await request.json()) as { archived?: boolean };
 
+    if (params.pageId === dbPageGetFixture.id) {
       if (body.archived === true) {
-        return respond(pageArchiveFixture);
+        return respond(dbPageArchiveFixture);
       }
       if (body.archived === false) {
-        return respond(pageRestoreFixture);
+        return respond(dbPageRestoreFixture);
       }
-      return respond(pageUpdateFixture);
+      return respond(dbPageUpdateFixture);
     }
-  ),
+
+    if (body.archived === true) {
+      return respond(pageArchiveFixture);
+    }
+    if (body.archived === false) {
+      return respond(pageRestoreFixture);
+    }
+    return respond(pageUpdateFixture);
+  }),
 
   http.post<never, Record<string, unknown>, typeof databaseSearchFixture | typeof pageSearchFixture>(
     "https://api.notion.com/v1/search",

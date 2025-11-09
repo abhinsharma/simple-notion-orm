@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   rules: {
     "@typescript-eslint/no-redundant-type-constituents": "error",
     "@typescript-eslint/no-unnecessary-qualifier": "error",

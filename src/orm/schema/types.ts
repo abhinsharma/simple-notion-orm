@@ -1,6 +1,6 @@
-import type { NotionPage } from "@/pages";
 import type { NotionCodec } from "@/orm/codecs/base/codec";
-import type { TablePredicate, SortDescriptor } from "@/orm/query/types";
+import type { SortDescriptor, TablePredicate } from "@/orm/query/types";
+import type { NotionPage } from "@/pages";
 import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 
 export type ColumnPropertyType =

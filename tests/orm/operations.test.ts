@@ -1,13 +1,8 @@
 import { defineTable, select, text, eq, asc } from "@/orm";
-import { http, HttpResponse, type JsonBodyType } from "msw";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { server } from "../setup-msw";
 import dbPageCreateFixture from "../fixtures/db-page-create.json";
-import dbPageUpdateFixture from "../fixtures/db-page-update.json";
-import pageArchiveFixture from "../fixtures/page-archive.json";
-import pageRestoreFixture from "../fixtures/page-restore.json";
 
-const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 const DATABASE_ID = "obf_id_1";
 
 async function createTestTable() {
@@ -19,6 +14,46 @@ async function createTestTable() {
     },
     { databaseId: DATABASE_ID }
   );
+}
+
+type RecordedRequest = {
+  url: string;
+  body: unknown;
+};
+
+function recordRequests(predicate: (request: Request) => boolean) {
+  const captured: Array<Promise<RecordedRequest>> = [];
+
+  const listener = ({ request }: { request: Request }) => {
+    if (!predicate(request)) {
+      return;
+    }
+
+    const clone = request.clone();
+    captured.push(
+      clone
+        .json()
+        .catch(() => undefined)
+        .then((body) => ({ url: request.url, body }))
+    );
+  };
+
+  server.events.on("request:start", listener);
+
+  return async () => {
+    server.events.removeListener("request:start", listener);
+    return Promise.all(captured);
+  };
+}
+
+function getPageIdFromUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const segments = parsed.pathname.split("/");
+    return segments[segments.length - 1] ?? "";
+  } catch {
+    return "";
+  }
 }
 
 describe("ORM operations", () => {
@@ -44,37 +79,27 @@ describe("ORM operations", () => {
   it("selects rows with decoded data, filters, and sorts", async () => {
     const table = await createTestTable();
 
-    server.use(
-      http.post("https://api.notion.com/v1/data_sources/:dataSourceId/query", async ({ request }) => {
-        const body = (await request.json()) as { filter?: unknown; sorts?: unknown };
-        expect(body.filter).toEqual({
-          property: "Name",
-          title: { equals: "Example row" },
-        });
-        expect(body.sorts).toEqual([
-          {
-            property: "Name",
-            direction: "ascending",
-          },
-        ]);
-
-        return respond({
-          object: "list",
-          results: [dbPageCreateFixture],
-          next_cursor: "cursor_123",
-          has_more: true,
-          type: "page_or_database",
-          page_or_database: {},
-          request_id: "req_test",
-        });
-      })
-    );
+    const stopRecording = recordRequests((request) => request.url.includes("/v1/data_sources/"));
 
     const selection = await table.select({
       where: eq(table.columns.name, "Example row"),
       orderBy: asc(table.columns.name),
       pageSize: 5,
     });
+
+    const [queryRequest] = await stopRecording();
+    const queryBody = queryRequest.body as { filter?: unknown; sorts?: unknown };
+
+    expect(queryBody.filter).toEqual({
+      property: "Name",
+      title: { equals: "Example row" },
+    });
+    expect(queryBody.sorts).toEqual([
+      {
+        property: "Name",
+        direction: "ascending",
+      },
+    ]);
 
     expect(selection.rows).toHaveLength(1);
     expect(selection.rows[0]?.page.id).toBe(dbPageCreateFixture.id);
@@ -86,20 +111,14 @@ describe("ORM operations", () => {
   it("updates rows and returns fresh envelopes", async () => {
     const table = await createTestTable();
 
-    const patchSpy = vi.fn();
-    server.use(
-      http.patch("https://api.notion.com/v1/pages/:pageId", async ({ request }) => {
-        const body = (await request.json()) as {
-          properties?: Record<string, unknown>;
-        };
-        patchSpy(body);
-        return respond(dbPageUpdateFixture);
-      })
-    );
+    const stopRecording = recordRequests((request) => request.url.includes("/v1/pages/"));
 
     const envelope = await table.update({ stage: { name: "Done" } }, { pageIds: [dbPageCreateFixture.id] });
 
-    expect(patchSpy).toHaveBeenCalledWith(
+    const [updateRequest] = await stopRecording();
+    const requestBody = updateRequest.body as { properties?: Record<string, unknown> };
+
+    expect(requestBody).toEqual(
       expect.objectContaining({
         properties: {
           Stage: expect.objectContaining({
@@ -117,41 +136,36 @@ describe("ORM operations", () => {
 
   it("archives all provided page IDs", async () => {
     const table = await createTestTable();
-    const archiveSpy = vi.fn();
 
-    server.use(
-      http.patch("https://api.notion.com/v1/pages/:pageId", async ({ request, params }) => {
-        const body = (await request.json()) as { archived?: boolean };
-        archiveSpy({ id: params.pageId, archived: body.archived });
-
-        return respond(pageArchiveFixture);
-      })
-    );
+    const stopRecording = recordRequests((request) => request.url.includes("/v1/pages/"));
 
     const count = await table.archive({ pageIds: ["page-1", "page-2"] });
 
+    const archiveRequests = await stopRecording();
+    const payloads = archiveRequests.map((request) => ({
+      id: getPageIdFromUrl(request.url),
+      body: request.body as { archived?: boolean },
+    }));
+
     expect(count).toBe(2);
-    expect(archiveSpy).toHaveBeenCalledTimes(2);
-    expect(archiveSpy).toHaveBeenCalledWith({ id: "page-1", archived: true });
-    expect(archiveSpy).toHaveBeenCalledWith({ id: "page-2", archived: true });
+    expect(payloads).toContainEqual({ id: "page-1", body: { archived: true } });
+    expect(payloads).toContainEqual({ id: "page-2", body: { archived: true } });
   });
 
   it("restores all provided page IDs", async () => {
     const table = await createTestTable();
-    const restoreSpy = vi.fn();
 
-    server.use(
-      http.patch("https://api.notion.com/v1/pages/:pageId", async ({ request, params }) => {
-        const body = (await request.json()) as { archived?: boolean };
-        restoreSpy({ id: params.pageId, archived: body.archived });
-
-        return respond(pageRestoreFixture);
-      })
-    );
+    const stopRecording = recordRequests((request) => request.url.includes("/v1/pages/"));
 
     const count = await table.restore({ pageIds: ["page-3"] });
 
+    const [restoreRequest] = await stopRecording();
+    const restorePayload = {
+      id: getPageIdFromUrl(restoreRequest.url),
+      body: restoreRequest.body as { archived?: boolean },
+    };
+
     expect(count).toBe(1);
-    expect(restoreSpy).toHaveBeenCalledWith({ id: "page-3", archived: false });
+    expect(restorePayload).toEqual({ id: "page-3", body: { archived: false } });
   });
 });
