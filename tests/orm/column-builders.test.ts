@@ -16,7 +16,10 @@ describe("select column builder", () => {
   });
 
   it("preserves config through chained modifiers", () => {
-    const builder = select("Stage").options(["Backlog"] as const).optional().nullable();
+    const builder = select("Stage")
+      .options(["Backlog"] as const)
+      .optional()
+      .nullable();
     const config = builder.config?.("Stage");
 
     expect(config).toMatchObject({

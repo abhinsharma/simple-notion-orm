@@ -20,13 +20,7 @@ export type ColumnPropertyType =
   | "relation"
   | "unique_id";
 
-export type ColumnDef<
-  TValue,
-  TOptional extends boolean,
-  TNullable extends boolean,
-  TPropertyPayload = unknown,
-  TPropertyResponse = unknown
-> = {
+export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boolean, TPropertyPayload = unknown, TPropertyResponse = unknown> = {
   name: string;
   codec: NotionCodec<TValue, TPropertyPayload, TPropertyResponse>;
   isOptional: TOptional;

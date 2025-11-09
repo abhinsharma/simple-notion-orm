@@ -2,18 +2,11 @@ import { multiSelectCodec } from "@/orm/codecs";
 import type { MultiSelectPropertyPayload, MultiSelectPropertyResponse } from "@/orm/codecs/options/multi-select";
 import type { SelectOptionInput } from "@/types/properties";
 import type { ColumnDef } from "../types";
-import {
-  buildOptionConfig,
-  normalizeSelectOptions,
-  type NormalizedSelectOptions,
-  type SelectOptionConfigInput,
-  type SelectOptionUnion,
-} from "./option-utils";
+import { buildOptionConfig, normalizeSelectOptions, type NormalizedSelectOptions, type SelectOptionConfigInput, type SelectOptionUnion } from "./option-utils";
 
-type MultiSelectValue<
-  TOptions extends readonly SelectOptionInput[] | undefined,
-  TAllowCustom extends boolean
-> = Array<SelectOptionUnion<TOptions, TAllowCustom>>;
+type MultiSelectValue<TOptions extends readonly SelectOptionInput[] | undefined, TAllowCustom extends boolean> = Array<
+  SelectOptionUnion<TOptions, TAllowCustom>
+>;
 
 type BaseMultiSelectColumnDef<TOptional extends boolean, TNullable extends boolean> = ColumnDef<
   SelectOptionInput[],
@@ -27,14 +20,8 @@ type MultiSelectColumnBuilder<
   TOptional extends boolean = false,
   TNullable extends boolean = false,
   TOptions extends readonly SelectOptionInput[] | undefined = undefined,
-  TAllowCustom extends boolean = true
-> = ColumnDef<
-  MultiSelectValue<TOptions, TAllowCustom>,
-  TOptional,
-  TNullable,
-  MultiSelectPropertyPayload,
-  MultiSelectPropertyResponse
-> & {
+  TAllowCustom extends boolean = true,
+> = ColumnDef<MultiSelectValue<TOptions, TAllowCustom>, TOptional, TNullable, MultiSelectPropertyPayload, MultiSelectPropertyResponse> & {
   optional: () => MultiSelectColumnBuilder<true, TNullable, TOptions, TAllowCustom>;
   nullable: () => MultiSelectColumnBuilder<TOptional, true, TOptions, TAllowCustom>;
   default: (value: MultiSelectValue<TOptions, TAllowCustom>) => MultiSelectColumnBuilder<TOptional, TNullable, TOptions, TAllowCustom>;
@@ -53,7 +40,7 @@ function buildMultiSelectColumn<
   TOptional extends boolean,
   TNullable extends boolean,
   TOptions extends readonly SelectOptionInput[] | undefined,
-  TAllowCustom extends boolean
+  TAllowCustom extends boolean,
 >(
   def: BaseMultiSelectColumnDef<TOptional, TNullable>,
   meta: MultiSelectMeta<TOptions, TAllowCustom>
@@ -74,12 +61,7 @@ function buildMultiSelectColumn<
   return {
     ...columnDef,
     optional: () =>
-      buildMultiSelectColumn<
-        true,
-        TNullable,
-        TOptions,
-        TAllowCustom
-      >(
+      buildMultiSelectColumn<true, TNullable, TOptions, TAllowCustom>(
         {
           ...baseDef,
           isOptional: true as const,
@@ -87,12 +69,7 @@ function buildMultiSelectColumn<
         meta
       ),
     nullable: () =>
-      buildMultiSelectColumn<
-        TOptional,
-        true,
-        TOptions,
-        TAllowCustom
-      >(
+      buildMultiSelectColumn<TOptional, true, TOptions, TAllowCustom>(
         {
           ...baseDef,
           isNullable: true as const,
@@ -100,12 +77,7 @@ function buildMultiSelectColumn<
         meta
       ),
     default: (value: MultiSelectValue<TOptions, TAllowCustom>) =>
-      buildMultiSelectColumn<
-        TOptional,
-        TNullable,
-        TOptions,
-        TAllowCustom
-      >(
+      buildMultiSelectColumn<TOptional, TNullable, TOptions, TAllowCustom>(
         {
           ...baseDef,
           defaultValue: value,
@@ -114,12 +86,7 @@ function buildMultiSelectColumn<
       ),
     options: <const Options extends readonly SelectOptionConfigInput[]>(options: Options) => {
       const normalized = normalizeSelectOptions(options);
-      return buildMultiSelectColumn<
-        TOptional,
-        TNullable,
-        NormalizedSelectOptions<Options>,
-        false
-      >(
+      return buildMultiSelectColumn<TOptional, TNullable, NormalizedSelectOptions<Options>, false>(
         {
           ...baseDef,
           defaultValue: baseDef.defaultValue,
@@ -128,12 +95,7 @@ function buildMultiSelectColumn<
       );
     },
     allowCustomOptions: () =>
-      buildMultiSelectColumn<
-        TOptional,
-        TNullable,
-        TOptions,
-        true
-      >(
+      buildMultiSelectColumn<TOptional, TNullable, TOptions, true>(
         {
           ...baseDef,
           defaultValue: baseDef.defaultValue,
@@ -144,11 +106,14 @@ function buildMultiSelectColumn<
 }
 
 export function multiSelect(name: string): MultiSelectColumnBuilder {
-  return buildMultiSelectColumn({
-    name,
-    codec: multiSelectCodec,
-    isOptional: false as const,
-    isNullable: false as const,
-    propertyType: "multi_select",
-  }, { allowCustomOptions: true as const });
+  return buildMultiSelectColumn(
+    {
+      name,
+      codec: multiSelectCodec,
+      isOptional: false as const,
+      isNullable: false as const,
+      propertyType: "multi_select",
+    },
+    { allowCustomOptions: true as const }
+  );
 }
