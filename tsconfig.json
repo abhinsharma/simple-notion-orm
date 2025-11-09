@@ -18,17 +18,17 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/orm": ["src/orm/index.ts"],
-      "@/orm/*": ["src/orm/*"],
-      "@/api/*": ["src/api/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"],
-      "@/constants/*": ["src/constants/*"],
-      "@/factories/*": ["src/factories/*"],
-      "@/pages": ["src/pages/index.ts"],
-      "@/pages/*": ["src/pages/*"]
+      "@/orm": ["orm/index.ts"],
+      "@/orm/*": ["orm/*"],
+      "@/api/*": ["api/*"],
+      "@/utils/*": ["utils/*"],
+      "@/types/*": ["types/*"],
+      "@/constants/*": ["constants/*"],
+      "@/factories/*": ["factories/*"],
+      "@/pages": ["pages/index.ts"],
+      "@/pages/*": ["pages/*"]
     }
   },
   "include": ["src/**/*", "tests/**/*", "vitest.config.mts", "playground.ts"],
