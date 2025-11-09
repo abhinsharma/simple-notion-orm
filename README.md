@@ -5,10 +5,11 @@ Simple Notion ORM is a schema-first toolkit that turns Notion’s powerful—but
 ## Table of Contents
 
 - [Overview](#overview)
+- [Setup](#setup)
+- [Installation](#installation)
 - [Quick Preview](#quick-preview)
 - [Core Ideas](#core-ideas)
 - [Project Layout](#project-layout)
-- [Setup](#setup)
 - [Command Palette](#command-palette)
 - [Documentation Map](#documentation-map)
 - [Feedback](#feedback)
@@ -23,6 +24,23 @@ Notion exposes every page, block, and database through the same flexible JSON su
 - Factories and transforms that keep request/response shapes predictable.
 
 Bring your own workspace, point the ORM at an existing database (or ask it to create one), and work with TypeScript types instead of raw REST payloads.
+
+## Setup
+
+1. **Requirements:** Node.js ≥ 22 and `pnpm` (the repo pins `pnpm@10.17.1`).
+2. **Install dependencies:** run the commands below from the repo root.
+3. **Configure secrets:** create `.env` and set `NOTION_API_KEY=secret_from_notion`.
+4. **Reference Notion targets:** set `NOTION_TASKS_DB` or whichever database IDs you want to work with before running samples.
+
+## Installation
+
+```bash
+pnpm add simple-notion-orm
+# or
+npm install simple-notion-orm
+# or
+yarn add simple-notion-orm
+```
 
 ## Quick Preview
 
@@ -83,19 +101,10 @@ src/
 
 Docs live alongside the codebase so every layer stays well explained (see [Documentation Map](#documentation-map)).
 
-## Setup
-
-1. **Requirements:** Node.js ≥ 22 and `pnpm` (the repo pins `pnpm@10.17.1`).
-2. **Install dependencies:** run the commands below from the repo root.
-3. **Configure secrets:** create `.env` and set `NOTION_API_KEY=secret_from_notion`.
-4. **Reference Notion targets:** set `NOTION_TASKS_DB` or whichever database IDs you want to work with before running samples.
-5. **Try the playground:** `pnpm tsx playground.ts` seeds a page, inserts rows, and calls helpers like `clearPageContent` so you can see the ORM in action.
-
 ## Command Palette
 
 ```bash
 pnpm install               # Install dependencies
-pnpm tsx playground.ts     # Run the interactive playground script
 pnpm lint                  # ESLint flat config with TypeScript support
 pnpm format                # Format the codebase with Prettier
 pnpm build                 # Type-check (tsc --noEmit), also used in CI

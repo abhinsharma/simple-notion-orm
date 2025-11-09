@@ -25,7 +25,7 @@
     "notion-database"
   ],
   "author": "Abhin Sharma",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abhinsharma/simple-notion-orm.git"
