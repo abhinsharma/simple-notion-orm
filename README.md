@@ -1,6 +1,6 @@
 # Simple Notion ORM
 
-Simple Notion ORM is a schema-first toolkit that turns Notion’s powerful—but type-heavy—API into a familiar Drizzle-style workflow. It provides builders, codecs, and helpers so you can treat both stand-alone pages and database rows (which are themselves pages) as predictable application data.
+Simple Notion ORM is a schema first toolkit that turns Notion’s powerful but type heavy API into a familiar Drizzle style workflow. It provides builders, codecs, and helpers so you can treat both standalone pages and database rows (which are themselves pages) as predictable application data.
 
 ## Table of Contents
 
@@ -16,11 +16,11 @@ Simple Notion ORM is a schema-first toolkit that turns Notion’s powerful—but
 
 ## Overview
 
-Notion exposes every page, block, and database through the same flexible JSON surface. That flexibility becomes painful when you need static typing, column-level validation, or consistent payloads. Simple Notion ORM wraps `@notionhq/client` with:
+Notion exposes every page, block, and database through the same flexible JSON surface. That flexibility becomes painful when you need static typing, column level validation, or consistent payloads. Simple Notion ORM wraps `@notionhq/client` with:
 
-- Drizzle-inspired table definitions that compile into Notion property configs.
+- Drizzle inspired table definitions that compile into Notion property configs.
 - Column builders that know how to parse and encode Notion payloads.
-- Virtual “page handles” so you can work with single stand-alone pages or with database items as typed rows.
+- Virtual “page handles” so you can work with single stand alone pages or with database items as typed rows.
 - Factories and transforms that keep request/response shapes predictable.
 
 Bring your own workspace, point the ORM at an existing database (or ask it to create one), and work with TypeScript types instead of raw REST payloads.
@@ -71,15 +71,15 @@ console.table(rows);
 
 ### Schema-first tables inspired by Drizzle
 
-- `defineTable` pairs a human-readable title with column builders such as `text`, `number`, `status`, `relation`, and `people`.
-- Each builder configures optionality, nullability, defaults, and Notion-specific modifiers (for example, `.title()` for the primary column).
-- Behind the scenes, codecs convert from app-friendly values to Notion payloads and back, so TypeScript catches mistakes before any API calls.
+- `defineTable` pairs a human readable title with column builders such as `text`, `number`, `status`, `relation`, and `people`.
+- Each builder configures optionality, nullability, defaults, and Notion specific modifiers (for example, `.title()` for the primary column).
+- Behind the scenes, codecs convert from app friendly values to Notion payloads and back, so TypeScript catches mistakes before any API calls.
 
 ### Two page abstractions
 
 - **Standalone page handles** let you orchestrate single pages (landing pages, docs, etc.) without touching database metadata.
 - **Database row handles** expose CRUD helpers on top of Notion databases; each row is still a page, but the ORM adds typed column accessors and metadata like `{ databaseId, dataSourceId }`.
-- Because both abstractions speak the same typed language, you can move data between ad-hoc pages and structured tables without re-learning the API.
+- Because both abstractions speak the same typed language, you can move data between ad hoc pages and structured tables without re learning the API.
 
 ### Composable codecs and factories
 
@@ -96,7 +96,7 @@ src/
 ├── factories/   # Builders for Notion blocks, properties, and payload fragments
 ├── transform/   # Data conversion utilities shared across layers
 ├── types/       # Type definitions for schemas, codecs, and Notion payloads
-└── utils/       # Cross-cutting helpers (env, error formatting, etc.)
+└── utils/       # Cross cutting helpers (env, error formatting, etc.)
 ```
 
 Docs live alongside the codebase so every layer stays well explained (see [Documentation Map](#documentation-map)).
@@ -107,7 +107,7 @@ Docs live alongside the codebase so every layer stays well explained (see [Docum
 pnpm install               # Install dependencies
 pnpm lint                  # ESLint flat config with TypeScript support
 pnpm format                # Format the codebase with Prettier
-pnpm build                 # Type-check (tsc --noEmit), also used in CI
+pnpm build                 # Type check (tsc --noEmit), also used in CI
 pnpm format:check          # Verify formatting without writing changes
 ```
 
@@ -115,11 +115,5 @@ pnpm format:check          # Verify formatting without writing changes
 
 - `docs/api` – API usage guides that cover pages, blocks, and data sources.
 - `docs/factories` – Property/block builders and payload recipes.
-- `docs/pages` – Higher-level helpers like `NotionPage` that sit above the raw SDK.
+- `docs/pages` – Higher level helpers like `NotionPage` that sit above the raw SDK.
 - `docs/orm` – ORM concepts, codecs, and schema DSL walkthroughs.
-- `AGENTS.md` – Contributor workflow, branching model, and automation rules.
-- `CLAUDE.md` – Assistant-specific contribution notes (mirrors `AGENTS.md`).
-
-## Feedback
-
-Open an issue or PR if you spot stale information, want a new example, or need better coverage for your Notion workflow. The README should evolve whenever we add new column builders, codecs, or page abstractions—file a ticket if something drifts.
