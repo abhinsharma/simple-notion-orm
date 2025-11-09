@@ -24,7 +24,7 @@
 
 ```ts
 import { defineTable, text } from "@/orm/schema";
-import { buildParagraphBlock } from "@/factories/blocks/text";
+import { buildCalloutBlock, buildParagraphBlock } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
 
 const notes = await defineTable("Docs Notes", { title: text("Title").title() }, { databaseId: process.env.NOTION_NOTES_DB! });
@@ -32,7 +32,10 @@ const notes = await defineTable("Docs Notes", { title: text("Title").title() }, 
 const { rows } = await notes.select({ pageSize: 1 });
 const entry = rows[0];
 
-await entry?.notionPage.append([buildParagraphBlock(textToRichText("Synced via NotionPage helper"))]);
+await entry?.notionPage.append([
+  buildParagraphBlock(textToRichText("Synced via NotionPage helper")),
+  buildCalloutBlock(textToRichText("Rendered via block factories"), { icon: { type: "emoji", emoji: "🧱" } }),
+]);
 ```
 
 Because the handle caches the `PageObjectResponse`, subsequent calls like `setIcon` or `setCover` reuse the latest metadata where possible.
