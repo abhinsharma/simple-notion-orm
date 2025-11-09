@@ -110,6 +110,13 @@ pnpm format:check          # Verify formatting without writing changes
 - `AGENTS.md` – Contributor workflow, branching model, and automation rules.
 - `CLAUDE.md` – Assistant-specific contribution notes (mirrors `AGENTS.md`).
 
+## Docs Worktree & Publishing
+
+- This branch (`docs-site`) owns the public documentation site. Keep guides in `docs/` and treat VitePress config under `docs/.vitepress/` as the source of truth.
+- Run `pnpm docs:dev` for a hot-reloading preview, `pnpm docs:build` to emit the static site, and `pnpm docs:preview` to spot-check the production bundle locally.
+- Builds land in `dist/docs-site`, which is what GitHub Pages serves. The `.github/workflows/docs-site.yml` workflow regenerates that folder on every push to `docs-site` and deploys via GitHub Pages.
+- To publish manually, run `pnpm docs:build` and push—no extra branch juggling required. The default Pages environment should already target the artifact produced by the workflow.
+
 ## Feedback
 
 Open an issue or PR if you spot stale information, want a new example, or need better coverage for your Notion workflow. The README should evolve whenever we add new column builders, codecs, or page abstractions—file a ticket if something drifts.
