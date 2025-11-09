@@ -15,6 +15,8 @@ Predicate helpers live under `src/orm/query/predicates.ts` and compose into `Sel
 
 `compileQueryOptions` in `src/orm/query/compiler.ts` turns these helpers into the exact `queryDataSource` filter/sort payloads. If you need something not covered, pass `rawFilter` or `rawSorts` alongside the helpers.
 
+> **Literal select values**: When you chain `.options([...])` on `select`/`multiSelect` builders, the predicate helpers only accept the listed literal values, so `eq(tasks.columns.stage, { name: "Done" })` can’t accidentally reference a misspelled option.
+
 ## Filter rows with predicates
 
 ```ts

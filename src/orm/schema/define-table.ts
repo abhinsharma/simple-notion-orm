@@ -26,7 +26,7 @@ async function createNewDatabase(
 ): Promise<{ databaseId: string; dataSourceId: string }> {
   const schema: Record<string, unknown> = {};
   for (const columnDef of Object.values(columns)) {
-    const config = columnDef.codec.config(columnDef.name);
+    const config = resolveColumnConfig(columnDef);
     Object.assign(schema, config);
   }
 
@@ -42,8 +42,13 @@ async function createNewDatabase(
   };
 }
 
+function resolveColumnConfig(columnDef: AnyColumnDef): Record<string, unknown> {
+  const configFn = columnDef.config ?? columnDef.codec.config;
+  return configFn(columnDef.name);
+}
+
 function getCodecType(columnDef: AnyColumnDef): string {
-  const config = columnDef.codec.config(columnDef.name);
+  const config = resolveColumnConfig(columnDef);
   const propertyConfig = config[columnDef.name];
 
   if (propertyConfig && typeof propertyConfig === "object") {
