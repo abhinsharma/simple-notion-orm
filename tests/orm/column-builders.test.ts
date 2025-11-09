@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
-
 import { multiSelect, select } from "@/orm/schema";
+import { describe, expect, it } from "vitest";
 
 describe("select column builder", () => {
   it("injects literal options into schema config", () => {
