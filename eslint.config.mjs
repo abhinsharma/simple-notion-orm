@@ -15,7 +15,7 @@ import typescriptRules from "./lint-rules/typescript.js";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "playground/**"],
+    ignores: ["dist/**", "node_modules/**", "playground/**", "**/*.d.ts"],
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
