@@ -106,6 +106,7 @@ pnpm format:check          # Verify formatting without writing changes
 
 - `docs/api` – API usage guides that cover pages, blocks, and data sources.
 - `docs/factories` – Property/block builders and payload recipes.
+- `docs/pages` – Higher-level helpers like `NotionPage` that sit above the raw SDK.
 - `docs/orm` – ORM concepts, codecs, and schema DSL walkthroughs.
 - `AGENTS.md` – Contributor workflow, branching model, and automation rules.
 - `CLAUDE.md` – Assistant-specific contribution notes (mirrors `AGENTS.md`).
