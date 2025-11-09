@@ -2,21 +2,21 @@
 
 Every builder below is exported from `@/orm/schema/index.ts` and wraps a codec in `src/orm/codecs/**`. The codec trio (`parse`, `encode`, `config`) keeps TypeScript types aligned with the Notion payloads, and `defineTable` uses `config` when provisioning schemas.
 
-| Builder             | Description                                                                                      | Modifiers                                                   |
-| ------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `text(name)`        | Rich text column that becomes the primary title when you call `.title()`.                        | `.title()`, `.optional()`, `.nullable()`, `.default(value)` |
-| `number(name)`      | Number column, accepts `null` after `.nullable()`.                                               | `.optional()`, `.nullable()`, `.default(value)`             |
-| `date(name)`        | Date/date-range column supporting `{ start, end?, time_zone? }`.                                 | `.optional()`, `.nullable()`, `.default(value)`             |
-| `checkbox(name)`    | Boolean checkbox column.                                                                         | `.optional()`, `.default(value)`                            |
-| `url(name)`         | URL column with trimming and optional clearing.                                                  | `.optional()`, `.nullable()`, `.default(value)`             |
-| `email(name)`       | Email column; values are trimmed before being sent to Notion.                                    | `.optional()`, `.nullable()`, `.default(value)`             |
-| `phoneNumber(name)` | Phone number column; spaces and formatting are preserved but trimmed before validation.          | `.optional()`, `.nullable()`, `.default(value)`             |
-| `files(name)`       | Files column (array of file/external references).                                                | `.optional()`, `.default(value)`                            |
-| `select(name)`      | Single-select column; accepts `{ name }` or `{ id }`.                                            | `.optional()`, `.nullable()`, `.default(value)`             |
-| `multiSelect(name)` | Multi-select column supporting arrays of `{ name }`/`{ id }`.                                    | `.optional()`, `.default(value)`                            |
-| `status(name)`      | Status column (Notion must already have the options configured).                                 | `.optional()`, `.nullable()`, `.default(value)`             |
-| `people(name)`      | People column storing arrays of `{ id: string }`.                                                | `.optional()`, `.default(value)`                            |
-| `relation(name)`    | Relation column storing linked page IDs; the ORM returns raw IDs until manual population occurs. | `.optional()`, `.default(value)`                            |
+| Builder             | Description                                                                                      | Modifiers                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| `text(name)`        | Rich text column that becomes the primary title when you call `.title()`.                        | `.title()`, `.optional()`, `.nullable()`, `.default(value)`                                 |
+| `number(name)`      | Number column, accepts `null` after `.nullable()`.                                               | `.optional()`, `.nullable()`, `.default(value)`                                             |
+| `date(name)`        | Date/date-range column supporting `{ start, end?, time_zone? }`.                                 | `.optional()`, `.nullable()`, `.default(value)`                                             |
+| `checkbox(name)`    | Boolean checkbox column.                                                                         | `.optional()`, `.default(value)`                                                            |
+| `url(name)`         | URL column with trimming and optional clearing.                                                  | `.optional()`, `.nullable()`, `.default(value)`                                             |
+| `email(name)`       | Email column; values are trimmed before being sent to Notion.                                    | `.optional()`, `.nullable()`, `.default(value)`                                             |
+| `phoneNumber(name)` | Phone number column; spaces and formatting are preserved but trimmed before validation.          | `.optional()`, `.nullable()`, `.default(value)`                                             |
+| `files(name)`       | Files column (array of file/external references).                                                | `.optional()`, `.default(value)`                                                            |
+| `select(name)`      | Single-select column; chain `.options([...])` for typed unions (defaults allow ad-hoc values).   | `.optional()`, `.nullable()`, `.default(value)`, `.options([...])`, `.allowCustomOptions()` |
+| `multiSelect(name)` | Multi-select column where `.options([...])` narrows allowed tags just like select columns.       | `.optional()`, `.default(value)`, `.options([...])`, `.allowCustomOptions()`                |
+| `status(name)`      | Status column (Notion must already have the options configured).                                 | `.optional()`, `.nullable()`, `.default(value)`                                             |
+| `people(name)`      | People column storing arrays of `{ id: string }`.                                                | `.optional()`, `.default(value)`                                                            |
+| `relation(name)`    | Relation column storing linked page IDs; the ORM returns raw IDs until manual population occurs. | `.optional()`, `.default(value)`                                                            |
 
 Use these builders to define your table schema; the modifiers chain before you pass the column map to `defineTable`.
 
@@ -63,3 +63,35 @@ await estimates.insert({});
 
 - `.default(1)` runs during `insert` and `update` operations so you can skip boilerplate in callers.
 - `.nullable()` tells the codec to accept `null` and encode the Notion “clear this value” payload when needed.
+
+## Type-safe select and multi-select options
+
+Call `.options([...])` on `select()` or `multiSelect()` to lock the column to a literal union of options and seed those options when the ORM provisions a database. The helpers accept either raw strings or full option objects; chaining `.allowCustomOptions()` afterwards opt-ins back to “accept anything” behavior (useful when you still want Notion users to add one-off values).
+
+```ts
+import { defineTable, select, multiSelect, text } from "@/orm/schema";
+
+const tasks = await defineTable(
+  "Typed Selects",
+  {
+    title: text("Name").title(),
+    stage: select("Stage").options(["Backlog", "In Progress", "Done"] as const),
+    tags: multiSelect("Tags")
+      .options([
+        { name: "Docs", color: "green" },
+        { name: "ORM", color: "purple" },
+      ])
+      .allowCustomOptions(),
+  },
+  { parentId: process.env.NOTION_PARENT_PAGE_ID! }
+);
+
+await tasks.insert({
+  title: "Demo typed selects",
+  stage: { name: "Backlog" },
+  tags: [{ name: "Docs" }, { name: "ORM" }, { name: "Experimental" }], // last entry allowed because of .allowCustomOptions()
+});
+```
+
+- Without `.allowCustomOptions()` the compiler only accepts the literal options you listed (helpful for workflow states).
+- The same `.options([...])` payload becomes the Notion property configuration when `defineTable` creates a new database, so you keep code and schema aligned.

@@ -27,6 +27,7 @@ export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boole
   isNullable: TNullable;
   defaultValue?: TValue;
   propertyType: ColumnPropertyType;
+  config?: (name: string) => Record<string, unknown>;
 };
 
 type BaseAnyColumnDef = ColumnDef<unknown, boolean, boolean, unknown, unknown>;
