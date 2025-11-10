@@ -140,10 +140,10 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
     update: ((patch, updateOptions) => updateRows(handle, patch, updateOptions)) as TableHandle<TableDefType<TColumns>>["update"],
     archive: (targetOptions) => archiveRows(handle, targetOptions),
     restore: (targetOptions) => restoreRows(handle, targetOptions),
-    addRelation: async (columnKey, targetTable, options) => {
+    addRelation: async (columnKey, targetTable, relationOptions) => {
       const builder = rel(handle, columnKey).to(targetTable);
-      const instruction = options?.type === "dual_property"
-        ? builder.dual({ syncedPropertyId: options.syncedPropertyId, syncedPropertyName: options.syncedPropertyName })
+      const instruction = relationOptions?.type === "dual_property"
+        ? builder.dual({ syncedPropertyId: relationOptions.syncedPropertyId, syncedPropertyName: relationOptions.syncedPropertyName })
         : builder.single();
       await linkRelations([instruction]);
     },

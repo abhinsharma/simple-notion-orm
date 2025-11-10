@@ -221,6 +221,8 @@ function expectNumberValue(column: AnyColumnDef, value: unknown): number {
   return value;
 }
 
+const UNIQUE_ID_SUFFIX = /(\d+)$/;
+
 function normalizeUniqueIdValue(column: AnyColumnDef, value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
@@ -231,7 +233,7 @@ function normalizeUniqueIdValue(column: AnyColumnDef, value: unknown): number {
     if (!trimmed) {
       breakNormalizer(column);
     }
-    const match = trimmed.match(/(\d+)$/);
+    const match = UNIQUE_ID_SUFFIX.exec(trimmed);
     if (match) {
       return Number(match[1]);
     }

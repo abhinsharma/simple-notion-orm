@@ -1,5 +1,4 @@
-import { uniqueIdCodec, type UniqueIdValue } from "@/orm/codecs/options/unique-id";
-import type { UniqueIdPropertyResponse } from "@/orm/codecs/options/unique-id";
+import { uniqueIdCodec, type UniqueIdValue, type UniqueIdPropertyResponse } from "@/orm/codecs/options/unique-id";
 import { buildUniqueIdColumn } from "@/factories/properties/database-schema";
 import type { ColumnDef } from "../types";
 
