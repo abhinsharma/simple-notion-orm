@@ -1,6 +1,14 @@
 import type { TableDef, AnyColumnDef } from "@/orm/schema/types";
 import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
-import type { Predicate, ComparisonPredicate, NullPredicate, CompoundPredicate, SortDescriptor, TablePredicate } from "./types";
+import type {
+  Predicate,
+  ComparisonPredicate,
+  NullPredicate,
+  CompoundPredicate,
+  SortDescriptor,
+  TablePredicate,
+  ComparisonOperator,
+} from "./types";
 
 type NotionFilter = QueryDataSourceParameters["filter"];
 type NotionSort = NonNullable<QueryDataSourceParameters["sorts"]>[number];
