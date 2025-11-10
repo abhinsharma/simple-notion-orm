@@ -30,13 +30,7 @@ export { uniqueIdCodec, type UniqueIdValue, type UniqueIdPropertyResponse } from
 // Reference codecs
 export { peopleCodec } from "./references/people";
 export { relationCodec } from "./references/relation";
-export {
-  createdByCodec,
-  lastEditedByCodec,
-  type CreatedByPropertyResponse,
-  type LastEditedByPropertyResponse,
-  type UserReference,
-} from "./references/user";
+export { createdByCodec, lastEditedByCodec, type CreatedByPropertyResponse, type LastEditedByPropertyResponse, type UserReference } from "./references/user";
 
 // File codecs
 export { filesCodec } from "./files/files";

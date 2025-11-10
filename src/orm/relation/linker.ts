@@ -26,10 +26,7 @@ export async function linkRelations(instructions: RelationLinkInstruction[]): Pr
     return;
   }
 
-  const grouped = new Map<
-    TableHandle<TableDef>,
-    { properties: Record<string, RelationPropertyConfig>; ids: { databaseId: string; dataSourceId: string } }
-  >();
+  const grouped = new Map<TableHandle<TableDef>, { properties: Record<string, RelationPropertyConfig>; ids: { databaseId: string; dataSourceId: string } }>();
 
   for (const instruction of instructions) {
     const { source, columnKey, target, mode, options } = instruction;

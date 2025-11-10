@@ -57,9 +57,7 @@ describe("linkRelations", () => {
       { databaseId: "task-db", dataSourceId: "task-ds" }
     );
 
-    await linkRelations([
-      rel(tasks, "project").to(projects).single(),
-    ]);
+    await linkRelations([rel(tasks, "project").to(projects).single()]);
 
     expect(updateDatabaseMock).toHaveBeenCalledWith({
       databaseId: "task-db",

@@ -7,12 +7,12 @@ Relation columns rely on Notion data sources. Since a brand-new workspace doesn�
 
 See `docs/orm/first-run-seeding.md` for a complete seeding walkthrough.
 
-| Requirement                            | Why it matters                                                                                                    |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Use `parentId` only on the first run   | A fresh database doesn’t have IDs yet; once it exists, switch to `databaseId` and cache it in `.env`.             |
-| Use `data_source_id` for relations     | Relation properties require the target data source ID (not the database ID).                                     |
-| Provide `{ id: string }` entries       | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.                    |
-| Hydrate related rows manually          | Table handles return raw arrays of `{ id }`; use the low-level API wrappers if you need the related page content. |
+| Requirement                          | Why it matters                                                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Use `parentId` only on the first run | A fresh database doesn’t have IDs yet; once it exists, switch to `databaseId` and cache it in `.env`.             |
+| Use `data_source_id` for relations   | Relation properties require the target data source ID (not the database ID).                                      |
+| Provide `{ id: string }` entries     | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.                    |
+| Hydrate related rows manually        | Table handles return raw arrays of `{ id }`; use the low-level API wrappers if you need the related page content. |
 
 ## Configure a relation column
 
@@ -25,9 +25,7 @@ const tasks = await defineTable(
     title: text("Title").title(),
     project: relation("Project"),
   },
-  process.env.TASKS_DB
-    ? { databaseId: process.env.TASKS_DB }
-    : { parentId: process.env.NOTION_PARENT_PAGE_ID! }
+  process.env.TASKS_DB ? { databaseId: process.env.TASKS_DB } : { parentId: process.env.NOTION_PARENT_PAGE_ID! }
 );
 ```
 
@@ -78,9 +76,9 @@ const related = await Promise.all(rows.flatMap((row) => row.project.map((ref) =>
 
 ## ID cheat sheet
 
-| ID type      | When to use it                                                                                         |
-| ------------ | ------------------------------------------------------------------------------------------------------ |
-| `databaseId` | Attach a table handle to an existing Notion database; update DB-level metadata via `databases.update`. |
-| `dataSourceId` | Query rows (`select` calls `dataSources.query`) and configure relation properties.                      |
+| ID type        | When to use it                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| `databaseId`   | Attach a table handle to an existing Notion database; update DB-level metadata via `databases.update`. |
+| `dataSourceId` | Query rows (`select` calls `dataSources.query`) and configure relation properties.                     |
 
 `table.getIds()` returns both; persist `databaseId` (the SDK can always re-derive the data source ID).

@@ -130,11 +130,7 @@ export type TableHandle<TDef extends TableDef> = {
   };
   archive: (options?: TargetOptions<TDef>) => Promise<number>;
   restore: (options?: TargetOptions<TDef>) => Promise<number>;
-  addRelation: <TKey extends RelationColumnKeys<TDef> & string>(
-    columnKey: TKey,
-    target: TableHandle<TableDef>,
-    options?: RelationLinkOptions
-  ) => Promise<void>;
+  addRelation: <TKey extends RelationColumnKeys<TDef> & string>(columnKey: TKey, target: TableHandle<TableDef>, options?: RelationLinkOptions) => Promise<void>;
 };
 
 export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
@@ -154,9 +150,7 @@ type OptionalKeys<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: ColumnOptional<TDef["columns"][K]> extends true ? K : never;
 }[keyof TDef["columns"]];
 
-export type RowInput<TDef extends TableDef> = Simplify<
-  Partial<Pick<RowAll<TDef>, OptionalKeys<TDef>>> & Pick<RowAll<TDef>, RequiredKeys<TDef>>
->;
+export type RowInput<TDef extends TableDef> = Simplify<Partial<Pick<RowAll<TDef>, OptionalKeys<TDef>>> & Pick<RowAll<TDef>, RequiredKeys<TDef>>>;
 
 export type RowOutput<TDef extends TableDef> = Simplify<{
   [K in keyof TDef["columns"]]: ColumnOutputValue<TDef["columns"][K]>;

@@ -10,18 +10,14 @@ export type CreatedTimePropertyResponse = {
 const READ_ONLY_ERROR = "created_time properties are read-only and cannot be set.";
 
 export const createdTimeCodec = createNotionCodec<string, never, CreatedTimePropertyResponse>(
-  z.codec(
-    z.string(),
-    z.custom<never>(),
-    {
-      decode: () => {
-        throw new Error(READ_ONLY_ERROR);
-      },
-      encode: (property: CreatedTimePropertyResponse): string => {
-        return property.created_time;
-      },
-    }
-  ),
+  z.codec(z.string(), z.custom<never>(), {
+    decode: () => {
+      throw new Error(READ_ONLY_ERROR);
+    },
+    encode: (property: CreatedTimePropertyResponse): string => {
+      return property.created_time;
+    },
+  }),
   (name: string): Record<string, unknown> => {
     return {
       [name]: {

@@ -28,21 +28,7 @@ const PROPERTY_FILTER_KEYS: Record<string, string | undefined> = {
 };
 
 const OPERATOR_SUPPORT: Record<string, Array<string>> = {
-  eq: [
-    "title",
-    "rich_text",
-    "number",
-    "checkbox",
-    "date",
-    "select",
-    "status",
-    "url",
-    "email",
-    "phone_number",
-    "created_time",
-    "last_edited_time",
-    "unique_id",
-  ],
+  eq: ["title", "rich_text", "number", "checkbox", "date", "select", "status", "url", "email", "phone_number", "created_time", "last_edited_time", "unique_id"],
   neq: [
     "title",
     "rich_text",
