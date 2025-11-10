@@ -3,6 +3,7 @@ import { archiveRows, restoreRows } from "@/orm/operations/archive";
 import { insertRows } from "@/orm/operations/insert";
 import { selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
+import { linkRelations, rel } from "@/orm/relation/linker";
 import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
 import type { AnyColumnDef, RowInput, TableHandle, TableDef } from "./types";
 
@@ -27,6 +28,9 @@ async function createNewDatabase(
   const schema: Record<string, unknown> = {};
   for (const columnDef of Object.values(columns)) {
     const config = resolveColumnConfig(columnDef);
+    if (!config) {
+      continue;
+    }
     Object.assign(schema, config);
   }
 
@@ -42,13 +46,23 @@ async function createNewDatabase(
   };
 }
 
-function resolveColumnConfig(columnDef: AnyColumnDef): Record<string, unknown> {
+function resolveColumnConfig(columnDef: AnyColumnDef): Record<string, unknown> | null {
+  if (columnDef.propertyType === "relation" && !columnDef.config) {
+    return null;
+  }
+
   const configFn = columnDef.config ?? columnDef.codec.config;
+  if (!configFn) {
+    return null;
+  }
   return configFn(columnDef.name);
 }
 
 function getCodecType(columnDef: AnyColumnDef): string {
   const config = resolveColumnConfig(columnDef);
+  if (!config) {
+    return columnDef.propertyType;
+  }
   const propertyConfig = config[columnDef.name];
 
   if (propertyConfig && typeof propertyConfig === "object") {
@@ -126,6 +140,14 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
     update: ((patch, updateOptions) => updateRows(handle, patch, updateOptions)) as TableHandle<TableDefType<TColumns>>["update"],
     archive: (targetOptions) => archiveRows(handle, targetOptions),
     restore: (targetOptions) => restoreRows(handle, targetOptions),
+    addRelation: async (columnKey, targetTable, relationOptions) => {
+      const builder = rel(handle, columnKey).to(targetTable);
+      const instruction =
+        relationOptions?.type === "dual_property"
+          ? builder.dual({ syncedPropertyId: relationOptions.syncedPropertyId, syncedPropertyName: relationOptions.syncedPropertyName })
+          : builder.single();
+      await linkRelations([instruction]);
+    },
   };
 
   return handle;

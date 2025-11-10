@@ -1,6 +1,6 @@
 import type { TableDef, AnyColumnDef } from "@/orm/schema/types";
 import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
-import type { Predicate, ComparisonPredicate, NullPredicate, CompoundPredicate, SortDescriptor, TablePredicate } from "./types";
+import type { Predicate, ComparisonPredicate, NullPredicate, CompoundPredicate, SortDescriptor, TablePredicate, ComparisonOperator } from "./types";
 
 type NotionFilter = QueryDataSourceParameters["filter"];
 type NotionSort = NonNullable<QueryDataSourceParameters["sorts"]>[number];
@@ -11,10 +11,14 @@ const PROPERTY_FILTER_KEYS: Record<string, string | undefined> = {
   number: "number",
   checkbox: "checkbox",
   date: "date",
+  created_time: "created_time",
+  last_edited_time: "last_edited_time",
   email: "email",
   url: "url",
   phone_number: "phone_number",
   people: "people",
+  created_by: "created_by",
+  last_edited_by: "last_edited_by",
   files: "files",
   select: "select",
   multi_select: "multi_select",
@@ -24,13 +28,27 @@ const PROPERTY_FILTER_KEYS: Record<string, string | undefined> = {
 };
 
 const OPERATOR_SUPPORT: Record<string, Array<string>> = {
-  eq: ["title", "rich_text", "number", "checkbox", "date", "select", "status", "url", "email", "phone_number"],
-  neq: ["title", "rich_text", "number", "checkbox", "date", "select", "status", "url", "email", "phone_number"],
-  contains: ["title", "rich_text", "multi_select"],
-  gt: ["number", "date"],
-  gte: ["number", "date"],
-  lt: ["number", "date"],
-  lte: ["number", "date"],
+  eq: ["title", "rich_text", "number", "checkbox", "date", "select", "status", "url", "email", "phone_number", "created_time", "last_edited_time", "unique_id"],
+  neq: [
+    "title",
+    "rich_text",
+    "number",
+    "checkbox",
+    "date",
+    "select",
+    "status",
+    "url",
+    "email",
+    "phone_number",
+    "created_time",
+    "last_edited_time",
+    "unique_id",
+  ],
+  contains: ["title", "rich_text", "multi_select", "people", "created_by", "last_edited_by"],
+  gt: ["number", "date", "created_time", "last_edited_time", "unique_id"],
+  gte: ["number", "date", "created_time", "last_edited_time", "unique_id"],
+  lt: ["number", "date", "created_time", "last_edited_time", "unique_id"],
+  lte: ["number", "date", "created_time", "last_edited_time", "unique_id"],
 };
 
 export type CompileOptions<TDef extends TableDef> = {
@@ -127,15 +145,63 @@ function buildComparisonFilter(propertyTypeKey: string, predicate: ComparisonPre
     case "contains":
       return { contains: normalizeContainsValue(column, value) };
     case "gt":
-      return propertyTypeKey === "date" ? { after: expectStringValue(column, value) } : { greater_than: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "gt");
     case "gte":
-      return propertyTypeKey === "date" ? { on_or_after: expectStringValue(column, value) } : { greater_than_or_equal_to: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "gte");
     case "lt":
-      return propertyTypeKey === "date" ? { before: expectStringValue(column, value) } : { less_than: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "lt");
     case "lte":
-      return propertyTypeKey === "date" ? { on_or_before: expectStringValue(column, value) } : { less_than_or_equal_to: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "lte");
     default:
       throw new Error(`Unsupported comparison operator: ${operator}`);
+  }
+}
+
+function buildRangeFilter(propertyTypeKey: string, column: AnyColumnDef, value: unknown, operator: ComparisonOperator): Record<string, unknown> {
+  if (DATE_LIKE_KEYS.has(propertyTypeKey)) {
+    const normalized = expectStringValue(column, value);
+    switch (operator) {
+      case "gt":
+        return { after: normalized };
+      case "gte":
+        return { on_or_after: normalized };
+      case "lt":
+        return { before: normalized };
+      case "lte":
+        return { on_or_before: normalized };
+      default:
+        throw new Error(`Unsupported date operator: ${operator}`);
+    }
+  }
+
+  if (propertyTypeKey === "unique_id") {
+    const normalized = normalizeUniqueIdValue(column, value);
+    switch (operator) {
+      case "gt":
+        return { greater_than: normalized };
+      case "gte":
+        return { greater_than_or_equal_to: normalized };
+      case "lt":
+        return { less_than: normalized };
+      case "lte":
+        return { less_than_or_equal_to: normalized };
+      default:
+        throw new Error(`Unsupported unique_id operator: ${operator}`);
+    }
+  }
+
+  const numericValue = expectNumberValue(column, value);
+  switch (operator) {
+    case "gt":
+      return { greater_than: numericValue };
+    case "gte":
+      return { greater_than_or_equal_to: numericValue };
+    case "lt":
+      return { less_than: numericValue };
+    case "lte":
+      return { less_than_or_equal_to: numericValue };
+    default:
+      throw new Error(`Unsupported numeric operator: ${operator}`);
   }
 }
 
@@ -148,7 +214,11 @@ function normalizeValue(column: AnyColumnDef, value: unknown): unknown {
       return expectBooleanValue(column, value);
     case "number":
       return expectNumberValue(column, value);
+    case "unique_id":
+      return normalizeUniqueIdValue(column, value);
     case "date":
+    case "created_time":
+    case "last_edited_time":
       return expectStringValue(column, value);
     default:
       return expectStringValue(column, value);
@@ -156,10 +226,16 @@ function normalizeValue(column: AnyColumnDef, value: unknown): unknown {
 }
 
 function normalizeContainsValue(column: AnyColumnDef, value: unknown): unknown {
-  if (column.propertyType === "multi_select") {
-    return extractOptionName(value);
+  switch (column.propertyType) {
+    case "multi_select":
+      return extractOptionName(value);
+    case "people":
+    case "created_by":
+    case "last_edited_by":
+      return extractUserId(value);
+    default:
+      return expectStringValue(column, value);
   }
-  return expectStringValue(column, value);
 }
 
 function extractOptionName(value: unknown): string {
@@ -179,6 +255,32 @@ function expectNumberValue(column: AnyColumnDef, value: unknown): number {
   return value;
 }
 
+const UNIQUE_ID_SUFFIX = /(\d+)$/;
+const DATE_LIKE_KEYS = new Set(["date", "created_time", "last_edited_time"]);
+
+function normalizeUniqueIdValue(column: AnyColumnDef, value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      breakNormalizer(column);
+    }
+    const match = UNIQUE_ID_SUFFIX.exec(trimmed);
+    if (match) {
+      return Number(match[1]);
+    }
+  }
+
+  breakNormalizer(column);
+
+  function breakNormalizer(col: AnyColumnDef): never {
+    throw new Error(`unique_id filters must be a number or 'PREFIX-<number>' string for column '${col.name}'.`);
+  }
+}
+
 function expectStringValue(column: AnyColumnDef, value: unknown): string {
   if (typeof value !== "string") {
     throw new Error(`Column '${column.name}' expects a string value.`);
@@ -191,6 +293,16 @@ function expectBooleanValue(column: AnyColumnDef, value: unknown): boolean {
     throw new Error(`Column '${column.name}' expects a boolean value.`);
   }
   return value;
+}
+
+function extractUserId(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value && typeof value === "object" && "id" in value && typeof (value as { id?: unknown }).id === "string") {
+    return (value as { id: string }).id;
+  }
+  throw new Error("People filters require a user id string or { id } value.");
 }
 
 function validateOperatorSupport(predicate: ComparisonPredicate): void {

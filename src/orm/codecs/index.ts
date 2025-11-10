@@ -25,10 +25,16 @@ export { phoneNumberCodec } from "./primitives/phone-number";
 export { selectCodec } from "./options/select";
 export { multiSelectCodec } from "./options/multi-select";
 export { statusCodec } from "./options/status";
+export { uniqueIdCodec, type UniqueIdValue, type UniqueIdPropertyResponse } from "./options/unique-id";
 
 // Reference codecs
 export { peopleCodec } from "./references/people";
 export { relationCodec } from "./references/relation";
+export { createdByCodec, lastEditedByCodec, type CreatedByPropertyResponse, type LastEditedByPropertyResponse, type UserReference } from "./references/user";
 
 // File codecs
 export { filesCodec } from "./files/files";
+
+// Timestamp codecs
+export { createdTimeCodec, type CreatedTimePropertyResponse } from "./timestamps/created-time";
+export { lastEditedTimeCodec, type LastEditedTimePropertyResponse } from "./timestamps/last-edited-time";

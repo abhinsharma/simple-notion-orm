@@ -9,6 +9,8 @@ Start here to understand what the ORM provides before diving into builders, rela
 | `TableHandle#columns`                                  | Column builders keyed by the names you passed to `defineTable`. | Enables strongly typed predicates and patches.                                                         |
 | `TableHandle#insert/#select/#update/#archive/#restore` | Various row envelopes and metadata                              | CRUD helpers implemented in `src/orm/operations/**` that call the API wrappers for you.                |
 
+> Creating multiple related tables from scratch? Follow `docs/orm/first-run-seeding.md` for the parentId → linkRelations → env caching workflow.
+
 ## Create a table under a parent page
 
 ```ts

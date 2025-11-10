@@ -87,6 +87,12 @@ console.table(rows);
 - Factories under `src/factories/**` help you build Notion payloads (blocks, properties, transforms) when you need to drop down to the raw API.
 - Shared utilities (`src/transform`, `src/utils`) keep schemas, payload builders, and runtime helpers in sync.
 
+### System metadata helpers
+
+- Use `createdTime`, `lastEditedTime`, `createdBy`, `lastEditedBy`, and `uniqueId` column builders when you want Notion’s auto-maintained metadata.
+- These columns are read-only: inserts/updates throw if you try to set them, but you can filter/sort on them just like regular columns.
+- For new databases, declare your relations up front and then run `linkRelations(...)` (see `docs/orm/first-run-seeding.md`) once every table has a `data_source_id`.
+
 ## Project Layout
 
 ```

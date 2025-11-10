@@ -1,13 +1,18 @@
 # Relations
 
-Relation columns require an existing data source on the Notion side, so the ORM focuses on validating schemas and moving raw IDs around reliably.
+Relation columns rely on Notion data sources. Since a brand-new workspace doesn’t have those IDs yet, the ORM now uses a two-phase flow:
 
-| Requirement                            | Why it matters                                                                                                    |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Target relation must already exist     | The Notion API cannot create both sides at once; `defineTable` only validates schema (`src/api/database`).        |
-| Provide `{ id: string }` entries       | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.                    |
-| Use `databaseId` for remote validation | When attaching to a live DB, relation properties must match by name, otherwise `defineTable` fails fast.          |
-| Hydrate related rows manually          | Table handles return raw arrays of `{ id }`; use the low-level API wrappers if you need the related page content. |
+1. **Create databases** with `parentId` (relation columns are declared but skipped during provisioning).
+2. **Link relations** once every table exists, using the new `linkRelations()` helper (or the `table.addRelation()` sugar).
+
+See `docs/orm/first-run-seeding.md` for a complete seeding walkthrough.
+
+| Requirement                          | Why it matters                                                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Use `parentId` only on the first run | A fresh database doesn’t have IDs yet; once it exists, switch to `databaseId` and cache it in `.env`.             |
+| Use `data_source_id` for relations   | Relation properties require the target data source ID (not the database ID).                                      |
+| Provide `{ id: string }` entries     | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.                    |
+| Hydrate related rows manually        | Table handles return raw arrays of `{ id }`; use the low-level API wrappers if you need the related page content. |
 
 ## Configure a relation column
 
@@ -20,12 +25,30 @@ const tasks = await defineTable(
     title: text("Title").title(),
     project: relation("Project"),
   },
-  { parentId: process.env.NOTION_PARENT_PAGE_ID! }
+  process.env.TASKS_DB ? { databaseId: process.env.TASKS_DB } : { parentId: process.env.NOTION_PARENT_PAGE_ID! }
 );
 ```
 
-- Include `relation("Project")` only if the destination database already exposes a matching relation property in Notion.
-- The codec guarantees inserts/updates only send `{ id: string }` objects to Notion.
+- First run: omit `TASKS_DB`, pass `parentId`, then call `linkRelations` (see below) to materialize the relation.
+- Later runs: set `TASKS_DB=<database_id>` in your `.env` so the ORM attaches directly.
+
+## Link relations after creation
+
+```ts
+import { linkRelations, rel } from "@/orm/relation";
+
+await linkRelations([
+  rel(tasks, "project").to(projects).single(),
+  // dual example: rel(tasks, "project").to(projects).dual({ syncedPropertyName: "Tasks" })
+]);
+
+// or use the table sugar
+await tasks.addRelation("project", projects, { type: "single_property" });
+```
+
+- `single()` creates a one-way relation property on the source table.
+- `dual()` lets you mirror the relation on the target by providing the synced property metadata.
+- The helper groups property patches per table and calls `databases.update` under the hood.
 
 ## Insert rows with linked IDs
 
@@ -50,3 +73,12 @@ const related = await Promise.all(rows.flatMap((row) => row.project.map((ref) =>
 
 - Table handles return the decoded column data plus the raw page envelope; use those IDs with `getPage`, `getDatabasePage`, or other APIs when you need full related details.
 - Keep relation mappings documented in your schema definitions to avoid schema-validation errors during the `defineTable` sync step.
+
+## ID cheat sheet
+
+| ID type        | When to use it                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| `databaseId`   | Attach a table handle to an existing Notion database; update DB-level metadata via `databases.update`. |
+| `dataSourceId` | Query rows (`select` calls `dataSources.query`) and configure relation properties.                     |
+
+`table.getIds()` returns both; persist `databaseId` (the SDK can always re-derive the data source ID).
