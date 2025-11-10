@@ -145,15 +145,63 @@ function buildComparisonFilter(propertyTypeKey: string, predicate: ComparisonPre
     case "contains":
       return { contains: normalizeContainsValue(column, value) };
     case "gt":
-      return propertyTypeKey === "date" ? { after: expectStringValue(column, value) } : { greater_than: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "gt");
     case "gte":
-      return propertyTypeKey === "date" ? { on_or_after: expectStringValue(column, value) } : { greater_than_or_equal_to: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "gte");
     case "lt":
-      return propertyTypeKey === "date" ? { before: expectStringValue(column, value) } : { less_than: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "lt");
     case "lte":
-      return propertyTypeKey === "date" ? { on_or_before: expectStringValue(column, value) } : { less_than_or_equal_to: expectNumberValue(column, value) };
+      return buildRangeFilter(propertyTypeKey, column, value, "lte");
     default:
       throw new Error(`Unsupported comparison operator: ${operator}`);
+  }
+}
+
+function buildRangeFilter(propertyTypeKey: string, column: AnyColumnDef, value: unknown, operator: ComparisonOperator): Record<string, unknown> {
+  if (DATE_LIKE_KEYS.has(propertyTypeKey)) {
+    const normalized = expectStringValue(column, value);
+    switch (operator) {
+      case "gt":
+        return { after: normalized };
+      case "gte":
+        return { on_or_after: normalized };
+      case "lt":
+        return { before: normalized };
+      case "lte":
+        return { on_or_before: normalized };
+      default:
+        throw new Error(`Unsupported date operator: ${operator}`);
+    }
+  }
+
+  if (propertyTypeKey === "unique_id") {
+    const normalized = normalizeUniqueIdValue(column, value);
+    switch (operator) {
+      case "gt":
+        return { greater_than: normalized };
+      case "gte":
+        return { greater_than_or_equal_to: normalized };
+      case "lt":
+        return { less_than: normalized };
+      case "lte":
+        return { less_than_or_equal_to: normalized };
+      default:
+        throw new Error(`Unsupported unique_id operator: ${operator}`);
+    }
+  }
+
+  const numericValue = expectNumberValue(column, value);
+  switch (operator) {
+    case "gt":
+      return { greater_than: numericValue };
+    case "gte":
+      return { greater_than_or_equal_to: numericValue };
+    case "lt":
+      return { less_than: numericValue };
+    case "lte":
+      return { less_than_or_equal_to: numericValue };
+    default:
+      throw new Error(`Unsupported numeric operator: ${operator}`);
   }
 }
 
@@ -208,6 +256,7 @@ function expectNumberValue(column: AnyColumnDef, value: unknown): number {
 }
 
 const UNIQUE_ID_SUFFIX = /(\d+)$/;
+const DATE_LIKE_KEYS = new Set(["date", "created_time", "last_edited_time"]);
 
 function normalizeUniqueIdValue(column: AnyColumnDef, value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
