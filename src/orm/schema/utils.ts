@@ -35,6 +35,10 @@ export function buildInsertProperties<TDef extends TableDef>(columns: TDef["colu
     const hasValue = Object.prototype.hasOwnProperty.call(record, key);
     let value = hasValue ? record[key] : undefined;
 
+    if (columnDef.isReadOnly && hasValue && value !== undefined) {
+      throw new Error(`Column '${key}' is read-only (${columnDef.propertyType}) and cannot be set.`);
+    }
+
     if (!hasValue || value === undefined) {
       if (columnDef.defaultValue !== undefined) {
         value = cloneDefaultValue(columnDef.defaultValue);
@@ -62,13 +66,17 @@ export function buildUpdateProperties<TDef extends TableDef>(columns: TDef["colu
   assertKnownColumns(columns, record);
 
   for (const [key, value] of Object.entries(record)) {
+    const columnDef = columns[key];
+    if (!columnDef) {
+      continue;
+    }
+
     if (value === undefined) {
       continue;
     }
 
-    const columnDef = columns[key];
-    if (!columnDef) {
-      continue;
+    if (columnDef.isReadOnly) {
+      throw new Error(`Column '${key}' is read-only (${columnDef.propertyType}) and cannot be set.`);
     }
 
     if (value === null && !columnDef.isNullable) {

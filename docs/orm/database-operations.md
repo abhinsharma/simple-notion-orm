@@ -9,6 +9,8 @@ Table handles expose a consistent CRUD surface across every schema. Each helper 
 | `update(patch, targets)`                | `Promise<RowEnvelope[]>`                | Encodes the patch, resolves targets (`pageIds` or predicates), and issues Notion updates.   |
 | `archive(targets)` / `restore(targets)` | `Promise<RowEnvelope[]>`                | Thin wrappers over `updateRows` that toggle the `archived` flag.                            |
 
+> Provisioning new databases? Run through `docs/orm/first-run-seeding.md` first so every handle has stable IDs before you start inserting rows.
+
 ## Setup
 
 ```ts

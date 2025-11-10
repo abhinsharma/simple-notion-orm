@@ -11,10 +11,14 @@ const PROPERTY_FILTER_KEYS: Record<string, string | undefined> = {
   number: "number",
   checkbox: "checkbox",
   date: "date",
+  created_time: "created_time",
+  last_edited_time: "last_edited_time",
   email: "email",
   url: "url",
   phone_number: "phone_number",
   people: "people",
+  created_by: "created_by",
+  last_edited_by: "last_edited_by",
   files: "files",
   select: "select",
   multi_select: "multi_select",
@@ -24,13 +28,41 @@ const PROPERTY_FILTER_KEYS: Record<string, string | undefined> = {
 };
 
 const OPERATOR_SUPPORT: Record<string, Array<string>> = {
-  eq: ["title", "rich_text", "number", "checkbox", "date", "select", "status", "url", "email", "phone_number"],
-  neq: ["title", "rich_text", "number", "checkbox", "date", "select", "status", "url", "email", "phone_number"],
-  contains: ["title", "rich_text", "multi_select"],
-  gt: ["number", "date"],
-  gte: ["number", "date"],
-  lt: ["number", "date"],
-  lte: ["number", "date"],
+  eq: [
+    "title",
+    "rich_text",
+    "number",
+    "checkbox",
+    "date",
+    "select",
+    "status",
+    "url",
+    "email",
+    "phone_number",
+    "created_time",
+    "last_edited_time",
+    "unique_id",
+  ],
+  neq: [
+    "title",
+    "rich_text",
+    "number",
+    "checkbox",
+    "date",
+    "select",
+    "status",
+    "url",
+    "email",
+    "phone_number",
+    "created_time",
+    "last_edited_time",
+    "unique_id",
+  ],
+  contains: ["title", "rich_text", "multi_select", "people", "created_by", "last_edited_by"],
+  gt: ["number", "date", "created_time", "last_edited_time", "unique_id"],
+  gte: ["number", "date", "created_time", "last_edited_time", "unique_id"],
+  lt: ["number", "date", "created_time", "last_edited_time", "unique_id"],
+  lte: ["number", "date", "created_time", "last_edited_time", "unique_id"],
 };
 
 export type CompileOptions<TDef extends TableDef> = {
@@ -148,7 +180,11 @@ function normalizeValue(column: AnyColumnDef, value: unknown): unknown {
       return expectBooleanValue(column, value);
     case "number":
       return expectNumberValue(column, value);
+    case "unique_id":
+      return normalizeUniqueIdValue(column, value);
     case "date":
+    case "created_time":
+    case "last_edited_time":
       return expectStringValue(column, value);
     default:
       return expectStringValue(column, value);
@@ -156,10 +192,16 @@ function normalizeValue(column: AnyColumnDef, value: unknown): unknown {
 }
 
 function normalizeContainsValue(column: AnyColumnDef, value: unknown): unknown {
-  if (column.propertyType === "multi_select") {
-    return extractOptionName(value);
+  switch (column.propertyType) {
+    case "multi_select":
+      return extractOptionName(value);
+    case "people":
+    case "created_by":
+    case "last_edited_by":
+      return extractUserId(value);
+    default:
+      return expectStringValue(column, value);
   }
-  return expectStringValue(column, value);
 }
 
 function extractOptionName(value: unknown): string {
@@ -179,6 +221,29 @@ function expectNumberValue(column: AnyColumnDef, value: unknown): number {
   return value;
 }
 
+function normalizeUniqueIdValue(column: AnyColumnDef, value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      breakNormalizer(column);
+    }
+    const match = trimmed.match(/(\d+)$/);
+    if (match) {
+      return Number(match[1]);
+    }
+  }
+
+  breakNormalizer(column);
+
+  function breakNormalizer(col: AnyColumnDef): never {
+    throw new Error(`unique_id filters must be a number or 'PREFIX-<number>' string for column '${col.name}'.`);
+  }
+}
+
 function expectStringValue(column: AnyColumnDef, value: unknown): string {
   if (typeof value !== "string") {
     throw new Error(`Column '${column.name}' expects a string value.`);
@@ -191,6 +256,16 @@ function expectBooleanValue(column: AnyColumnDef, value: unknown): boolean {
     throw new Error(`Column '${column.name}' expects a boolean value.`);
   }
   return value;
+}
+
+function extractUserId(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value && typeof value === "object" && "id" in value && typeof (value as { id?: unknown }).id === "string") {
+    return (value as { id: string }).id;
+  }
+  throw new Error("People filters require a user id string or { id } value.");
 }
 
 function validateOperatorSupport(predicate: ComparisonPredicate): void {

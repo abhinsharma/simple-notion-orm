@@ -18,7 +18,11 @@ export type ColumnPropertyType =
   | "multi_select"
   | "status"
   | "relation"
-  | "unique_id";
+  | "unique_id"
+  | "created_time"
+  | "last_edited_time"
+  | "created_by"
+  | "last_edited_by";
 
 export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boolean, TPropertyPayload = unknown, TPropertyResponse = unknown> = {
   name: string;
@@ -28,6 +32,7 @@ export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boole
   defaultValue?: TValue;
   propertyType: ColumnPropertyType;
   config?: (name: string) => Record<string, unknown>;
+  isReadOnly?: boolean;
 };
 
 type BaseAnyColumnDef = ColumnDef<unknown, boolean, boolean, unknown, unknown>;
@@ -39,12 +44,19 @@ export type AnyColumnDef = Omit<BaseAnyColumnDef, "codec"> & {
 
 export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, infer _Optional, infer _Nullable, infer _Payload, infer _Response> ? TValue : never;
 
+/** @internal */
 export type ColumnOptional<TColumn> = TColumn extends ColumnDef<unknown, infer TOptional, infer _Nullable, unknown, unknown> ? TOptional : never;
 
+/** @internal */
 export type ColumnNullable<TColumn> = TColumn extends ColumnDef<unknown, infer _Optional, infer TNullable, unknown, unknown> ? TNullable : never;
 
+/** @internal */
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+/** @internal */
 type ColumnInputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> : Exclude<ColumnValue<TColumn>, null>;
 
+/** @internal */
 type ColumnOutputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> | null : Exclude<ColumnValue<TColumn>, null>;
 
 export type TableDef<TColumns extends Record<string, AnyColumnDef> = Record<string, AnyColumnDef>> = {
@@ -70,6 +82,12 @@ export type RelationColumnKeys<TDef extends TableDef> = {
 export type PopulateInstruction = true | "*" | readonly string[];
 
 export type RelationPopulateMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, PopulateInstruction>>;
+
+export type RelationLinkOptions = {
+  type?: "single_property" | "dual_property";
+  syncedPropertyName?: string;
+  syncedPropertyId?: string;
+};
 
 export type SelectOptions<TDef extends TableDef = TableDef> = {
   where?: TablePredicate<TDef>;
@@ -112,19 +130,37 @@ export type TableHandle<TDef extends TableDef> = {
   };
   archive: (options?: TargetOptions<TDef>) => Promise<number>;
   restore: (options?: TargetOptions<TDef>) => Promise<number>;
+  addRelation: <TKey extends RelationColumnKeys<TDef> & string>(
+    columnKey: TKey,
+    target: TableHandle<TableDef>,
+    options?: RelationLinkOptions
+  ) => Promise<void>;
 };
 
 export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
 
-export type RowInput<TDef extends TableDef> = {
-  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends true ? K : never]?: ColumnInputValue<TDef["columns"][K]>;
-} & {
-  [K in keyof TDef["columns"] as ColumnOptional<TDef["columns"][K]> extends false ? K : never]: ColumnInputValue<TDef["columns"][K]>;
+/** @internal */
+type RowAll<TDef extends TableDef> = {
+  [K in keyof TDef["columns"]]: ColumnInputValue<TDef["columns"][K]>;
 };
 
-export type RowOutput<TDef extends TableDef> = {
+/** @internal */
+type RequiredKeys<TDef extends TableDef> = {
+  [K in keyof TDef["columns"]]: ColumnOptional<TDef["columns"][K]> extends false ? K : never;
+}[keyof TDef["columns"]];
+
+/** @internal */
+type OptionalKeys<TDef extends TableDef> = {
+  [K in keyof TDef["columns"]]: ColumnOptional<TDef["columns"][K]> extends true ? K : never;
+}[keyof TDef["columns"]];
+
+export type RowInput<TDef extends TableDef> = Simplify<
+  Partial<Pick<RowAll<TDef>, OptionalKeys<TDef>>> & Pick<RowAll<TDef>, RequiredKeys<TDef>>
+>;
+
+export type RowOutput<TDef extends TableDef> = Simplify<{
   [K in keyof TDef["columns"]]: ColumnOutputValue<TDef["columns"][K]>;
-};
+}>;
 
 export type RowPatch<TDef extends TableDef> = Partial<RowInput<TDef>>;
 

@@ -11,15 +11,19 @@ export type ColumnFilterValue<TColumn extends AnyColumnDef> = FilterValueForProp
 
 type FilterValueForProperty<T extends ColumnPropertyType> = T extends "number"
   ? number
+  : T extends "unique_id"
+    ? number | string
   : T extends "checkbox"
     ? boolean
-    : T extends "date"
+    : T extends "date" | "created_time" | "last_edited_time"
       ? string
       : T extends "select" | "status"
         ? string | { name: string }
         : T extends "multi_select"
           ? string
-          : string;
+          : T extends "people" | "created_by" | "last_edited_by"
+            ? string | { id: string }
+            : string;
 
 export type ComparisonPredicate<TColumn extends AnyColumnDef = AnyColumnDef> = {
   kind: "comparison";

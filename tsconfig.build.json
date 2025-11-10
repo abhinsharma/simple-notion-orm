@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "noEmit": false
+    "noEmit": false,
+    "stripInternal": true
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/__tests__/**", "src/**/*.test.ts", "tests", "playground.ts"]
