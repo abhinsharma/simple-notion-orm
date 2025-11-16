@@ -23,6 +23,7 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title:
     }) as TableHandle<TableDef<TColumns>>["update"],
     archive: async () => 0,
     restore: async () => 0,
+    addRelation: async () => {},
   };
 }
 
