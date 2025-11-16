@@ -51,6 +51,12 @@ export default [
     },
   },
   {
+    files: ["playground.ts"],
+    rules: {
+      "no-console": "off",
+    },
+  },
+  {
     files: ["tests/**/*.ts", "tests/**/*.tsx", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
     languageOptions: {
       globals: {

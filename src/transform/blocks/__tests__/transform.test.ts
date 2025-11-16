@@ -1,7 +1,6 @@
 import { toSimpleBlock, type PageBlock, type SimpleBlock } from "@/transform/blocks";
 import { describe, expect, it } from "vitest";
 
-
 const baseMeta = {
   object: "block" as const,
   parent: { type: "page_id" as const, page_id: "parent-id" },

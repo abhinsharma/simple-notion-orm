@@ -3,14 +3,12 @@ import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoi
 import type { NonDefaultColor, SimpleAnnotations, SimpleRichTextSpan } from "./types";
 
 export function toSimpleRichTextSpanArray(richText: RichTextItemResponse[]): SimpleRichTextSpan[] {
-  return richText
-    .map((item) => toSimpleRichTextSpan(item))
-    .filter((span): span is SimpleRichTextSpan => Boolean(span));
+  return richText.map((item) => toSimpleRichTextSpan(item)).filter((span): span is SimpleRichTextSpan => Boolean(span));
 }
 
 function toSimpleRichTextSpan(item: RichTextItemResponse): SimpleRichTextSpan | null {
   const plainText = (item.plain_text ?? "").trim();
-  const href = item.href ?? (item.type === "text" ? item.text.link?.url ?? null : null);
+  const href = item.href ?? (item.type === "text" ? (item.text.link?.url ?? null) : null);
 
   if (!plainText && !href) {
     return null;

@@ -1,6 +1,15 @@
 import type { ApiColor } from "@/types/blocks";
 import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
-import type { PageBlock, SimpleBlock, SimpleHeadingBlock, SimpleListItemBlock, SimpleParagraphBlock, SimpleQuoteBlock, SimpleToDoBlock, SimpleToggleBlock } from "./types";
+import type {
+  PageBlock,
+  SimpleBlock,
+  SimpleHeadingBlock,
+  SimpleListItemBlock,
+  SimpleParagraphBlock,
+  SimpleQuoteBlock,
+  SimpleToDoBlock,
+  SimpleToggleBlock,
+} from "./types";
 import { normalizeColor, toSimpleRichTextSpanArray } from "./richtext";
 
 export function fromParagraph(block: Extract<PageBlock, { type: "paragraph" }>, transformChild: (child: PageBlock) => SimpleBlock): SimpleParagraphBlock {
@@ -20,7 +29,10 @@ export function fromParagraph(block: Extract<PageBlock, { type: "paragraph" }>, 
   return simple;
 }
 
-export function fromHeading(block: Extract<PageBlock, { type: "heading_1" | "heading_2" | "heading_3" }>, transformChild: (child: PageBlock) => SimpleBlock): SimpleHeadingBlock {
+export function fromHeading(
+  block: Extract<PageBlock, { type: "heading_1" | "heading_2" | "heading_3" }>,
+  transformChild: (child: PageBlock) => SimpleBlock
+): SimpleHeadingBlock {
   if (block.type === "heading_1") {
     return buildHeadingBlock(block, block.heading_1, "heading_1", 1, transformChild);
   }

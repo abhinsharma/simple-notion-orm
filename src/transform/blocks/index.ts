@@ -1,12 +1,5 @@
 import type { PageBlock, SimpleBlock } from "./types";
-import {
-  fromParagraph,
-  fromHeading,
-  fromListItem,
-  fromToDo,
-  fromToggle,
-  fromQuote,
-} from "./text";
+import { fromParagraph, fromHeading, fromListItem, fromToDo, fromToggle, fromQuote } from "./text";
 import { fromMedia, fromBookmark } from "./media";
 import { fromDivider, fromBreadcrumb, fromColumnList, fromTable, fromTableOfContents } from "./layout";
 import { fromCallout, fromCode, fromEquation, fromLinkToPage, fromSyncedBlock, fromTemplate } from "./advanced";
