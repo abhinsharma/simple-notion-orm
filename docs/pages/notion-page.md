@@ -4,8 +4,10 @@
 
 | API / Property                             | Returns                                                    | Description                                                                                          |
 | ------------------------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `NotionPage.fromPage(page)`                | `NotionPage`                                               | Wraps a `PageObjectResponse` (for example, from `table.select`).                                     |
+| `NotionPage.from(pageId)`                  | `Promise<NotionPage>`                                      | Fetch a page by ID and hydrate a wrapper plus block helper in one call.                             |
+| `NotionPage.fromPage(page)`                | `NotionPage`                                               | Wraps an existing `PageObjectResponse` (for example, from `table.select`).                           |
 | `notionPage.id` / `notionPage.raw`         | `string` / `PageObjectResponse`                            | Peek at the page ID or the last cached metadata.                                                     |
+| `notionPage.blocks`                        | `NotionBlocks`                                             | Read helper for raw or transformed block traversal (`list`, `tree`, `stream`).                      |
 | `refresh(filterProperties?)`               | `Promise<PageObjectResponse>`                              | Reload metadata from Notion, optionally limiting properties.                                         |
 | `get(options?)`                            | `Promise<PageObjectResponse & { children?: PageBlock[] }>` | Fetch metadata and, if requested, the current block tree (with optional recursion and page size).    |
 | `updateTitle(title)`                       | `Promise<PageObjectResponse>`                              | Locates the canonical title property and overwrites it.                                              |
@@ -40,6 +42,26 @@ await entry?.notionPage.append([
 
 Because the handle caches the `PageObjectResponse`, subsequent calls like `setIcon` or `setCover` reuse the latest metadata where possible.
 
+## Traversing blocks via `NotionBlocks`
+
+`notionPage.blocks` exposes a `NotionBlocks` instance backed by the same page ID. Use it for read-heavy scenarios when you do not need to mutate metadata:
+
+```ts
+const page = await NotionPage.from(process.env.PLAYGROUND_PAGE_ID!);
+
+// Raw Notion blocks (BlockObjectResponse[])
+const raw = await page.blocks.listRaw();
+
+// Transformed helpers (SimpleBlock[] – Phase III will define this type)
+const blocks = await page.blocks.tree({ recursive: true });
+
+for await (const block of page.blocks.stream()) {
+  console.log(block.type, block.id);
+}
+```
+
+`listRaw`/`treeRaw`/`streamRaw` mirror the low-level API for debugging, while `list`/`tree`/`stream` will eventually forward blocks through the transform layer outlined in `docs/transform-blocks.md`.
+
 ## Updating page chrome & state
 
 ```ts
@@ -61,8 +83,9 @@ All chrome updates return the updated `PageObjectResponse`, so you can track the
 ## Working with the block tree
 
 ```ts
-const tree = await page.get({ includeChildren: true, recursiveChildren: true });
-const todos = tree.children?.filter((block) => block.type === "to_do") ?? [];
+const page = await NotionPage.from(process.env.PLAYGROUND_PAGE_ID!);
+const tree = await page.blocks.tree({ recursive: true });
+const todos = tree.filter((block) => block.type === "to_do");
 
 for (const todo of todos) {
   if (todo.to_do && !todo.to_do.checked) {
@@ -74,6 +97,6 @@ for (const todo of todos) {
 ```
 
 - `append` and `insertAfter` automatically chunk writes into batches of 100 blocks, which matches Notion’s API limit.
-- `getBlocks({ recursive: true })` traverses nested children and synced blocks so you don’t have to orchestrate repeated `blocks.children.list` calls manually.
+- `page.blocks.list()` returns the first-level children, while `page.blocks.tree({ recursive: true })` traverses nested children and synced blocks so you don’t have to orchestrate repeated `blocks.children.list` calls manually. Use `page.blocks.stream()` for async iteration.
 
 Use `NotionPage` whenever you need richer block/page workflows after the ORM gives you typed row data—it keeps page mutations colocated with the row lifecycle without forcing you back into the low-level SDK.
