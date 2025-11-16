@@ -27,6 +27,8 @@
       "@/types/*": ["types/*"],
       "@/constants/*": ["constants/*"],
       "@/factories/*": ["factories/*"],
+      "@/transform": ["transform/index.ts"],
+      "@/transform/*": ["transform/*"],
       "@/pages": ["pages/index.ts"],
       "@/pages/*": ["pages/*"]
     }

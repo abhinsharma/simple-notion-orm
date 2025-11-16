@@ -4,11 +4,12 @@
  */
 
 import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType } from "@/types/blocks";
+import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  */
-type BlockWithChildren = Record<string, unknown>;
+type BlockWithChildren = BlockObjectRequestWithoutChildren;
 
 /**
  * Builds a code block

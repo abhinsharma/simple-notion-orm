@@ -79,6 +79,8 @@ export type RelationColumnKeys<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: TDef["columns"][K]["propertyType"] extends "relation" ? K : never;
 }[keyof TDef["columns"]];
 
+type RelationKey<TDef extends TableDef> = RelationColumnKeys<TDef> extends never ? string : RelationColumnKeys<TDef> & string;
+
 export type PopulateInstruction = true | "*" | readonly string[];
 
 export type RelationPopulateMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, PopulateInstruction>>;
@@ -130,7 +132,7 @@ export type TableHandle<TDef extends TableDef> = {
   };
   archive: (options?: TargetOptions<TDef>) => Promise<number>;
   restore: (options?: TargetOptions<TDef>) => Promise<number>;
-  addRelation: <TKey extends RelationColumnKeys<TDef> & string>(columnKey: TKey, target: TableHandle<TableDef>, options?: RelationLinkOptions) => Promise<void>;
+  addRelation: <TKey extends RelationKey<TDef>>(columnKey: TKey, target: TableHandle<TableDef>, options?: RelationLinkOptions) => Promise<void>;
 };
 
 export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;

@@ -19,6 +19,7 @@ export default defineConfig({
       "@/constants": path.resolve(root, "src/constants"),
       "@/factories": path.resolve(root, "src/factories"),
       "@/pages": path.resolve(root, "src/pages"),
+      "@/transform": path.resolve(root, "src/transform"),
     },
   },
 });
