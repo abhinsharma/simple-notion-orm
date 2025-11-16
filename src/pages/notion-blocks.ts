@@ -7,7 +7,7 @@ type ListOptions = {
   startCursor?: ListBlockChildrenParameters["start_cursor"];
 };
 
-type TreeOptions = {
+type ContentOptions = {
   pageSize?: ListBlockChildrenParameters["page_size"];
   recursive?: boolean;
 };
@@ -36,7 +36,7 @@ export class NotionBlocks {
     return toSimpleBlocks(await this.listRaw(options));
   }
 
-  async treeRaw(options?: TreeOptions): Promise<PageBlock[]> {
+  async getContentRaw(options?: ContentOptions): Promise<PageBlock[]> {
     if (options?.recursive === false) {
       const nodes = await this.listRaw({ pageSize: options?.pageSize });
       return nodes.map((node) => ({ ...node }));
@@ -45,8 +45,8 @@ export class NotionBlocks {
     return this.collectBlockTree(this.pageId, options?.pageSize);
   }
 
-  async tree(options?: TreeOptions): Promise<SimpleBlock[]> {
-    const rawTree = await this.treeRaw(options);
+  async getContent(options?: ContentOptions): Promise<SimpleBlock[]> {
+    const rawTree = await this.getContentRaw(options);
     return rawTree.map((block) => this.toSimpleBlockRecursive(block));
   }
 

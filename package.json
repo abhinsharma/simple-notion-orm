@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -40,7 +40,8 @@
   },
   "scripts": {
     "tsc": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && pnpm run clean:dist",
+    "clean:dist": "rimraf dist/src dist/tests dist/playground.* dist/vitest.config.*",
     "prepublishOnly": "pnpm run build",
     "lint": "eslint .",
     "test": "vitest run",
@@ -59,6 +60,7 @@
     "eslint-plugin-unicorn": "^61.0.2",
     "msw": "^2.11.5",
     "prettier": "^3.6.2",
+    "rimraf": "^6.1.0",
     "tsc-alias": "1.8.8",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",

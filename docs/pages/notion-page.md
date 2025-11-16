@@ -2,23 +2,23 @@
 
 `src/pages/notion-page.ts` exposes a lightweight `NotionPage` wrapper around any Notion page ID. Use it when you need to manipulate blocks, covers, or archived state without dropping down to the raw SDK.
 
-| API / Property                             | Returns                                                    | Description                                                                                          |
-| ------------------------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `NotionPage.from(pageId)`                  | `Promise<NotionPage>`                                      | Fetch a page by ID and hydrate a wrapper plus block helper in one call.                             |
-| `NotionPage.fromPage(page)`                | `NotionPage`                                               | Wraps an existing `PageObjectResponse` (for example, from `table.select`).                           |
-| `notionPage.id` / `notionPage.raw`         | `string` / `PageObjectResponse`                            | Peek at the page ID or the last cached metadata.                                                     |
-| `notionPage.blocks`                        | `NotionBlocks`                                             | Read helper for raw or transformed block traversal (`list`, `tree`, `stream`).                      |
-| `refresh(filterProperties?)`               | `Promise<PageObjectResponse>`                              | Reload metadata from Notion, optionally limiting properties.                                         |
-| `get(options?)`                            | `Promise<PageObjectResponse & { children?: PageBlock[] }>` | Fetch metadata and, if requested, the current block tree (with optional recursion and page size).    |
-| `updateTitle(title)`                       | `Promise<PageObjectResponse>`                              | Locates the canonical title property and overwrites it.                                              |
-| `setIcon(icon)` / `setCover(cover)`        | `Promise<PageObjectResponse>`                              | Forward to the Notion Pages API to update chrome.                                                    |
-| `archive()` / `restore()`                  | `Promise<PageObjectResponse>`                              | Toggle the archived flag for the wrapped page.                                                       |
-| `clearContent()`                           | `Promise<void>`                                            | Removes all child blocks from the page.                                                              |
-| `append(blocks, options?)` / `add(blocks)` | `Promise<NotionPage>`                                      | Appends up to 100 blocks per request, chunking large arrays automatically (optional `after` cursor). |
-| `insertAfter(blockId, blocks)`             | `Promise<NotionPage>`                                      | Inserts blocks after an existing block ID.                                                           |
-| `updateBlock(blockId, patch)`              | `Promise<void>`                                            | Calls `blocks.update` with the provided payload.                                                     |
-| `deleteBlock(blockId)`                     | `Promise<void>`                                            | Archives a block via the Blocks API.                                                                 |
-| `getBlocks({ recursive?, pageSize? })`     | `Promise<PageBlock[]>`                                     | Lists child blocks, optionally walking the entire tree (synced blocks expand via `synced_from`).     |
+| API / Property                             | Returns                                                    | Description                                                                                                                         |
+| ------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `NotionPage.from(pageId)`                  | `Promise<NotionPage>`                                      | Fetch a page by ID and hydrate a wrapper plus block helper in one call.                                                             |
+| `NotionPage.fromPage(page)`                | `NotionPage`                                               | Wraps an existing `PageObjectResponse` (for example, from `table.select`).                                                          |
+| `notionPage.id` / `notionPage.raw`         | `string` / `PageObjectResponse`                            | Peek at the page ID or the last cached metadata.                                                                                    |
+| `notionPage.blocks`                        | `NotionBlocks`                                             | Read helper for raw or transformed block traversal (`list`, `getContent`, `stream`). See `docs/pages/notion-blocks.md` for details. |
+| `refresh(filterProperties?)`               | `Promise<PageObjectResponse>`                              | Reload metadata from Notion, optionally limiting properties.                                                                        |
+| `get(options?)`                            | `Promise<PageObjectResponse & { children?: PageBlock[] }>` | Fetch metadata and, if requested, the current block tree (with optional recursion and page size).                                   |
+| `updateTitle(title)`                       | `Promise<PageObjectResponse>`                              | Locates the canonical title property and overwrites it.                                                                             |
+| `setIcon(icon)` / `setCover(cover)`        | `Promise<PageObjectResponse>`                              | Forward to the Notion Pages API to update chrome.                                                                                   |
+| `archive()` / `restore()`                  | `Promise<PageObjectResponse>`                              | Toggle the archived flag for the wrapped page.                                                                                      |
+| `clearContent()`                           | `Promise<void>`                                            | Removes all child blocks from the page.                                                                                             |
+| `append(blocks, options?)` / `add(blocks)` | `Promise<NotionPage>`                                      | Appends up to 100 blocks per request, chunking large arrays automatically (optional `after` cursor).                                |
+| `insertAfter(blockId, blocks)`             | `Promise<NotionPage>`                                      | Inserts blocks after an existing block ID.                                                                                          |
+| `updateBlock(blockId, patch)`              | `Promise<void>`                                            | Calls `blocks.update` with the provided payload.                                                                                    |
+| `deleteBlock(blockId)`                     | `Promise<void>`                                            | Archives a block via the Blocks API.                                                                                                |
+| `getBlocks({ recursive?, pageSize? })`     | `Promise<PageBlock[]>`                                     | Lists child blocks, optionally walking the entire tree (synced blocks expand via `synced_from`).                                    |
 
 ## Accessing `NotionPage` from ORM rows
 
@@ -53,14 +53,14 @@ const page = await NotionPage.from(process.env.PLAYGROUND_PAGE_ID!);
 const raw = await page.blocks.listRaw();
 
 // Transformed helpers (SimpleBlock[] – already stripped of raw metadata)
-const blocks = await page.blocks.tree({ recursive: true });
+const blocks = await page.blocks.getContent({ recursive: true });
 
 for await (const block of page.blocks.stream()) {
   console.log(block.type, block.id);
 }
 ```
 
-`listRaw`/`treeRaw`/`streamRaw` mirror the low-level API for debugging, while `list`/`tree`/`stream` will eventually forward blocks through the transform layer outlined in `docs/transform-blocks.md`.
+`listRaw`/`getContentRaw`/`streamRaw` mirror the low-level API for debugging, while `list`/`getContent`/`stream` forward blocks through the transform layer outlined in `docs/pages/notion-blocks.md`.
 
 ## Updating page chrome & state
 
@@ -84,7 +84,7 @@ All chrome updates return the updated `PageObjectResponse`, so you can track the
 
 ```ts
 const page = await NotionPage.from(process.env.PLAYGROUND_PAGE_ID!);
-const tree = await page.blocks.tree({ recursive: true });
+const tree = await page.blocks.getContent({ recursive: true });
 const todos = tree.filter((block) => block.type === "to_do");
 
 for (const todo of todos) {
@@ -97,6 +97,6 @@ for (const todo of todos) {
 ```
 
 - `append` and `insertAfter` automatically chunk writes into batches of 100 blocks, which matches Notion’s API limit.
-- `page.blocks.list()` returns the first-level children, while `page.blocks.tree({ recursive: true })` traverses nested children and synced blocks so you don’t have to orchestrate repeated `blocks.children.list` calls manually. Use `page.blocks.stream()` for async iteration.
+- `page.blocks.list()` returns the first-level children, while `page.blocks.getContent({ recursive: true })` traverses nested children and synced blocks so you don’t have to orchestrate repeated `blocks.children.list` calls manually. Use `page.blocks.stream()` for async iteration.
 
 Use `NotionPage` whenever you need richer block/page workflows after the ORM gives you typed row data—it keeps page mutations colocated with the row lifecycle without forcing you back into the low-level SDK.

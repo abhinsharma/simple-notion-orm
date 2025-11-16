@@ -187,7 +187,7 @@ export class NotionPage {
 
   async getBlocks(options?: GetBlocksOptions): Promise<PageBlock[]> {
     if (options?.recursive) {
-      return this.blocksHelper.treeRaw({ pageSize: options.pageSize });
+      return this.blocksHelper.getContentRaw({ pageSize: options.pageSize });
     }
 
     const blocks = await this.blocksHelper.listRaw({ pageSize: options?.pageSize });
@@ -223,5 +223,4 @@ export class NotionPage {
     }
     return chunks;
   }
-
 }
