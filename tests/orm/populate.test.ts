@@ -24,6 +24,7 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title:
     archive: async () => 0,
     restore: async () => 0,
     addRelation: async () => {},
+    addRelations: async () => {},
   };
 }
 

@@ -5,7 +5,7 @@ import { selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
 import { linkRelations, rel } from "@/orm/relation/linker";
 import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
-import type { AnyColumnDef, RelationColumnKeys, RowInput, TableHandle, TableDef } from "./types";
+import type { AnyColumnDef, RelationColumnKeys, RelationLinkMap, RowInput, TableHandle, TableDef } from "./types";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
@@ -147,6 +147,24 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
           ? builder.dual({ syncedPropertyId: relationOptions.syncedPropertyId, syncedPropertyName: relationOptions.syncedPropertyName })
           : builder.single();
       await linkRelations([instruction]);
+    },
+    addRelations: async (relations: RelationLinkMap<TableDefType<TColumns>>) => {
+      const columnKeys = Object.keys(relations) as Array<RelationColumnKeys<TableDefType<TColumns>> & string>;
+      const instructions = columnKeys.flatMap((columnKey) => {
+        const config = relations[columnKey];
+        if (!config) {
+          return [];
+        }
+        const builder = rel(handle, columnKey).to(config.target);
+        if (config.options?.type === "dual_property") {
+          return [builder.dual({ syncedPropertyId: config.options.syncedPropertyId, syncedPropertyName: config.options.syncedPropertyName })];
+        }
+        return [builder.single()];
+      });
+
+      if (instructions.length) {
+        await linkRelations(instructions);
+      }
     },
   };
 

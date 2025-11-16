@@ -13,6 +13,7 @@ See `docs/orm/first-run-seeding.md` for a complete seeding walkthrough.
 | Use `data_source_id` for relations   | Relation properties require the target data source ID (not the database ID).                                      |
 | Provide `{ id: string }` entries     | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.                    |
 | Hydrate related rows manually        | Table handles return raw arrays of `{ id }`; use the low-level API wrappers if you need the related page content. |
+| Batch links with `addRelations`      | When a table links to many targets, a single call keeps all wiring in one place.                                  |
 
 ## Configure a relation column
 
@@ -42,13 +43,17 @@ await linkRelations([
   // dual example: rel(tasks, "project").to(projects).dual({ syncedPropertyName: "Tasks" })
 ]);
 
-// or use the table sugar
+// or use the table sugars
 await tasks.addRelation("project", projects, { type: "single_property" });
+await tasks.addRelations({
+  project: { target: projects, options: { type: "dual_property", syncedPropertyName: "Tasks" } },
+  documents: { target: documents, options: { type: "dual_property", syncedPropertyName: "Tasks" } },
+});
 ```
 
 - `single()` creates a one-way relation property on the source table.
 - `dual()` lets you mirror the relation on the target by providing the synced property metadata.
-- The helper groups property patches per table and calls `databases.update` under the hood.
+- `addRelations` batches multiple columns for the same table and still calls `linkRelations` under the hood, so use it when you have lots of links to configure.
 
 ## Insert rows with linked IDs
 
