@@ -52,7 +52,7 @@ const page = await NotionPage.from(process.env.PLAYGROUND_PAGE_ID!);
 // Raw Notion blocks (BlockObjectResponse[])
 const raw = await page.blocks.listRaw();
 
-// Transformed helpers (SimpleBlock[] – Phase III will define this type)
+// Transformed helpers (SimpleBlock[] – already stripped of raw metadata)
 const blocks = await page.blocks.tree({ recursive: true });
 
 for await (const block of page.blocks.stream()) {

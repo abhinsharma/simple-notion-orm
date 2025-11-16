@@ -1,5 +1,5 @@
 import { getBlockChildren } from "@/api/block";
-import { toSimpleBlock, toSimpleBlocks, type SimpleBlock } from "@/transform/blocks";
+import { toSimpleBlock, toSimpleBlocks, type PageBlock, type SimpleBlock } from "@/transform/blocks";
 import type { BlockObjectResponse, ListBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
 
 type ListOptions = {
@@ -17,8 +17,6 @@ type StreamOptions = {
   recursive?: boolean;
 };
 
-export type PageBlock = BlockObjectResponse & { children?: PageBlock[] };
-
 function isBlockObject(result: { object: string }): result is BlockObjectResponse {
   return result.object === "block";
 }
@@ -30,7 +28,7 @@ export class NotionBlocks {
     return new NotionBlocks(pageId);
   }
 
-  async listRaw(options?: ListOptions): Promise<BlockObjectResponse[]> {
+  async listRaw(options?: ListOptions): Promise<PageBlock[]> {
     return this.listChildren(this.pageId, options);
   }
 
@@ -52,7 +50,7 @@ export class NotionBlocks {
     return rawTree.map((block) => this.toSimpleBlockRecursive(block));
   }
 
-  async *streamRaw(options?: StreamOptions): AsyncGenerator<BlockObjectResponse> {
+  async *streamRaw(options?: StreamOptions): AsyncGenerator<PageBlock> {
     const recursive = options?.recursive ?? true;
     const stack: string[] = [this.pageId];
 
@@ -71,7 +69,7 @@ export class NotionBlocks {
             continue;
           }
 
-          yield result;
+          yield { ...result } as PageBlock;
 
           if (!recursive) {
             continue;
@@ -107,7 +105,7 @@ export class NotionBlocks {
 
       for (const item of response.results) {
         if (isBlockObject(item)) {
-          nodes.push({ ...item } as PageBlock);
+          nodes.push({ ...item });
         }
       }
 
@@ -128,16 +126,12 @@ export class NotionBlocks {
       }
     }
 
-    return nodes as PageBlock[];
+    return nodes;
   }
 
   private toSimpleBlockRecursive(node: PageBlock): SimpleBlock {
-    const simpleBlock = { ...toSimpleBlock(node) };
-
-    if (node.children?.length) {
-      simpleBlock.children = node.children.map((child) => this.toSimpleBlockRecursive(child));
-    }
-
-    return simpleBlock;
+    return toSimpleBlock(node, (child) => this.toSimpleBlockRecursive(child));
   }
 }
+
+export type { PageBlock } from "@/transform/blocks";
