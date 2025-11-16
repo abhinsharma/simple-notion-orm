@@ -80,7 +80,7 @@ type RelationLinkModeBuilder = {
 };
 
 type RelationLinkTargetBuilder = {
-  to: (target: TableHandle<TableDef>) => RelationLinkModeBuilder;
+  to: <TTarget extends TableDef>(target: TableHandle<TTarget>) => RelationLinkModeBuilder;
 };
 
 export function rel<TSource extends TableDef, TKey extends RelationColumnKeys<TSource> & string>(

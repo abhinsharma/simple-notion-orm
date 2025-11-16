@@ -91,6 +91,13 @@ export type RelationLinkOptions = {
   syncedPropertyId?: string;
 };
 
+export type RelationLinkConfig<TTarget extends TableDef = TableDef> = {
+  target: TableHandle<TTarget>;
+  options?: RelationLinkOptions;
+};
+
+export type RelationLinkMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, RelationLinkConfig>>;
+
 export type SelectOptions<TDef extends TableDef = TableDef> = {
   where?: TablePredicate<TDef>;
   orderBy?: SortDescriptor<TDef["columns"][keyof TDef["columns"]]> | Array<SortDescriptor<TDef["columns"][keyof TDef["columns"]]>>;
@@ -132,7 +139,12 @@ export type TableHandle<TDef extends TableDef> = {
   };
   archive: (options?: TargetOptions<TDef>) => Promise<number>;
   restore: (options?: TargetOptions<TDef>) => Promise<number>;
-  addRelation: <TKey extends RelationKey<TDef>>(columnKey: TKey, target: TableHandle<TableDef>, options?: RelationLinkOptions) => Promise<void>;
+  addRelation: <TKey extends RelationKey<TDef>, TTarget extends TableDef>(
+    columnKey: TKey,
+    target: TableHandle<TTarget>,
+    options?: RelationLinkOptions
+  ) => Promise<void>;
+  addRelations: (relations: RelationLinkMap<TDef>) => Promise<void>;
 };
 
 export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
