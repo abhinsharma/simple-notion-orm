@@ -5,7 +5,7 @@ import { selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
 import { linkRelations, rel } from "@/orm/relation/linker";
 import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
-import type { AnyColumnDef, RowInput, TableHandle, TableDef } from "./types";
+import type { AnyColumnDef, RelationColumnKeys, RowInput, TableHandle, TableDef } from "./types";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
@@ -141,7 +141,7 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
     archive: (targetOptions) => archiveRows(handle, targetOptions),
     restore: (targetOptions) => restoreRows(handle, targetOptions),
     addRelation: async (columnKey, targetTable, relationOptions) => {
-      const builder = rel(handle, columnKey).to(targetTable);
+      const builder = rel(handle, columnKey as RelationColumnKeys<TableDefType<TColumns>> & string).to(targetTable);
       const instruction =
         relationOptions?.type === "dual_property"
           ? builder.dual({ syncedPropertyId: relationOptions.syncedPropertyId, syncedPropertyName: relationOptions.syncedPropertyName })
