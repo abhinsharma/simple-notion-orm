@@ -66,13 +66,19 @@ function getCodecType(columnDef: AnyColumnDef): string {
   const propertyConfig = config[columnDef.name];
 
   if (propertyConfig && typeof propertyConfig === "object") {
+    const typedConfig = propertyConfig as { type?: unknown; [key: string]: unknown };
+
+    if (typeof typedConfig.type === "string" && typedConfig.type.length > 0) {
+      return typedConfig.type;
+    }
+
     const keys = Object.keys(propertyConfig);
     if (keys.length > 0) {
       return keys[0];
     }
   }
 
-  return "unknown";
+  return columnDef.propertyType ?? "unknown";
 }
 
 function validateSchema(existingSchema: Record<string, { type: string }>, providedColumns: Record<string, AnyColumnDef>): void {
