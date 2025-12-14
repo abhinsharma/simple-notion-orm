@@ -146,7 +146,7 @@ export type TableHandle<TDef extends TableDef> = {
   ) => Promise<void>;
   addRelations: (relations: RelationLinkMap<TDef>) => Promise<void>;
 } & {
-  /** @internal phantom type for inference - not present at runtime */
+  /** Phantom type for inference - not present at runtime */
   _def?: TDef;
 };
 
