@@ -44,11 +44,11 @@ export type AnyColumnDef = Omit<BaseAnyColumnDef, "codec"> & {
 
 export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, infer _Optional, infer _Nullable, infer _Payload, infer _Response> ? TValue : never;
 
-/** @internal */
-export type ColumnOptional<TColumn> = TColumn extends ColumnDef<unknown, infer TOptional, infer _Nullable, unknown, unknown> ? TOptional : never;
+/** @internal - uses property access to work with intersection types (column builders) */
+export type ColumnOptional<TColumn> = TColumn extends { isOptional: infer O } ? O : never;
 
-/** @internal */
-export type ColumnNullable<TColumn> = TColumn extends ColumnDef<unknown, infer _Optional, infer TNullable, unknown, unknown> ? TNullable : never;
+/** @internal - uses property access to work with intersection types (column builders) */
+export type ColumnNullable<TColumn> = TColumn extends { isNullable: infer N } ? N : never;
 
 /** @internal */
 type Simplify<T> = { [K in keyof T]: T[K] } & {};
@@ -145,6 +145,9 @@ export type TableHandle<TDef extends TableDef> = {
     options?: RelationLinkOptions
   ) => Promise<void>;
   addRelations: (relations: RelationLinkMap<TDef>) => Promise<void>;
+} & {
+  /** @internal phantom type for inference - not present at runtime */
+  _def?: TDef;
 };
 
 export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
@@ -173,3 +176,9 @@ export type RowOutput<TDef extends TableDef> = Simplify<{
 export type RowPatch<TDef extends TableDef> = Partial<RowInput<TDef>>;
 
 export type SelectedRow<TDef extends TableDef> = RowEnvelope<TDef>;
+
+// Type inference utilities
+type ExtractDef<T> = T extends { _def?: infer D } ? (D extends TableDef ? D : never) : never;
+export type InferInput<T> = RowInput<ExtractDef<T>>;
+export type InferOutput<T> = RowOutput<ExtractDef<T>>;
+export type InferEnvelope<T> = RowEnvelope<ExtractDef<T>>;

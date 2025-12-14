@@ -62,3 +62,37 @@ await tasks.update({ done: true }, { pageIds: [inserted.page.id] });
 
 - CRUD helpers live in `src/orm/operations/{insert,select,update,archive}.ts` and wrap the low-level API modules (`src/api/database-page`, `src/api/database`, `src/api/block`).
 - Input/return types (`RowEnvelope`, `RowInput`, `RowPatch`, etc.) are defined in `src/orm/schema/types.ts`, keeping the surface predictable and in sync with the codecs.
+
+## Type inference utilities
+
+Extract row types from a `TableHandle` using Zod-style inference utilities:
+
+```ts
+import { defineTable, text, checkbox, InferInput, InferOutput, InferEnvelope } from "simple-notion-orm";
+
+const tasks = await defineTable(
+  "Tasks",
+  {
+    title: text("Title").title(),
+    done: checkbox("Done"),
+    notes: text("Notes").optional(),
+  },
+  { databaseId: process.env.TASKS_DATABASE_ID! }
+);
+
+// Extract types from the table handle
+type TaskInput = InferInput<typeof tasks>;
+// { title: string; done: boolean; notes?: string }
+
+type TaskRow = InferOutput<typeof tasks>;
+// { title: string; done: boolean; notes: string | null }
+
+type TaskEnvelope = InferEnvelope<typeof tasks>;
+// { data: TaskRow; page: PageObjectResponse; ... }
+```
+
+| Utility                      | Description                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| `InferInput<TableHandle>`    | Input type for `insert()` - optional fields use `?`      |
+| `InferOutput<TableHandle>`   | Output type from `select()` - nullable fields use `null` |
+| `InferEnvelope<TableHandle>` | Full envelope with `data`, `page`, `notionPage`          |

@@ -15,6 +15,9 @@ export type {
   RelationPopulateMap,
   RelationMap,
   PopulateInstruction,
+  InferInput,
+  InferOutput,
+  InferEnvelope,
 } from "./types";
 export { defineTable } from "./define-table";
 export { text } from "./column-builders/text";
