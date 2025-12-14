@@ -44,19 +44,16 @@ export type AnyColumnDef = Omit<BaseAnyColumnDef, "codec"> & {
 
 export type ColumnValue<TColumn> = TColumn extends ColumnDef<infer TValue, infer _Optional, infer _Nullable, infer _Payload, infer _Response> ? TValue : never;
 
-/** @internal - uses property access to work with intersection types (column builders) */
+/** uses property access to work with intersection types (column builders) */
 export type ColumnOptional<TColumn> = TColumn extends { isOptional: infer O } ? O : never;
 
-/** @internal - uses property access to work with intersection types (column builders) */
+/** uses property access to work with intersection types (column builders) */
 export type ColumnNullable<TColumn> = TColumn extends { isNullable: infer N } ? N : never;
 
-/** @internal */
 type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
-/** @internal */
 type ColumnInputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> : Exclude<ColumnValue<TColumn>, null>;
 
-/** @internal */
 type ColumnOutputValue<TColumn> = ColumnNullable<TColumn> extends true ? ColumnValue<TColumn> | null : Exclude<ColumnValue<TColumn>, null>;
 
 export type TableDef<TColumns extends Record<string, AnyColumnDef> = Record<string, AnyColumnDef>> = {
@@ -152,17 +149,14 @@ export type TableHandle<TDef extends TableDef> = {
 
 export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
 
-/** @internal */
 type RowAll<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: ColumnInputValue<TDef["columns"][K]>;
 };
 
-/** @internal */
 type RequiredKeys<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: ColumnOptional<TDef["columns"][K]> extends false ? K : never;
 }[keyof TDef["columns"]];
 
-/** @internal */
 type OptionalKeys<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: ColumnOptional<TDef["columns"][K]> extends true ? K : never;
 }[keyof TDef["columns"]];
