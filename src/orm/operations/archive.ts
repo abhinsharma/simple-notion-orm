@@ -1,5 +1,6 @@
 import { updateDatabasePage } from "@/api/database-page";
 import type { TableDef, TableHandle, TargetOptions } from "@/orm/schema/types";
+import type { Client } from "@notionhq/client";
 import { ensureTableIds } from "./helpers";
 import { selectRows } from "./select";
 
@@ -33,13 +34,10 @@ async function resolvePageIds<TDef extends TableDef>(table: TableHandle<TDef>, o
   return selection.rows.map((row) => row.page.id);
 }
 
-async function applyArchiveState(pageIds: string[], archived: boolean): Promise<number> {
+async function applyArchiveState(pageIds: string[], archived: boolean, client?: Client): Promise<number> {
   let count = 0;
   for (const id of pageIds) {
-    await updateDatabasePage({
-      pageId: id,
-      archived,
-    });
+    await updateDatabasePage({ pageId: id, archived }, client);
     count += 1;
   }
   return count;
@@ -47,20 +45,22 @@ async function applyArchiveState(pageIds: string[], archived: boolean): Promise<
 
 export async function archiveRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: TargetOptions<TDef>): Promise<number> {
   ensureTableIds(table);
+  const client = table.getClient();
   const pageIds = await resolvePageIds(table, options);
   if (!pageIds.length) {
     return 0;
   }
 
-  return applyArchiveState(pageIds, true);
+  return applyArchiveState(pageIds, true, client);
 }
 
 export async function restoreRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: TargetOptions<TDef>): Promise<number> {
   ensureTableIds(table);
+  const client = table.getClient();
   const pageIds = await resolvePageIds(table, options);
   if (!pageIds.length) {
     return 0;
   }
 
-  return applyArchiveState(pageIds, false);
+  return applyArchiveState(pageIds, false, client);
 }

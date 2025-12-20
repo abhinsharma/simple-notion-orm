@@ -1,5 +1,6 @@
 import { getBlockChildren } from "@/api/block";
 import { toSimpleBlock, toSimpleBlocks, type PageBlock, type SimpleBlock } from "@/transform/blocks";
+import type { Client } from "@notionhq/client";
 import type { BlockObjectResponse, ListBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
 
 type ListOptions = {
@@ -22,10 +23,13 @@ function isBlockObject(result: { object: string }): result is BlockObjectRespons
 }
 
 export class NotionBlocks {
-  private constructor(private readonly pageId: string) {}
+  private constructor(
+    private readonly pageId: string,
+    private readonly client?: Client
+  ) {}
 
-  static forPage(pageId: string): NotionBlocks {
-    return new NotionBlocks(pageId);
+  static forPage(pageId: string, client?: Client): NotionBlocks {
+    return new NotionBlocks(pageId, client);
   }
 
   async listRaw(options?: ListOptions): Promise<PageBlock[]> {
@@ -59,10 +63,14 @@ export class NotionBlocks {
       let cursor: string | undefined;
 
       do {
-        const response = await getBlockChildren(current, {
-          ...(cursor ? { start_cursor: cursor } : {}),
-          ...(options?.pageSize ? { page_size: options.pageSize } : {}),
-        });
+        const response = await getBlockChildren(
+          current,
+          {
+            ...(cursor ? { start_cursor: cursor } : {}),
+            ...(options?.pageSize ? { page_size: options.pageSize } : {}),
+          },
+          this.client
+        );
 
         for (const result of response.results) {
           if (!isBlockObject(result)) {
@@ -98,10 +106,14 @@ export class NotionBlocks {
     let cursor = options?.startCursor;
 
     do {
-      const response = await getBlockChildren(blockId, {
-        ...(cursor ? { start_cursor: cursor } : {}),
-        ...(options?.pageSize ? { page_size: options.pageSize } : {}),
-      });
+      const response = await getBlockChildren(
+        blockId,
+        {
+          ...(cursor ? { start_cursor: cursor } : {}),
+          ...(options?.pageSize ? { page_size: options.pageSize } : {}),
+        },
+        this.client
+      );
 
       for (const item of response.results) {
         if (isBlockObject(item)) {

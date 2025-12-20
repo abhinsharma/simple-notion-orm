@@ -167,19 +167,22 @@ describe("NotionPage", () => {
 
     await page.updateTitle("Updated");
 
-    expect(updatePageMock).toHaveBeenCalledWith({
-      pageId: initialPage.id,
-      properties: {
-        Name: {
-          title: [
-            {
-              type: "text",
-              text: expect.objectContaining({ content: "Updated" }),
-            },
-          ],
+    expect(updatePageMock).toHaveBeenCalledWith(
+      {
+        pageId: initialPage.id,
+        properties: {
+          Name: {
+            title: [
+              {
+                type: "text",
+                text: expect.objectContaining({ content: "Updated" }),
+              },
+            ],
+          },
         },
       },
-    });
+      undefined // client param
+    );
     expect(page.raw).toEqual(updatedPage);
   });
 });

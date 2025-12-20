@@ -1,6 +1,14 @@
 import { Client } from "@notionhq/client";
 import dotenv from "dotenv";
 
+export type NotionClientOptions = {
+  auth: string;
+};
+
+export function createNotionClient(options: NotionClientOptions): Client {
+  return new Client({ auth: options.auth });
+}
+
 let client: Client | null = null;
 let envLoaded = false;
 

@@ -1,5 +1,6 @@
 import { appendBlockChildren, deleteBlock as deleteBlockApi, updateBlock as updateBlockApi } from "@/api/block";
 import { archivePage, clearPageContent, getPage, restorePage, updatePage } from "@/api/page";
+import type { Client } from "@notionhq/client";
 import type {
   BlockObjectRequest,
   BlockObjectResponse,
@@ -36,23 +37,26 @@ type UpdateBlockInput = Omit<UpdateBlockParameters, "block_id">;
 export class NotionPage {
   private metadata?: PageObjectResponse;
   private readonly blocksHelper: NotionBlocks;
+  private readonly client?: Client;
 
   constructor(
     private readonly pageId: string,
     metadata?: PageObjectResponse,
-    blocksHelper?: NotionBlocks
+    blocksHelper?: NotionBlocks,
+    client?: Client
   ) {
     this.metadata = metadata;
-    this.blocksHelper = blocksHelper ?? NotionBlocks.forPage(pageId);
+    this.client = client;
+    this.blocksHelper = blocksHelper ?? NotionBlocks.forPage(pageId, client);
   }
 
-  static async from(pageId: string): Promise<NotionPage> {
-    const page = await getPage(pageId);
-    return new NotionPage(pageId, page);
+  static async from(pageId: string, client?: Client): Promise<NotionPage> {
+    const page = await getPage(pageId, undefined, client);
+    return new NotionPage(pageId, page, undefined, client);
   }
 
-  static fromPage(page: PageObjectResponse): NotionPage {
-    return new NotionPage(page.id, page);
+  static fromPage(page: PageObjectResponse, client?: Client): NotionPage {
+    return new NotionPage(page.id, page, undefined, client);
   }
 
   get id(): string {
@@ -71,7 +75,7 @@ export class NotionPage {
    * Refreshes the cached page metadata from the API.
    */
   async refresh(filterProperties?: string[]): Promise<PageObjectResponse> {
-    this.metadata = await getPage(this.pageId, filterProperties);
+    this.metadata = await getPage(this.pageId, filterProperties, this.client);
     return this.metadata;
   }
 
@@ -100,56 +104,53 @@ export class NotionPage {
     const metadata = await this.ensureMetadata();
     const titlePropertyName = this.findTitleProperty(metadata);
 
-    const response = await updatePage({
-      pageId: this.pageId,
-      properties: {
-        [titlePropertyName]: {
-          title: [
-            {
-              type: "text" as const,
-              text: { content: title },
-            },
-          ],
+    const response = await updatePage(
+      {
+        pageId: this.pageId,
+        properties: {
+          [titlePropertyName]: {
+            title: [
+              {
+                type: "text" as const,
+                text: { content: title },
+              },
+            ],
+          },
         },
       },
-    });
+      this.client
+    );
 
     this.metadata = response;
     return response;
   }
 
   async setIcon(icon: UpdatePageParameters["icon"]): Promise<PageObjectResponse> {
-    const response = await updatePage({
-      pageId: this.pageId,
-      icon,
-    });
+    const response = await updatePage({ pageId: this.pageId, icon }, this.client);
     this.metadata = response;
     return response;
   }
 
   async setCover(cover: UpdatePageParameters["cover"]): Promise<PageObjectResponse> {
-    const response = await updatePage({
-      pageId: this.pageId,
-      cover,
-    });
+    const response = await updatePage({ pageId: this.pageId, cover }, this.client);
     this.metadata = response;
     return response;
   }
 
   async archive(): Promise<PageObjectResponse> {
-    const response = await archivePage(this.pageId);
+    const response = await archivePage(this.pageId, this.client);
     this.metadata = response;
     return response;
   }
 
   async restore(): Promise<PageObjectResponse> {
-    const response = await restorePage(this.pageId);
+    const response = await restorePage(this.pageId, this.client);
     this.metadata = response;
     return response;
   }
 
   async clearContent(): Promise<void> {
-    await clearPageContent(this.pageId);
+    await clearPageContent(this.pageId, this.client);
   }
 
   async append(blocks: AppendInput, options?: { after?: string }): Promise<this> {
@@ -157,7 +158,7 @@ export class NotionPage {
     let after = options?.after;
 
     for (const chunk of this.chunkBlocks(normalized)) {
-      const response = await appendBlockChildren(this.pageId, chunk, after ? { after } : undefined);
+      const response = await appendBlockChildren(this.pageId, chunk, after ? { after } : undefined, this.client);
       const appendedBlocks = response.results.filter((item): item is BlockObjectResponse => item.object === "block");
       const lastBlock = appendedBlocks[appendedBlocks.length - 1];
       after = lastBlock?.id;
@@ -175,14 +176,11 @@ export class NotionPage {
   }
 
   async updateBlock(blockId: string, patch: UpdateBlockInput): Promise<void> {
-    await updateBlockApi({
-      blockId,
-      ...patch,
-    });
+    await updateBlockApi({ blockId, ...patch }, this.client);
   }
 
   async deleteBlock(blockId: string): Promise<void> {
-    await deleteBlockApi(blockId);
+    await deleteBlockApi(blockId, this.client);
   }
 
   async getBlocks(options?: GetBlocksOptions): Promise<PageBlock[]> {

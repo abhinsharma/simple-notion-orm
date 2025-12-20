@@ -3,6 +3,7 @@ import { buildRelationColumn } from "@/factories/properties/database-schema";
 import { ensureTableIds } from "@/orm/operations/helpers";
 import type { AnyColumnDef, RelationColumnKeys, TableDef, TableHandle } from "@/orm/schema/types";
 import type { RelationConfigInput } from "@/types/properties";
+import type { Client } from "@notionhq/client";
 
 type RelationLinkMode = "single" | "dual";
 
@@ -26,10 +27,21 @@ export async function linkRelations(instructions: RelationLinkInstruction[]): Pr
     return;
   }
 
-  const grouped = new Map<TableHandle<TableDef>, { properties: Record<string, RelationPropertyConfig>; ids: { databaseId: string; dataSourceId: string } }>();
+  const grouped = new Map<
+    TableHandle<TableDef>,
+    { properties: Record<string, RelationPropertyConfig>; ids: { databaseId: string; dataSourceId: string }; client?: Client }
+  >();
 
   for (const instruction of instructions) {
     const { source, columnKey, target, mode, options } = instruction;
+
+    // Cross-workspace validation
+    const sourceClient = source.getClient();
+    const targetClient = target.getClient();
+    if (sourceClient !== targetClient) {
+      throw new Error(`Cannot link tables from different workspaces: '${source.title}' and '${target.title}' have different clients.`);
+    }
+
     const sourceColumns = source.columns as Record<string, AnyColumnDef>;
     const columnDef = sourceColumns[columnKey];
     if (!columnDef) {
@@ -59,17 +71,15 @@ export async function linkRelations(instructions: RelationLinkInstruction[]): Pr
     const bucket = grouped.get(source as TableHandle<TableDef>) ?? {
       ids: sourceIds,
       properties: {},
+      client: sourceClient,
     };
     bucket.properties[columnDef.name] = propertyConfig;
     grouped.set(source as TableHandle<TableDef>, bucket);
   }
 
   await Promise.all(
-    Array.from(grouped.values()).map(async ({ ids, properties }) => {
-      await updateDatabase({
-        databaseId: ids.databaseId,
-        properties,
-      });
+    Array.from(grouped.values()).map(async ({ ids, properties, client }) => {
+      await updateDatabase({ databaseId: ids.databaseId, properties }, client);
     })
   );
 }
