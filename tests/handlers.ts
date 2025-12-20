@@ -20,6 +20,9 @@ import databaseUpdateFixture from "./fixtures/database-update.json";
 import databaseSearchFixture from "./fixtures/database-search.json";
 import databaseQueryFixture from "./fixtures/database-query.json";
 import dbPageCreateFixture from "./fixtures/db-page-create.json";
+import commentListFixture from "./fixtures/comment-list.json";
+import commentCreateFixture from "./fixtures/comment-create.json";
+import commentGetFixture from "./fixtures/comment-get.json";
 
 const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 
@@ -124,4 +127,10 @@ export const handlers = [
   http.post<never, Record<string, unknown>, typeof databaseQueryFixture>("https://api.notion.com/v1/data_sources/:dataSourceId/query", () =>
     respond(databaseQueryFixture)
   ),
+
+  http.get<never, undefined, typeof commentListFixture>("https://api.notion.com/v1/comments", () => respond(commentListFixture)),
+
+  http.post<never, Record<string, unknown>, typeof commentCreateFixture>("https://api.notion.com/v1/comments", () => respond(commentCreateFixture)),
+
+  http.get<{ commentId: string }, undefined, typeof commentGetFixture>("https://api.notion.com/v1/comments/:commentId", () => respond(commentGetFixture)),
 ];

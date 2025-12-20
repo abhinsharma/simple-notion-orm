@@ -1,16 +1,22 @@
 import { appendBlockChildren, deleteBlock as deleteBlockApi, updateBlock as updateBlockApi } from "@/api/block";
+import { createComment, listComments } from "@/api/comment";
 import { archivePage, clearPageContent, getPage, restorePage, updatePage } from "@/api/page";
 import type { Client } from "@notionhq/client";
 import type {
   BlockObjectRequest,
   BlockObjectResponse,
+  CommentObjectResponse,
+  CreateCommentParameters,
   ListBlockChildrenParameters,
+  ListCommentsResponse,
   PageObjectResponse,
   UpdateBlockParameters,
   UpdatePageParameters,
 } from "@notionhq/client/build/src/api-endpoints";
 import { NotionBlocks, type PageBlock } from "./notion-blocks";
 export type { PageBlock } from "./notion-blocks";
+
+type RichTextInput = CreateCommentParameters["rich_text"];
 
 const MAX_CHILDREN_PER_REQUEST = 100;
 
@@ -190,6 +196,31 @@ export class NotionPage {
 
     const blocks = await this.blocksHelper.listRaw({ pageSize: options?.pageSize });
     return blocks.map((block) => ({ ...block }));
+  }
+
+  async listComments(options?: { startCursor?: string; pageSize?: number }): Promise<ListCommentsResponse> {
+    return listComments(
+      {
+        block_id: this.pageId,
+        ...(options?.startCursor && { start_cursor: options.startCursor }),
+        ...(options?.pageSize && { page_size: options.pageSize }),
+      },
+      this.client
+    );
+  }
+
+  async addComment(content: string | RichTextInput): Promise<CommentObjectResponse> {
+    const richText: RichTextInput = typeof content === "string" ? [{ type: "text", text: { content } }] : content;
+
+    const response = await createComment({ parent: { page_id: this.pageId }, rich_text: richText }, this.client);
+    return response as CommentObjectResponse;
+  }
+
+  async replyToComment(discussionId: string, content: string | RichTextInput): Promise<CommentObjectResponse> {
+    const richText: RichTextInput = typeof content === "string" ? [{ type: "text", text: { content } }] : content;
+
+    const response = await createComment({ discussion_id: discussionId, rich_text: richText }, this.client);
+    return response as CommentObjectResponse;
   }
 
   private async ensureMetadata(): Promise<PageObjectResponse> {
