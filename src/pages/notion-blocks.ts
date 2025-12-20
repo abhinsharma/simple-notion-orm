@@ -128,6 +128,13 @@ export class NotionBlocks {
     return response as CommentObjectResponse;
   }
 
+  async replyToComment(discussionId: string, content: string | RichTextInput): Promise<CommentObjectResponse> {
+    const richText: RichTextInput = typeof content === "string" ? [{ type: "text", text: { content } }] : content;
+
+    const response = await createComment({ discussion_id: discussionId, rich_text: richText }, this.client);
+    return response as CommentObjectResponse;
+  }
+
   private async listChildren(blockId: string, options?: ListOptions): Promise<PageBlock[]> {
     const nodes: PageBlock[] = [];
     let cursor = options?.startCursor;
