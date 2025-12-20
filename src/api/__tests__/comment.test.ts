@@ -1,3 +1,4 @@
+import { NotionBlocks } from "@/pages/notion-blocks";
 import { describe, it, expect } from "vitest";
 import { listComments, createComment, getComment } from "../comment";
 
@@ -40,5 +41,15 @@ describe("getComment", () => {
 
     expect(result.object).toBe("comment");
     expect(result.id).toBe("comment-1");
+  });
+});
+
+describe("NotionBlocks.replyToComment", () => {
+  it("should reply to a discussion", async () => {
+    const blocks = NotionBlocks.forPage("page-1");
+    const result = await blocks.replyToComment("discussion-1", "Reply from blocks");
+
+    expect(result.object).toBe("comment");
+    expect(result.id).toBeDefined();
   });
 });
