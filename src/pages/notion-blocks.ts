@@ -1,7 +1,16 @@
 import { getBlockChildren } from "@/api/block";
+import { createComment, listComments } from "@/api/comment";
 import { toSimpleBlock, toSimpleBlocks, type PageBlock, type SimpleBlock } from "@/transform/blocks";
 import type { Client } from "@notionhq/client";
-import type { BlockObjectResponse, ListBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
+import type {
+  BlockObjectResponse,
+  CommentObjectResponse,
+  CreateCommentParameters,
+  ListBlockChildrenParameters,
+  ListCommentsResponse,
+} from "@notionhq/client/build/src/api-endpoints";
+
+type RichTextInput = CreateCommentParameters["rich_text"];
 
 type ListOptions = {
   pageSize?: ListBlockChildrenParameters["page_size"];
@@ -99,6 +108,24 @@ export class NotionBlocks {
     for await (const block of this.streamRaw(options)) {
       yield toSimpleBlock(block);
     }
+  }
+
+  async listComments(blockId: string, options?: { startCursor?: string; pageSize?: number }): Promise<ListCommentsResponse> {
+    return listComments(
+      {
+        block_id: blockId,
+        ...(options?.startCursor && { start_cursor: options.startCursor }),
+        ...(options?.pageSize && { page_size: options.pageSize }),
+      },
+      this.client
+    );
+  }
+
+  async addComment(blockId: string, content: string | RichTextInput): Promise<CommentObjectResponse> {
+    const richText: RichTextInput = typeof content === "string" ? [{ type: "text", text: { content } }] : content;
+
+    const response = await createComment({ parent: { block_id: blockId }, rich_text: richText }, this.client);
+    return response as CommentObjectResponse;
   }
 
   private async listChildren(blockId: string, options?: ListOptions): Promise<PageBlock[]> {
