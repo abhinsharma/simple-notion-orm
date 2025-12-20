@@ -1,6 +1,7 @@
 import type { NotionCodec } from "@/orm/codecs/base/codec";
 import type { SortDescriptor, TablePredicate } from "@/orm/query/types";
 import type { NotionPage } from "@/pages";
+import type { Client } from "@notionhq/client";
 import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 
 export type ColumnPropertyType =
@@ -124,6 +125,7 @@ export type TableHandle<TDef extends TableDef> = {
   columns: TDef["columns"];
   getIds: () => { databaseId?: string; dataSourceId?: string };
   cacheIds: (ids: { databaseId?: string; dataSourceId?: string }) => void;
+  getClient: () => Client | undefined;
   insert: {
     (data: RowInput<TDef>): Promise<RowEnvelope<TDef>>;
     (data: Array<RowInput<TDef>>): Promise<Array<RowEnvelope<TDef>>>;

@@ -24,15 +24,20 @@ function isPageObject(result: QueryDataSourceResponse["results"][number]): resul
 
 export async function selectRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: SelectOptions<TDef>): Promise<SelectResult<TDef>> {
   const ids = ensureTableIds(table);
+  const client = table.getClient();
   const pageSize = sanitizePageSize(options?.pageSize ?? DEFAULT_PAGE_SIZE);
   const queryOptions = compileQueryOptions(options);
 
-  const response = await queryDataSource(ids.dataSourceId, {
-    ...(queryOptions.filter ? { filter: queryOptions.filter } : {}),
-    ...(queryOptions.sorts ? { sorts: queryOptions.sorts } : {}),
-    ...(pageSize ? { page_size: pageSize } : {}),
-    ...(options?.startCursor ? { start_cursor: options.startCursor } : {}),
-  });
+  const response = await queryDataSource(
+    ids.dataSourceId,
+    {
+      ...(queryOptions.filter ? { filter: queryOptions.filter } : {}),
+      ...(queryOptions.sorts ? { sorts: queryOptions.sorts } : {}),
+      ...(pageSize ? { page_size: pageSize } : {}),
+      ...(options?.startCursor ? { start_cursor: options.startCursor } : {}),
+    },
+    client
+  );
 
   let rows = response.results.filter(isPageObject).map((page) => buildRowEnvelope(table, page));
 

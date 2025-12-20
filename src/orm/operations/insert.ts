@@ -12,14 +12,18 @@ export async function insertRows<TDef extends TableDef>(
 ): Promise<RowEnvelope<TDef> | Array<RowEnvelope<TDef>>> {
   const rows = Array.isArray(values) ? values : [values];
   const ids = ensureTableIds(table);
+  const client = table.getClient();
   const results: Array<RowEnvelope<TDef>> = [];
 
   for (const value of rows) {
     const properties = buildInsertProperties(table.columns, value);
-    const page = await createDatabasePage({
-      databaseId: ids.databaseId,
-      properties: properties as CreatePageParameters["properties"],
-    });
+    const page = await createDatabasePage(
+      {
+        databaseId: ids.databaseId,
+        properties: properties as CreatePageParameters["properties"],
+      },
+      client
+    );
     results.push(buildRowEnvelope(table, page as PageObjectResponse));
   }
 

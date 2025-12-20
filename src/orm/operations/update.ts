@@ -55,6 +55,7 @@ export async function updateRows<TDef extends TableDef>(
   options?: UpdateOptions<TDef>
 ): Promise<RowEnvelope<TDef> | Array<RowEnvelope<TDef>>> {
   ensureTableIds(table);
+  const client = table.getClient();
   const properties = buildUpdateProperties(table.columns, patch);
   const mode = determineUpdateMode(options);
   const limit = options?.pageSize ?? (mode === "many" ? MAX_PAGE_SIZE : 1);
@@ -68,10 +69,13 @@ export async function updateRows<TDef extends TableDef>(
   const pageIdsToUpdate = mode === "many" ? targetPageIds : targetPageIds.slice(0, 1);
 
   for (const pageId of pageIdsToUpdate) {
-    const page = await updateDatabasePage({
-      pageId,
-      properties: properties as UpdatePageParameters["properties"],
-    });
+    const page = await updateDatabasePage(
+      {
+        pageId,
+        properties: properties as UpdatePageParameters["properties"],
+      },
+      client
+    );
     results.push(buildRowEnvelope(table, page as PageObjectResponse));
   }
 

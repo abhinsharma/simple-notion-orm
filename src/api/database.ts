@@ -4,6 +4,7 @@
  */
 import type { DatabaseResource } from "@/utils/database";
 import { wrapError } from "@/utils/error";
+import type { Client } from "@notionhq/client";
 import type {
   CreateDatabaseParameters,
   DataSourceObjectResponse,
@@ -19,8 +20,8 @@ import { getNotionClient } from "./client";
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
 type DatabaseProperties = NonNullable<InitialDataSource["properties"]>;
 
-async function retrieveDatabase(databaseId: string): Promise<DatabaseObjectResponse> {
-  const notionClient = getNotionClient();
+async function retrieveDatabase(databaseId: string, client?: Client): Promise<DatabaseObjectResponse> {
+  const notionClient = client ?? getNotionClient();
   const response = await notionClient.databases.retrieve({
     database_id: databaseId,
   });
@@ -42,8 +43,8 @@ function getPrimaryDataSourceId(database: DatabaseObjectResponse): string {
   return primaryDataSource.id;
 }
 
-async function retrieveDataSource(dataSourceId: string): Promise<DataSourceObjectResponse> {
-  const notionClient = getNotionClient();
+async function retrieveDataSource(dataSourceId: string, client?: Client): Promise<DataSourceObjectResponse> {
+  const notionClient = client ?? getNotionClient();
   const response = await notionClient.dataSources.retrieve({
     data_source_id: dataSourceId,
   });
@@ -55,10 +56,10 @@ async function retrieveDataSource(dataSourceId: string): Promise<DataSourceObjec
   return response as DataSourceObjectResponse;
 }
 
-async function loadDatabaseResource(databaseId: string): Promise<DatabaseResource> {
-  const database = await retrieveDatabase(databaseId);
+async function loadDatabaseResource(databaseId: string, client?: Client): Promise<DatabaseResource> {
+  const database = await retrieveDatabase(databaseId, client);
   const dataSourceId = getPrimaryDataSourceId(database);
-  const dataSource = await retrieveDataSource(dataSourceId);
+  const dataSource = await retrieveDataSource(dataSourceId, client);
 
   return {
     database,
@@ -69,9 +70,9 @@ async function loadDatabaseResource(databaseId: string): Promise<DatabaseResourc
 /**
  * Retrieve a database by its ID
  */
-export async function getDatabase(databaseId: string): Promise<DatabaseResource> {
+export async function getDatabase(databaseId: string, client?: Client): Promise<DatabaseResource> {
   try {
-    return await loadDatabaseResource(databaseId);
+    return await loadDatabaseResource(databaseId, client);
   } catch (error) {
     throw wrapError(`Failed to retrieve database ${databaseId}`, error);
   }
@@ -94,17 +95,12 @@ type CreateDatabaseParams = {
   cover?: CreateDatabaseParameters["cover"];
 };
 
-export async function createDatabase({
-  parentId,
-  title,
-  properties,
-  isInline = false,
-  description,
-  icon,
-  cover,
-}: CreateDatabaseParams): Promise<DatabaseResource> {
+export async function createDatabase(
+  { parentId, title, properties, isInline = false, description, icon, cover }: CreateDatabaseParams,
+  client?: Client
+): Promise<DatabaseResource> {
   try {
-    const notionClient = getNotionClient();
+    const notionClient = client ?? getNotionClient();
     const response = await notionClient.databases.create({
       parent: {
         type: "page_id",
@@ -122,7 +118,7 @@ export async function createDatabase({
 
     const database = response as DatabaseObjectResponse;
     const dataSourceId = getPrimaryDataSourceId(database);
-    const dataSource = await retrieveDataSource(dataSourceId);
+    const dataSource = await retrieveDataSource(dataSourceId, client);
 
     return {
       database,
@@ -146,10 +142,13 @@ type UpdateDatabaseParams = {
   properties?: DatabaseProperties;
 };
 
-export async function updateDatabase({ databaseId, title, description, isInline, icon, cover, properties }: UpdateDatabaseParams): Promise<DatabaseResource> {
+export async function updateDatabase(
+  { databaseId, title, description, isInline, icon, cover, properties }: UpdateDatabaseParams,
+  client?: Client
+): Promise<DatabaseResource> {
   try {
-    const notionClient = getNotionClient();
-    const database = await retrieveDatabase(databaseId);
+    const notionClient = client ?? getNotionClient();
+    const database = await retrieveDatabase(databaseId, client);
     const dataSourceId = getPrimaryDataSourceId(database);
 
     const shouldUpdateDatabase = Boolean(title) || Boolean(description) || typeof isInline === "boolean" || icon !== undefined || cover !== undefined;
@@ -178,7 +177,7 @@ export async function updateDatabase({ databaseId, title, description, isInline,
       });
     }
 
-    return await loadDatabaseResource(databaseId);
+    return await loadDatabaseResource(databaseId, client);
   } catch (error) {
     throw wrapError(`Failed to update database ${databaseId}`, error);
   }
@@ -187,9 +186,13 @@ export async function updateDatabase({ databaseId, title, description, isInline,
 /**
  * Query database items (pages within the database)
  */
-export async function queryDataSource(dataSourceId: string, params?: Omit<QueryDataSourceParameters, "data_source_id">): Promise<QueryDataSourceResponse> {
+export async function queryDataSource(
+  dataSourceId: string,
+  params?: Omit<QueryDataSourceParameters, "data_source_id">,
+  client?: Client
+): Promise<QueryDataSourceResponse> {
   try {
-    const notionClient = getNotionClient();
+    const notionClient = client ?? getNotionClient();
     const response = await notionClient.dataSources.query({
       data_source_id: dataSourceId,
       ...params,
@@ -201,12 +204,16 @@ export async function queryDataSource(dataSourceId: string, params?: Omit<QueryD
   }
 }
 
-export async function queryDatabase(databaseId: string, params?: Omit<QueryDataSourceParameters, "data_source_id">): Promise<QueryDataSourceResponse> {
+export async function queryDatabase(
+  databaseId: string,
+  params?: Omit<QueryDataSourceParameters, "data_source_id">,
+  client?: Client
+): Promise<QueryDataSourceResponse> {
   try {
-    const database = await retrieveDatabase(databaseId);
+    const database = await retrieveDatabase(databaseId, client);
     const dataSourceId = getPrimaryDataSourceId(database);
 
-    return await queryDataSource(dataSourceId, params);
+    return await queryDataSource(dataSourceId, params, client);
   } catch (error) {
     throw wrapError(`Failed to query database ${databaseId}`, error);
   }
@@ -215,9 +222,9 @@ export async function queryDatabase(databaseId: string, params?: Omit<QueryDataS
 /**
  * Search for databases by title
  */
-export async function searchDatabases(query: string): Promise<SearchResponse> {
+export async function searchDatabases(query: string, client?: Client): Promise<SearchResponse> {
   try {
-    const notionClient = getNotionClient();
+    const notionClient = client ?? getNotionClient();
     const response = await notionClient.search({
       query,
       filter: {

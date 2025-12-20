@@ -19,6 +19,7 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(
     columns,
     getIds: () => ({ ...ids }),
     cacheIds: () => {},
+    getClient: () => undefined,
     insert: async () => {
       throw new Error("not implemented");
     },
@@ -61,13 +62,16 @@ describe("linkRelations", () => {
 
     await linkRelations([instruction]);
 
-    expect(updateDatabaseMock).toHaveBeenCalledWith({
-      databaseId: "task-db",
-      properties: {
-        Project: expect.objectContaining({
-          relation: expect.objectContaining({ data_source_id: "proj-ds", type: "single_property" }),
-        }),
+    expect(updateDatabaseMock).toHaveBeenCalledWith(
+      {
+        databaseId: "task-db",
+        properties: {
+          Project: expect.objectContaining({
+            relation: expect.objectContaining({ data_source_id: "proj-ds", type: "single_property" }),
+          }),
+        },
       },
-    });
+      undefined // client param
+    );
   });
 });

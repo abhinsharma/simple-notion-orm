@@ -1,4 +1,5 @@
-export { getNotionClient } from "./api/client";
+export { getNotionClient, createNotionClient } from "./api/client";
+export type { NotionClientOptions } from "./api/client";
 export * from "./api/block";
 export * from "./api/database";
 export * from "./api/database-page";

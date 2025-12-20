@@ -119,8 +119,9 @@ async function fetchRelatedPages(entries: NormalizedPopulateEntry[], rows: Array
     if (!idList.length) {
       continue;
     }
+    const client = targetTable.getClient();
     await fetchWithConcurrency(idList, async (pageId) => {
-      const page = (await getDatabasePage(pageId)) as PageObjectResponse;
+      const page = (await getDatabasePage(pageId, client)) as PageObjectResponse;
       cache.set(pageId, buildRowEnvelope(targetTable, page));
     });
   }

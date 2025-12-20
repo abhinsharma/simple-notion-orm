@@ -4,6 +4,7 @@ import { insertRows } from "@/orm/operations/insert";
 import { selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
 import { linkRelations, rel } from "@/orm/relation/linker";
+import type { Client } from "@notionhq/client";
 import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
 import type { AnyColumnDef, RelationColumnKeys, RelationLinkMap, RowInput, TableHandle, TableDef } from "./types";
 
@@ -18,12 +19,14 @@ type TableDefType<TColumns extends Record<string, AnyColumnDef>> = TableDef<TCol
 type DefineTableOptions = {
   databaseId?: string;
   parentId?: string;
+  client?: Client;
 };
 
 async function createNewDatabase(
   title: string,
   columns: Record<string, AnyColumnDef>,
-  parentId: string
+  parentId: string,
+  client?: Client
 ): Promise<{ databaseId: string; dataSourceId: string }> {
   const schema: Record<string, unknown> = {};
   for (const columnDef of Object.values(columns)) {
@@ -34,11 +37,14 @@ async function createNewDatabase(
     Object.assign(schema, config);
   }
 
-  const result = await createDatabase({
-    parentId,
-    title: [{ type: "text", text: { content: title } }],
-    properties: schema as unknown as DatabaseProperties,
-  });
+  const result = await createDatabase(
+    {
+      parentId,
+      title: [{ type: "text", text: { content: title } }],
+      properties: schema as unknown as DatabaseProperties,
+    },
+    client
+  );
 
   return {
     databaseId: result.database.id,
@@ -98,8 +104,12 @@ function validateSchema(existingSchema: Record<string, { type: string }>, provid
   }
 }
 
-async function connectToExistingDatabase(databaseId: string, columns: Record<string, AnyColumnDef>): Promise<{ databaseId: string; dataSourceId: string }> {
-  const resource = await getDatabase(databaseId);
+async function connectToExistingDatabase(
+  databaseId: string,
+  columns: Record<string, AnyColumnDef>,
+  client?: Client
+): Promise<{ databaseId: string; dataSourceId: string }> {
+  const resource = await getDatabase(databaseId, client);
 
   validateSchema(resource.dataSource.properties, columns);
 
@@ -121,9 +131,9 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
   let cachedIds: { databaseId: string; dataSourceId: string };
 
   if (options.databaseId) {
-    cachedIds = await connectToExistingDatabase(options.databaseId, columns);
+    cachedIds = await connectToExistingDatabase(options.databaseId, columns, options.client);
   } else {
-    cachedIds = await createNewDatabase(title, columns, options.parentId!);
+    cachedIds = await createNewDatabase(title, columns, options.parentId!, options.client);
   }
 
   const handle: TableHandle<TableDefType<TColumns>> = {
@@ -136,6 +146,7 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
         dataSourceId: ids.dataSourceId ?? cachedIds.dataSourceId,
       };
     },
+    getClient: () => options.client,
     insert: ((data: RowInput<TableDefType<TColumns>> | Array<RowInput<TableDefType<TColumns>>>) => {
       if (Array.isArray(data)) {
         return insertRows(handle, data);

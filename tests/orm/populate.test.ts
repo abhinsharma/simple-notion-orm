@@ -12,6 +12,7 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title:
     columns,
     getIds: () => ({ databaseId: "db", dataSourceId: "ds" }),
     cacheIds: () => {},
+    getClient: () => undefined,
     insert: (async () => {
       throw new Error("Not implemented in tests");
     }) as TableHandle<TableDef<TColumns>>["insert"],

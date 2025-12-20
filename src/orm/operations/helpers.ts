@@ -16,7 +16,7 @@ export function ensureTableIds<TDef extends TableDef>(table: TableHandle<TDef>):
 }
 
 export function buildRowEnvelope<TDef extends TableDef>(table: TableHandle<TDef>, page: PageObjectResponse): RowEnvelope<TDef> {
-  const notionPage = NotionPage.fromPage(page);
+  const notionPage = NotionPage.fromPage(page, table.getClient());
 
   return {
     data: decodeRow(table.columns, page),

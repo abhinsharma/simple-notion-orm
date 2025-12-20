@@ -3,6 +3,7 @@
  * API for managing pages/items within Notion databases
  */
 import { deleteBlock, getBlockChildren } from "@/api/block";
+import type { Client } from "@notionhq/client";
 import type {
   CreatePageParameters,
   CreatePageResponse,
@@ -17,9 +18,9 @@ import { getNotionClient } from "./client";
 /**
  * Get a database page by ID
  */
-export async function getDatabasePage(pageId: string): Promise<GetPageResponse> {
+export async function getDatabasePage(pageId: string, client?: Client): Promise<GetPageResponse> {
   try {
-    const notionClient = getNotionClient();
+    const notionClient = client ?? getNotionClient();
     const response = await notionClient.pages.retrieve({
       page_id: pageId,
     });
@@ -40,9 +41,12 @@ type CreateDatabasePageParams = {
   cover?: CreatePageParameters["cover"];
 };
 
-export async function createDatabasePage({ databaseId, properties, children, icon, cover }: CreateDatabasePageParams): Promise<CreatePageResponse> {
+export async function createDatabasePage(
+  { databaseId, properties, children, icon, cover }: CreateDatabasePageParams,
+  client?: Client
+): Promise<CreatePageResponse> {
   try {
-    const notionClient = getNotionClient();
+    const notionClient = client ?? getNotionClient();
     const response = await notionClient.pages.create({
       parent: {
         database_id: databaseId,
@@ -69,9 +73,12 @@ type UpdateDatabasePageParams = {
   archived?: boolean;
 };
 
-export async function updateDatabasePage({ pageId, properties, icon, cover, archived }: UpdateDatabasePageParams): Promise<UpdatePageResponse> {
+export async function updateDatabasePage(
+  { pageId, properties, icon, cover, archived }: UpdateDatabasePageParams,
+  client?: Client
+): Promise<UpdatePageResponse> {
   try {
-    const notionClient = getNotionClient();
+    const notionClient = client ?? getNotionClient();
     const response = await notionClient.pages.update({
       page_id: pageId,
       ...(properties ? { properties } : {}),
@@ -88,9 +95,9 @@ export async function updateDatabasePage({ pageId, properties, icon, cover, arch
 /**
  * Archive a database page/item
  */
-export async function archiveDatabasePage(pageId: string): Promise<UpdatePageResponse> {
+export async function archiveDatabasePage(pageId: string, client?: Client): Promise<UpdatePageResponse> {
   try {
-    return await updateDatabasePage({ pageId, archived: true });
+    return await updateDatabasePage({ pageId, archived: true }, client);
   } catch (error) {
     throw wrapError(`Failed to archive database page ${pageId}`, error);
   }
@@ -99,9 +106,9 @@ export async function archiveDatabasePage(pageId: string): Promise<UpdatePageRes
 /**
  * Restore an archived database page/item
  */
-export async function restoreDatabasePage(pageId: string): Promise<UpdatePageResponse> {
+export async function restoreDatabasePage(pageId: string, client?: Client): Promise<UpdatePageResponse> {
   try {
-    return await updateDatabasePage({ pageId, archived: false });
+    return await updateDatabasePage({ pageId, archived: false }, client);
   } catch (error) {
     throw wrapError(`Failed to restore database page ${pageId}`, error);
   }
@@ -110,17 +117,17 @@ export async function restoreDatabasePage(pageId: string): Promise<UpdatePageRes
 /**
  * Remove all blocks (content) from a database page
  */
-export async function clearDatabasePageContent(pageId: string): Promise<void> {
+export async function clearDatabasePageContent(pageId: string, client?: Client): Promise<void> {
   let cursor: string | undefined;
 
   do {
-    const response = await getBlockChildren(pageId, cursor ? { start_cursor: cursor } : undefined);
+    const response = await getBlockChildren(pageId, cursor ? { start_cursor: cursor } : undefined, client);
     if (!response.results.length) {
       break;
     }
 
     for (const block of response.results) {
-      await deleteBlock(block.id);
+      await deleteBlock(block.id, client);
     }
 
     cursor = response.next_cursor ?? undefined;
