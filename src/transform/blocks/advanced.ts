@@ -3,6 +3,7 @@ import type {
   SimpleBlock,
   SimpleCalloutBlock,
   SimpleCodeBlock,
+  SimpleChildDatabaseBlock,
   SimpleEquationBlock,
   SimpleLinkToPageBlock,
   SimpleSyncedBlock,
@@ -96,6 +97,15 @@ export function fromTemplate(block: Extract<PageBlock, { type: "template" }>, tr
   }
 
   return simple;
+}
+
+export function fromChildDatabase(block: Extract<PageBlock, { type: "child_database" }>): SimpleChildDatabaseBlock {
+  return {
+    type: "child_database",
+    id: block.id,
+    databaseId: block.id,
+    title: block.child_database.title,
+  };
 }
 
 type EmojiIcon = { type: "emoji"; emoji: string };
