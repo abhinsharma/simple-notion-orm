@@ -134,6 +134,14 @@ const syncedReferenceBlock: PageBlock = {
   synced_block: { synced_from: { type: "block_id", block_id: "synced-source" } },
 };
 
+const childDatabaseBlock: PageBlock = {
+  ...baseMeta,
+  id: "child-db",
+  has_children: false,
+  type: "child_database",
+  child_database: { title: "Projects" },
+};
+
 function convert(block: PageBlock): SimpleBlock {
   return toSimpleBlock(block, convert);
 }
@@ -168,5 +176,10 @@ describe("toSimpleBlock", () => {
     expect(source).toMatchObject({ type: "synced_block", kind: "source", sourceBlockId: "synced-source" });
     const reference = convert(syncedReferenceBlock);
     expect(reference).toMatchObject({ type: "synced_block", kind: "reference", sourceBlockId: "synced-source" });
+  });
+
+  it("handles child databases", () => {
+    const result = convert(childDatabaseBlock);
+    expect(result).toMatchObject({ type: "child_database", id: "child-db", databaseId: "child-db", title: "Projects" });
   });
 });
