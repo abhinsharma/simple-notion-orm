@@ -2,6 +2,7 @@ import type {
   PageBlock,
   SimpleBlock,
   SimpleCalloutBlock,
+  SimpleChildPageBlock,
   SimpleCodeBlock,
   SimpleChildDatabaseBlock,
   SimpleEquationBlock,
@@ -105,6 +106,15 @@ export function fromChildDatabase(block: Extract<PageBlock, { type: "child_datab
     id: block.id,
     databaseId: block.id,
     title: block.child_database.title,
+  };
+}
+
+export function fromChildPage(block: Extract<PageBlock, { type: "child_page" }>): SimpleChildPageBlock {
+  return {
+    type: "child_page",
+    id: block.id,
+    pageId: block.id,
+    title: block.child_page.title,
   };
 }
 

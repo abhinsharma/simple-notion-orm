@@ -142,6 +142,14 @@ const childDatabaseBlock: PageBlock = {
   child_database: { title: "Projects" },
 };
 
+const childPageBlock: PageBlock = {
+  ...baseMeta,
+  id: "child-page",
+  has_children: false,
+  type: "child_page",
+  child_page: { title: "Overview" },
+};
+
 function convert(block: PageBlock): SimpleBlock {
   return toSimpleBlock(block, convert);
 }
@@ -181,5 +189,10 @@ describe("toSimpleBlock", () => {
   it("handles child databases", () => {
     const result = convert(childDatabaseBlock);
     expect(result).toMatchObject({ type: "child_database", id: "child-db", databaseId: "child-db", title: "Projects" });
+  });
+
+  it("handles child pages", () => {
+    const result = convert(childPageBlock);
+    expect(result).toMatchObject({ type: "child_page", id: "child-page", pageId: "child-page", title: "Overview" });
   });
 });
