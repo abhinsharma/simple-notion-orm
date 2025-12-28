@@ -86,7 +86,7 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
     case "child_database":
       return fromChildDatabase(block as Extract<PageBlock, { type: "child_database" }>);
     case "child_page":
-      return fromChildPage(block as Extract<PageBlock, { type: "child_page" }>);
+      return fromChildPage(block as Extract<PageBlock, { type: "child_page" }>, transformChild);
     default:
       throw new Error(`Unsupported block type: ${block.type}`);
   }

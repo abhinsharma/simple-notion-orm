@@ -181,6 +181,7 @@ export type SimpleChildPageBlock = {
   id: string;
   pageId: string;
   title: string;
+  children?: SimpleBlock[];
 };
 
 export type SimpleBlock =
