@@ -117,6 +117,51 @@ const tableBlock: PageBlock = {
   ],
 };
 
+const columnBlock: PageBlock = {
+  ...baseMeta,
+  id: "column",
+  has_children: true,
+  type: "column",
+  column: { width_ratio: 0.5 },
+  children: [paragraphBlock],
+};
+
+const tableRowBlock: PageBlock = {
+  ...baseMeta,
+  id: "table-row",
+  has_children: false,
+  type: "table_row",
+  table_row: {
+    cells: [
+      [
+        {
+          type: "text",
+          text: { content: "Cell A", link: null },
+          annotations,
+          plain_text: "Cell A",
+          href: null,
+        },
+      ],
+    ],
+  },
+};
+
+const linkPreviewBlock: PageBlock = {
+  ...baseMeta,
+  id: "link-preview",
+  has_children: false,
+  type: "link_preview",
+  link_preview: { url: "https://example.com" },
+};
+
+const unsupportedBlock: PageBlock = {
+  ...baseMeta,
+  id: "unsupported",
+  has_children: false,
+  type: "unsupported",
+  unsupported: {},
+};
+
 const syncedSourceBlock: PageBlock = {
   ...baseMeta,
   id: "synced-source",
@@ -186,6 +231,33 @@ describe("toSimpleBlock", () => {
       type: "table",
       rows: [[[{ plainText: "Cell 1" }], [{ plainText: "Cell 2" }]]],
     });
+  });
+
+  it("maps columns", () => {
+    const result = convert(columnBlock);
+    expect(result).toMatchObject({
+      type: "column",
+      widthRatio: 0.5,
+      children: [{ type: "paragraph" }],
+    });
+  });
+
+  it("maps table rows", () => {
+    const result = convert(tableRowBlock);
+    expect(result).toMatchObject({
+      type: "table_row",
+      cells: [[{ plainText: "Cell A" }]],
+    });
+  });
+
+  it("maps link previews", () => {
+    const result = convert(linkPreviewBlock);
+    expect(result).toMatchObject({ type: "link_preview", url: "https://example.com" });
+  });
+
+  it("maps unsupported blocks", () => {
+    const result = convert(unsupportedBlock);
+    expect(result).toMatchObject({ type: "unsupported", id: "unsupported" });
   });
 
   it("captures synced block metadata", () => {

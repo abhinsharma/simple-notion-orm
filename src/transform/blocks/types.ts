@@ -116,6 +116,13 @@ export type SimpleColumnListBlock = {
   }>;
 };
 
+export type SimpleColumnBlock = {
+  type: "column";
+  id: string;
+  widthRatio?: number;
+  children?: SimpleBlock[];
+};
+
 export type SimpleTableBlock = {
   type: "table";
   id: string;
@@ -123,6 +130,12 @@ export type SimpleTableBlock = {
   hasRowHeader: boolean;
   tableWidth: number;
   rows: SimpleRichTextSpan[][][];
+};
+
+export type SimpleTableRowBlock = {
+  type: "table_row";
+  id: string;
+  cells: SimpleRichTextSpan[][];
 };
 
 export type SimpleCodeBlock = {
@@ -162,6 +175,12 @@ export type SimpleLinkToPageBlock = {
   target: { kind: "page" | "database" | "comment"; id: string };
 };
 
+export type SimpleLinkPreviewBlock = {
+  type: "link_preview";
+  id: string;
+  url: string;
+};
+
 export type SimpleTemplateBlock = {
   type: "template";
   id: string;
@@ -184,6 +203,11 @@ export type SimpleChildPageBlock = {
   children?: SimpleBlock[];
 };
 
+export type SimpleUnsupportedBlock = {
+  type: "unsupported";
+  id: string;
+};
+
 export type SimpleBlock =
   | SimpleParagraphBlock
   | SimpleHeadingBlock
@@ -197,12 +221,16 @@ export type SimpleBlock =
   | SimpleBreadcrumbBlock
   | SimpleTableOfContentsBlock
   | SimpleColumnListBlock
+  | SimpleColumnBlock
   | SimpleTableBlock
+  | SimpleTableRowBlock
   | SimpleCodeBlock
   | SimpleCalloutBlock
   | SimpleEquationBlock
   | SimpleSyncedBlock
   | SimpleLinkToPageBlock
+  | SimpleLinkPreviewBlock
   | SimpleTemplateBlock
   | SimpleChildDatabaseBlock
-  | SimpleChildPageBlock;
+  | SimpleChildPageBlock
+  | SimpleUnsupportedBlock;
