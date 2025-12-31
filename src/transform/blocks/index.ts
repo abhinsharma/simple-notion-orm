@@ -1,7 +1,7 @@
 import type { PageBlock, SimpleBlock } from "./types";
 import { fromParagraph, fromHeading, fromListItem, fromToDo, fromToggle, fromQuote } from "./text";
 import { fromMedia, fromBookmark } from "./media";
-import { fromDivider, fromBreadcrumb, fromColumnList, fromTable, fromTableOfContents } from "./layout";
+import { fromDivider, fromBreadcrumb, fromColumn, fromColumnList, fromTable, fromTableRow, fromTableOfContents } from "./layout";
 import { fromCallout, fromChildDatabase, fromChildPage, fromCode, fromEquation, fromLinkToPage, fromSyncedBlock, fromTemplate } from "./advanced";
 
 export type {
@@ -20,15 +20,19 @@ export type {
   SimpleBreadcrumbBlock,
   SimpleTableOfContentsBlock,
   SimpleColumnListBlock,
+  SimpleColumnBlock,
   SimpleTableBlock,
+  SimpleTableRowBlock,
   SimpleCodeBlock,
   SimpleCalloutBlock,
   SimpleEquationBlock,
   SimpleSyncedBlock,
   SimpleLinkToPageBlock,
+  SimpleLinkPreviewBlock,
   SimpleTemplateBlock,
   SimpleChildDatabaseBlock,
   SimpleChildPageBlock,
+  SimpleUnsupportedBlock,
   NonDefaultColor,
   PageBlock,
 } from "./types";
@@ -69,8 +73,12 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
       return fromTableOfContents(block as Extract<PageBlock, { type: "table_of_contents" }>);
     case "column_list":
       return fromColumnList(block as Extract<PageBlock, { type: "column_list" }>, transformChild);
+    case "column":
+      return fromColumn(block as Extract<PageBlock, { type: "column" }>, transformChild);
     case "table":
       return fromTable(block as Extract<PageBlock, { type: "table" }>);
+    case "table_row":
+      return fromTableRow(block as Extract<PageBlock, { type: "table_row" }>);
     case "code":
       return fromCode(block as Extract<PageBlock, { type: "code" }>);
     case "callout":
@@ -81,14 +89,25 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
       return fromSyncedBlock(block as Extract<PageBlock, { type: "synced_block" }>, transformChild);
     case "link_to_page":
       return fromLinkToPage(block as Extract<PageBlock, { type: "link_to_page" }>);
+    case "link_preview":
+      return {
+        type: "link_preview",
+        id: block.id,
+        url: (block as Extract<PageBlock, { type: "link_preview" }>).link_preview.url,
+      };
     case "template":
       return fromTemplate(block as Extract<PageBlock, { type: "template" }>, transformChild);
     case "child_database":
       return fromChildDatabase(block as Extract<PageBlock, { type: "child_database" }>);
     case "child_page":
       return fromChildPage(block as Extract<PageBlock, { type: "child_page" }>, transformChild);
-    default:
-      throw new Error(`Unsupported block type: ${block.type}`);
+    case "unsupported":
+      return { type: "unsupported", id: block.id };
+    default: {
+      const _exhaustive: never = block;
+      void _exhaustive;
+      throw new Error("Unsupported block type");
+    }
   }
 }
 

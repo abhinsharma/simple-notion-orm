@@ -1,9 +1,11 @@
 import type {
   PageBlock,
   SimpleBreadcrumbBlock,
+  SimpleColumnBlock,
   SimpleColumnListBlock,
   SimpleDividerBlock,
   SimpleTableBlock,
+  SimpleTableRowBlock,
   SimpleTableOfContentsBlock,
   SimpleBlock,
 } from "./types";
@@ -39,6 +41,16 @@ export function fromColumnList(block: Extract<PageBlock, { type: "column_list" }
   };
 }
 
+export function fromColumn(block: Extract<PageBlock, { type: "column" }>, transformChild: (child: PageBlock) => SimpleBlock): SimpleColumnBlock {
+  const widthRatio = block.column?.width_ratio;
+  return {
+    type: "column",
+    id: block.id,
+    ...(typeof widthRatio === "number" ? { widthRatio } : {}),
+    ...(block.children ? { children: block.children.map(transformChild) } : {}),
+  };
+}
+
 export function fromTable(block: Extract<PageBlock, { type: "table" }>): SimpleTableBlock {
   const rows = (block.children ?? []).filter((child): child is Extract<PageBlock, { type: "table_row" }> => child.type === "table_row");
 
@@ -49,5 +61,13 @@ export function fromTable(block: Extract<PageBlock, { type: "table" }>): SimpleT
     hasRowHeader: block.table.has_row_header,
     tableWidth: block.table.table_width,
     rows: rows.map((row) => row.table_row.cells.map((cell) => toSimpleRichTextSpanArray(cell))),
+  };
+}
+
+export function fromTableRow(block: Extract<PageBlock, { type: "table_row" }>): SimpleTableRowBlock {
+  return {
+    type: "table_row",
+    id: block.id,
+    cells: block.table_row.cells.map((cell) => toSimpleRichTextSpanArray(cell)),
   };
 }
