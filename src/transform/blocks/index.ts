@@ -2,7 +2,7 @@ import type { PageBlock, SimpleBlock } from "./types";
 import { fromParagraph, fromHeading, fromListItem, fromToDo, fromToggle, fromQuote } from "./text";
 import { fromMedia, fromBookmark } from "./media";
 import { fromDivider, fromBreadcrumb, fromColumnList, fromTable, fromTableOfContents } from "./layout";
-import { fromCallout, fromChildDatabase, fromCode, fromEquation, fromLinkToPage, fromSyncedBlock, fromTemplate } from "./advanced";
+import { fromCallout, fromChildDatabase, fromChildPage, fromCode, fromEquation, fromLinkToPage, fromSyncedBlock, fromTemplate } from "./advanced";
 
 export type {
   SimpleBlock,
@@ -28,6 +28,7 @@ export type {
   SimpleLinkToPageBlock,
   SimpleTemplateBlock,
   SimpleChildDatabaseBlock,
+  SimpleChildPageBlock,
   NonDefaultColor,
   PageBlock,
 } from "./types";
@@ -84,6 +85,8 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
       return fromTemplate(block as Extract<PageBlock, { type: "template" }>, transformChild);
     case "child_database":
       return fromChildDatabase(block as Extract<PageBlock, { type: "child_database" }>);
+    case "child_page":
+      return fromChildPage(block as Extract<PageBlock, { type: "child_page" }>, transformChild);
     default:
       throw new Error(`Unsupported block type: ${block.type}`);
   }

@@ -2,6 +2,7 @@ import type {
   PageBlock,
   SimpleBlock,
   SimpleCalloutBlock,
+  SimpleChildPageBlock,
   SimpleCodeBlock,
   SimpleChildDatabaseBlock,
   SimpleEquationBlock,
@@ -106,6 +107,21 @@ export function fromChildDatabase(block: Extract<PageBlock, { type: "child_datab
     databaseId: block.id,
     title: block.child_database.title,
   };
+}
+
+export function fromChildPage(block: Extract<PageBlock, { type: "child_page" }>, transformChild: (child: PageBlock) => SimpleBlock): SimpleChildPageBlock {
+  const simple: SimpleChildPageBlock = {
+    type: "child_page",
+    id: block.id,
+    pageId: block.id,
+    title: block.child_page.title,
+  };
+
+  if (block.children?.length) {
+    simple.children = block.children.map(transformChild);
+  }
+
+  return simple;
 }
 
 type EmojiIcon = { type: "emoji"; emoji: string };

@@ -176,6 +176,14 @@ export type SimpleChildDatabaseBlock = {
   title: string;
 };
 
+export type SimpleChildPageBlock = {
+  type: "child_page";
+  id: string;
+  pageId: string;
+  title: string;
+  children?: SimpleBlock[];
+};
+
 export type SimpleBlock =
   | SimpleParagraphBlock
   | SimpleHeadingBlock
@@ -196,4 +204,5 @@ export type SimpleBlock =
   | SimpleSyncedBlock
   | SimpleLinkToPageBlock
   | SimpleTemplateBlock
-  | SimpleChildDatabaseBlock;
+  | SimpleChildDatabaseBlock
+  | SimpleChildPageBlock;
