@@ -2,9 +2,10 @@
  * Database Page API
  * API for managing pages/items within Notion databases
  */
-import { deleteBlock, getBlockChildren } from "@/api/block";
+import { appendBlockChildren, deleteBlock, getBlockChildren } from "@/api/block";
 import type { Client } from "@notionhq/client";
 import type {
+  AppendBlockChildrenParameters,
   CreatePageParameters,
   CreatePageResponse,
   GetPageResponse,
@@ -71,13 +72,26 @@ type UpdateDatabasePageParams = {
   icon?: UpdatePageParameters["icon"];
   cover?: UpdatePageParameters["cover"];
   archived?: boolean;
+  append?: {
+    children: AppendBlockChildrenParameters["children"];
+    after?: string;
+  };
 };
 
 export async function updateDatabasePage(
-  { pageId, properties, icon, cover, archived }: UpdateDatabasePageParams,
+  { pageId, properties, icon, cover, archived, append }: UpdateDatabasePageParams,
   client?: Client
 ): Promise<UpdatePageResponse> {
   try {
+    if (append) {
+      await appendBlockChildren(pageId, append.children, append.after ? { after: append.after } : undefined, client);
+    }
+
+    const hasUpdate = Boolean(properties || icon !== undefined || cover !== undefined || typeof archived === "boolean");
+    if (!hasUpdate) {
+      return (await getDatabasePage(pageId, client)) as UpdatePageResponse;
+    }
+
     const notionClient = client ?? getNotionClient();
     const response = await notionClient.pages.update({
       page_id: pageId,

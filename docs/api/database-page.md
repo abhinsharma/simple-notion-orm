@@ -58,6 +58,21 @@ const page = await updateDatabasePage({
 });
 ```
 
+## Append database page content
+
+```ts
+import { updateDatabasePage } from "@/api/database-page";
+import { buildParagraphBlock } from "@/factories/blocks/text";
+import { textToRichText } from "@/utils/richtext";
+
+await updateDatabasePage({
+  pageId: "notion-page-id",
+  append: {
+    children: [buildParagraphBlock(textToRichText("Row body"))],
+  },
+});
+```
+
 ## Archive a database page
 
 ```ts

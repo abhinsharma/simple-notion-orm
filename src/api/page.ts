@@ -2,9 +2,15 @@
  * Page API
  * Here api is shaped for non database pages to reduce complexity.
  */
-import { deleteBlock, getBlockChildren } from "@/api/block";
+import { appendBlockChildren, deleteBlock, getBlockChildren } from "@/api/block";
 import type { Client } from "@notionhq/client";
-import type { CreatePageParameters, PageObjectResponse, SearchResponse, UpdatePageParameters } from "@notionhq/client/build/src/api-endpoints";
+import type {
+  AppendBlockChildrenParameters,
+  CreatePageParameters,
+  PageObjectResponse,
+  SearchResponse,
+  UpdatePageParameters,
+} from "@notionhq/client/build/src/api-endpoints";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 
@@ -68,9 +74,22 @@ type UpdatePageParams = {
   icon?: UpdatePageParameters["icon"];
   cover?: UpdatePageParameters["cover"];
   archived?: boolean;
+  append?: {
+    children: AppendBlockChildrenParameters["children"];
+    after?: string;
+  };
 };
-export async function updatePage({ pageId, properties, icon, cover, archived }: UpdatePageParams, client?: Client): Promise<PageObjectResponse> {
+export async function updatePage({ pageId, properties, icon, cover, archived, append }: UpdatePageParams, client?: Client): Promise<PageObjectResponse> {
   try {
+    if (append) {
+      await appendBlockChildren(pageId, append.children, append.after ? { after: append.after } : undefined, client);
+    }
+
+    const hasUpdate = Boolean(properties || icon !== undefined || cover !== undefined || typeof archived === "boolean");
+    if (!hasUpdate) {
+      return await getPage(pageId, undefined, client);
+    }
+
     const notionClient = client ?? getNotionClient();
     const response = await notionClient.pages.update({
       page_id: pageId,
