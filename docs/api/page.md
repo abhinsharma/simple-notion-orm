@@ -48,6 +48,21 @@ const page = await updatePage({
 });
 ```
 
+## Append page content
+
+```ts
+import { updatePage } from "@/api/page";
+import { buildParagraphBlock } from "@/factories/blocks/text";
+import { textToRichText } from "@/utils/richtext";
+
+await updatePage({
+  pageId: "notion-page-id",
+  append: {
+    children: [buildParagraphBlock(textToRichText("Appended content"))],
+  },
+});
+```
+
 ## Archive a page
 
 ```ts

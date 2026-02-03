@@ -22,6 +22,7 @@ Notion exposes every page, block, and database through the same flexible JSON su
 - Column builders that know how to parse and encode Notion payloads.
 - Virtual “page handles” so you can work with single stand alone pages or with database items as typed rows.
 - Factories and transforms that keep request/response shapes predictable.
+- Page update helpers can append block content via the `append` option on `updatePage` and `updateDatabasePage`.
 
 Bring your own workspace, point the ORM at an existing database (or ask it to create one), and work with TypeScript types instead of raw REST payloads.
 
