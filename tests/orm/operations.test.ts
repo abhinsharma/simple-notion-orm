@@ -148,8 +148,8 @@ describe("ORM operations", () => {
     }));
 
     expect(count).toBe(2);
-    expect(payloads).toContainEqual({ id: "page-1", body: { archived: true } });
-    expect(payloads).toContainEqual({ id: "page-2", body: { archived: true } });
+    expect(payloads).toContainEqual({ id: "page-1", body: { in_trash: true } });
+    expect(payloads).toContainEqual({ id: "page-2", body: { in_trash: true } });
   });
 
   it("restores all provided page IDs", async () => {
@@ -166,6 +166,6 @@ describe("ORM operations", () => {
     };
 
     expect(count).toBe(1);
-    expect(restorePayload).toEqual({ id: "page-3", body: { archived: false } });
+    expect(restorePayload).toEqual({ id: "page-3", body: { in_trash: false } });
   });
 });

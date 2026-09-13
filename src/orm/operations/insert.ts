@@ -20,6 +20,7 @@ export async function insertRows<TDef extends TableDef>(
     const page = await createDatabasePage(
       {
         databaseId: ids.databaseId,
+        dataSourceId: ids.dataSourceId,
         properties: properties as CreatePageParameters["properties"],
       },
       client

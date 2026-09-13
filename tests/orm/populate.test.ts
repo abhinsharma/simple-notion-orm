@@ -41,6 +41,7 @@ function createProjectPage(id: string, name: string): PageObjectResponse {
     icon: null,
     parent: { type: "workspace", workspace: true },
     is_locked: false,
+    is_archived: false,
     archived: false,
     in_trash: false,
     properties: {

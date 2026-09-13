@@ -20,7 +20,6 @@
         "type": "page_id",
         "page_id": "obf_id_49"
       },
-      "archived": false,
       "in_trash": false,
       "is_locked": false,
       "properties": {
@@ -49,7 +48,8 @@
         }
       },
       "url": "https://example.com/obf/9",
-      "public_url": null
+      "public_url": null,
+      "is_archived": false
     },
     {
       "object": "page",
@@ -71,7 +71,6 @@
         "data_source_id": "obf_id_52",
         "database_id": "obf_id_53"
       },
-      "archived": false,
       "in_trash": false,
       "is_locked": false,
       "properties": {
@@ -112,7 +111,8 @@
         }
       },
       "url": "https://example.com/obf/10",
-      "public_url": null
+      "public_url": null,
+      "is_archived": false
     }
   ],
   "next_cursor": null,

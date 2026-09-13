@@ -17,7 +17,6 @@
     "type": "page_id",
     "page_id": "obf_id_46"
   },
-  "archived": true,
   "in_trash": true,
   "is_locked": false,
   "properties": {
@@ -47,5 +46,6 @@
   },
   "url": "https://example.com/obf/12",
   "public_url": null,
-  "request_id": "obf_id_86"
+  "request_id": "obf_id_86",
+  "is_archived": false
 }

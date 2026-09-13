@@ -101,6 +101,10 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
       return fromChildDatabase(block as Extract<PageBlock, { type: "child_database" }>);
     case "child_page":
       return fromChildPage(block as Extract<PageBlock, { type: "child_page" }>, transformChild);
+    case "heading_4":
+    case "tab":
+    case "meeting_notes":
+    case "transcription":
     case "unsupported":
       return { type: "unsupported", id: block.id };
     default: {

@@ -5,7 +5,7 @@
 - `src/` houses the TypeScript source:
   - `api/` – Notion wrappers (pages, blocks, databases).
   - `factories/` – block/property payload builders.
-  - `orm/` – (future) higher-level abstractions for the ORM surface.
+  - `orm/` – schema builders, codecs, queries, and row operations.
   - `utils/`, `types/` – shared helpers and type definitions.
 - `tests/fixtures/` contains obfuscated JSON responses used by MSW-based tests.
 - `docs/` and `ai-docs/` hold reference material (API usage, design stories, factories).
@@ -17,14 +17,14 @@
 - `pnpm lint` – Run ESLint with the configured project-flat rules.
 - `pnpm lint --fix` – Auto-fix lint issues where possible.
 - `pnpm format` / `pnpm format:check` – Prettier formatting at `printWidth: 160`.
-- `pnpm build` – Type-check via `tsc --noEmit`.
+- `pnpm build` – Build ESM JavaScript and declarations in `dist/`.
 - `pnpm tsx playground.ts` – Execute the playground script (temporarily expand as needed).
 - `pnpm test` / `vitest run <path>` – Run the Vitest + MSW suite (see `tests/handlers.ts` scaffolding).
 
 ## Coding Style & Naming Conventions
 
 - TypeScript, strict mode; 2-space indentation enforced by ESLint.
-- Use named exports; no default exports except where explicitly allowed (e.g., `vitest.config.ts`).
+- Use named exports; no default exports except where explicitly allowed (e.g., `vitest.config.mts`).
 - Internal imports rely on `@/` path aliases (`@/api/...`, `@/factories/...`).
 - Run `pnpm lint` before pushing to ensure formatting and ordering rules pass.
 
@@ -36,7 +36,7 @@
 
 ## Path Aliases
 
-Configured in `tsconfig.json` and `vitest.config.ts`:
+Configured in `tsconfig.json` and `vitest.config.mts`:
 
 ```
 @/api/*        -> src/api/*

@@ -6,7 +6,7 @@ export type NotionClientOptions = {
 };
 
 export function createNotionClient(options: NotionClientOptions): Client {
-  return new Client({ auth: options.auth });
+  return new Client({ auth: options.auth, notionVersion: "2026-03-11" });
 }
 
 let client: Client | null = null;
@@ -14,7 +14,7 @@ let envLoaded = false;
 
 function ensureEnvironment(): void {
   if (!envLoaded) {
-    dotenv.config();
+    dotenv.config({ quiet: true });
     envLoaded = true;
   }
 }
@@ -34,6 +34,7 @@ export function getNotionClient(): Client {
 
   client = new Client({
     auth: notionApiKey,
+    notionVersion: "2026-03-11",
   });
 
   return client;

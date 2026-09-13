@@ -18,7 +18,6 @@
     "data_source_id": "obf_id_61",
     "database_id": "obf_id_59"
   },
-  "archived": false,
   "in_trash": false,
   "is_locked": false,
   "properties": {
@@ -57,5 +56,6 @@
   },
   "url": "https://example.com/obf/13",
   "public_url": null,
-  "request_id": "obf_id_80"
+  "request_id": "obf_id_80",
+  "is_archived": false
 }

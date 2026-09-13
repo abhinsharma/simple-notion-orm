@@ -16,7 +16,7 @@ import type {
 import { NotionBlocks, type PageBlock } from "./notion-blocks";
 export type { PageBlock } from "./notion-blocks";
 
-type RichTextInput = CreateCommentParameters["rich_text"];
+type RichTextInput = Extract<CreateCommentParameters, { rich_text: unknown }>["rich_text"];
 
 const MAX_CHILDREN_PER_REQUEST = 100;
 

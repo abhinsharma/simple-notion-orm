@@ -96,7 +96,7 @@ export async function updatePage({ pageId, properties, icon, cover, archived, ap
       ...(properties ? { properties } : {}),
       ...(icon !== undefined ? { icon } : {}),
       ...(cover !== undefined ? { cover } : {}),
-      ...(typeof archived === "boolean" ? { archived } : {}),
+      ...(typeof archived === "boolean" ? { in_trash: archived } : {}),
     });
     if (!("properties" in response)) {
       throw new Error(`Update page request for ${pageId} returned a partial page response`);

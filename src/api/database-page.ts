@@ -14,6 +14,7 @@ import type {
   UpdatePageResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { wrapError } from "../utils/error";
+import { getDatabase } from "./database";
 import { getNotionClient } from "./client";
 
 /**
@@ -36,6 +37,7 @@ export async function getDatabasePage(pageId: string, client?: Client): Promise<
  */
 type CreateDatabasePageParams = {
   databaseId: string;
+  dataSourceId?: string;
   properties: CreatePageParameters["properties"];
   children?: CreatePageParameters["children"];
   icon?: CreatePageParameters["icon"];
@@ -43,14 +45,15 @@ type CreateDatabasePageParams = {
 };
 
 export async function createDatabasePage(
-  { databaseId, properties, children, icon, cover }: CreateDatabasePageParams,
+  { databaseId, dataSourceId, properties, children, icon, cover }: CreateDatabasePageParams,
   client?: Client
 ): Promise<CreatePageResponse> {
   try {
     const notionClient = client ?? getNotionClient();
+    const resolvedDataSourceId = dataSourceId ?? (await getDatabase(databaseId, client)).dataSource.id;
     const response = await notionClient.pages.create({
       parent: {
-        database_id: databaseId,
+        data_source_id: resolvedDataSourceId,
       },
       properties,
       ...(children ? { children } : {}),
@@ -98,7 +101,7 @@ export async function updateDatabasePage(
       ...(properties ? { properties } : {}),
       ...(icon !== undefined ? { icon } : {}),
       ...(cover !== undefined ? { cover } : {}),
-      ...(typeof archived === "boolean" ? { archived } : {}),
+      ...(typeof archived === "boolean" ? { in_trash: archived } : {}),
     });
     return response as PageObjectResponse;
   } catch (error) {

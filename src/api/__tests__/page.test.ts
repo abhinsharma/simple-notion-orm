@@ -110,7 +110,6 @@ describe("archivePage", () => {
     const result = await archivePage(pageId);
 
     expect(result.object).toBe("page");
-    expect(result.archived).toBe(true);
     expect(result.in_trash).toBe(true);
   });
 });
@@ -122,7 +121,6 @@ describe("restorePage", () => {
     const result = await restorePage(pageId);
 
     expect(result.object).toBe("page");
-    expect(result.archived).toBe(false);
     expect(result.in_trash).toBe(false);
   });
 });

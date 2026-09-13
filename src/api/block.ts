@@ -57,15 +57,16 @@ export async function getBlockChildren(
 export async function appendBlockChildren(
   blockId: string,
   children: AppendBlockChildrenParameters["children"],
-  options?: { after?: string },
+  options?: { after?: string; position?: AppendBlockChildrenParameters["position"] },
   client?: Client
 ): Promise<AppendBlockChildrenResponse> {
   try {
     const notionClient = client ?? getNotionClient();
-    const payload: AppendBlockChildrenParameters & { after?: string } = {
+    const position = options?.position ?? (options?.after ? { type: "after_block" as const, after_block: { id: options.after } } : undefined);
+    const payload: AppendBlockChildrenParameters = {
       block_id: blockId,
       children,
-      ...(options?.after ? { after: options.after } : {}),
+      ...(position ? { position } : {}),
     };
     const response = await notionClient.blocks.children.append(payload);
     return response;
@@ -81,11 +82,12 @@ type UpdateBlockParams = {
   blockId: string;
 } & Omit<UpdateBlockParameters, "block_id">;
 
-export async function updateBlock({ blockId, ...updateParams }: UpdateBlockParams, client?: Client): Promise<UpdateBlockResponse> {
+export async function updateBlock({ blockId, archived, ...updateParams }: UpdateBlockParams, client?: Client): Promise<UpdateBlockResponse> {
   try {
     const notionClient = client ?? getNotionClient();
     const response = await notionClient.blocks.update({
       block_id: blockId,
+      ...(typeof archived === "boolean" ? { in_trash: archived } : {}),
       ...updateParams,
     });
     return response;

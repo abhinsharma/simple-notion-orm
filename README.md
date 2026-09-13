@@ -28,7 +28,7 @@ Bring your own workspace, point the ORM at an existing database (or ask it to cr
 
 ## Setup
 
-1. **Requirements:** Node.js ≥ 22 and `pnpm` (the repo pins `pnpm@10.17.1`).
+1. **Requirements:** Node.js ≥ 22.13 and `pnpm` (the repo pins `pnpm@12.3.4`).
 2. **Install dependencies:** run the commands below from the repo root.
 3. **Configure secrets:** create `.env` and set `NOTION_API_KEY=secret_from_notion`.
 4. **Reference Notion targets:** set `NOTION_TASKS_DB` or whichever database IDs you want to work with before running samples.
@@ -46,7 +46,7 @@ yarn add simple-notion-orm
 ## Quick Preview
 
 ```ts
-import { defineTable, text, status, people } from "@/orm/schema";
+import { defineTable, text, status, people } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Tasks",
@@ -114,7 +114,9 @@ Docs live alongside the codebase so every layer stays well explained (see [Docum
 pnpm install               # Install dependencies
 pnpm lint                  # ESLint flat config with TypeScript support
 pnpm format                # Format the codebase with Prettier
-pnpm build                 # Type check (tsc --noEmit), also used in CI
+pnpm tsc                   # Type-check source and tests
+pnpm test                  # Run the offline Vitest + MSW suite
+pnpm build                 # Build ESM JavaScript and declarations in dist
 pnpm format:check          # Verify formatting without writing changes
 ```
 
@@ -124,3 +126,15 @@ pnpm format:check          # Verify formatting without writing changes
 - `docs/factories` – Property/block builders and payload recipes.
 - `docs/pages` – Higher level helpers like `NotionPage` that sit above the raw SDK.
 - `docs/orm` – ORM concepts, codecs, and schema DSL walkthroughs.
+
+## Compatibility and releases
+
+Version 0.1.0 uses Notion API `2026-03-11` and `@notionhq/client` 5.26.0. Read trash state from `in_trash` in responses. The existing `archived` page-update option and archive/restore helpers still work; they send `in_trash` to Notion. The existing append `after` option sends a `position` object. You can also pass `position` to `appendBlockChildren` directly.
+
+Clients supplied by your application must use `notionVersion: "2026-03-11"`. `createNotionClient` and the environment-backed default client set this version automatically.
+
+`createDatabasePage` resolves the primary data source from `databaseId`. Pass `dataSourceId` as well to select a specific source or skip that lookup. ORM inserts use the table's cached data-source ID.
+
+Development uses Node.js 24 LTS and pnpm 12.3.4. Newer package versions inside this environment's seven-day release-age window are deferred. TypeScript 6.0.3 is the newest version supported by the current TypeScript ESLint parser.
+
+See [CHANGELOG.md](CHANGELOG.md) for migration notes and [docs/releasing.md](docs/releasing.md) for the release checklist.

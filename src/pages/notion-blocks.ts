@@ -10,7 +10,7 @@ import type {
   ListCommentsResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 
-type RichTextInput = CreateCommentParameters["rich_text"];
+type RichTextInput = Extract<CreateCommentParameters, { rich_text: unknown }>["rich_text"];
 
 type ListOptions = {
   pageSize?: ListBlockChildrenParameters["page_size"];

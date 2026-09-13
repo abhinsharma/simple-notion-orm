@@ -66,7 +66,7 @@ describe("deleteBlock", () => {
     const result = await deleteBlock(blockId);
 
     expect(result.object).toBe("block");
-    expect((result as DeleteBlockResponse & { archived: boolean }).archived).toBe(true);
+    expect((result as DeleteBlockResponse & { in_trash: boolean }).in_trash).toBe(true);
     expect(result.id).toBeDefined();
   });
 });

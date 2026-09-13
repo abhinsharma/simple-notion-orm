@@ -55,6 +55,7 @@ export default {
       "error",
       {
         case: "kebabCase",
+        ignore: ["^__tests__$"],
       },
     ],
   },

@@ -41,7 +41,8 @@
     "cover": null,
     "url": "https://example.com/obf/1",
     "public_url": null,
-    "request_id": "obf_id_57"
+    "request_id": "obf_id_57",
+    "is_archived": false
   },
   "dataSource": {
     "object": "data_source",
@@ -120,8 +121,8 @@
     },
     "url": "https://example.com/obf/1",
     "public_url": null,
-    "archived": false,
     "in_trash": false,
-    "request_id": "obf_id_58"
+    "request_id": "obf_id_58",
+    "is_archived": false
   }
 }

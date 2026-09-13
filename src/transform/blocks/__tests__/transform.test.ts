@@ -8,8 +8,9 @@ const baseMeta = {
   last_edited_time: "2025-01-01T00:00:00.000Z",
   created_by: { object: "user" as const, id: "user" },
   last_edited_by: { object: "user" as const, id: "user" },
-  archived: false,
   in_trash: false,
+  is_archived: false,
+  archived: false,
 };
 
 const annotations = {
@@ -27,6 +28,7 @@ const paragraphBlock: PageBlock = {
   has_children: true,
   type: "paragraph",
   paragraph: {
+    icon: null,
     rich_text: [
       {
         type: "text",
@@ -159,7 +161,7 @@ const unsupportedBlock: PageBlock = {
   id: "unsupported",
   has_children: false,
   type: "unsupported",
-  unsupported: {},
+  unsupported: { block_type: "unknown" },
 };
 
 const syncedSourceBlock: PageBlock = {

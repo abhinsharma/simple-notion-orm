@@ -4,13 +4,9 @@
  */
 
 import type { RichTextItemRequest, ApiColor, HeadingLevel } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
 
-/**
- * Forward declaration for BlockObjectRequest to support children
- * This will be the union of all block types
- */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = NonNullable<Extract<BlockObjectRequest, { paragraph: unknown }>["paragraph"]["children"]>[number];
 
 /**
  * Builds a paragraph block
