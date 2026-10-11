@@ -6,6 +6,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
+    include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
     setupFiles: ["tests/setup-msw.ts"],
     environment: "node",
     passWithNoTests: true,
