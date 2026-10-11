@@ -1,6 +1,6 @@
 # Prepare a release
 
-The package version is `0.1.0`. It is prepared but has not been published. The current npm release is `0.0.15`.
+This guide covers validation and publication for version `0.1.0`.
 
 ## Validate the checkout
 
@@ -31,8 +31,8 @@ The page-content example leaves blocks and a comment on its test page. Archive t
 
 For this release, all three examples and 11 live checks passed with a personal access token. The automated suite has 132 passing tests. The [capability limits](./limitations.md) remain applicable.
 
-## Publish later
+## Publish
 
-Publishing is a separate action. When authorized, confirm that version `0.1.0` is still unused on npm, date the changelog entry, and rerun validation on the exact commit to publish. Review the npm account and package contents, then publish using the repository's required pnpm installation. `prepublishOnly` runs `release:check` before publishing.
+Publishing requires explicit authorization. Before each release, confirm that its version is unused on npm, date the changelog entry, and rerun validation on the exact commit to publish. Review the npm account and package contents, then publish using the repository's required pnpm installation. `prepublishOnly` runs `release:check` before publishing.
 
 Create the `v0.1.0` tag and GitHub release only after npm publication succeeds. Verify installation by version from npm before announcing the release.

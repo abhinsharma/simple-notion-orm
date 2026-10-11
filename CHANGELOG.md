@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-10-10)
 
 This release moves the package to `@notionhq/client` 5.27 and Notion API version `2026-03-11`, adds missing API and ORM features, and fixes several type bugs. The minor version goes up because of the breaking changes listed below.
 
