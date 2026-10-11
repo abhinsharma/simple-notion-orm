@@ -99,9 +99,14 @@ export async function appendBlockChildren(
 /**
  * Update a block
  */
+/** Omit applied to each union member, so block-specific keys such as `paragraph` survive. */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
+export type UpdateBlockInput = DistributiveOmit<UpdateBlockParameters, "block_id">;
+
 type UpdateBlockParams = {
   blockId: string;
-} & Omit<UpdateBlockParameters, "block_id">;
+} & UpdateBlockInput;
 
 export async function updateBlock({ blockId, ...updateParams }: UpdateBlockParams, client?: Client): Promise<UpdateBlockResponse> {
   try {

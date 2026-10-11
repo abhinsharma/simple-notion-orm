@@ -91,8 +91,14 @@ export type RelationLinkOptions = {
   syncedPropertyId?: string;
 };
 
-export type RelationLinkConfig<TTarget extends TableDef = TableDef> = {
-  target: TableHandle<TTarget>;
+/**
+ * Accepts any table handle as a relation target. TableHandle is invariant in its row types, so a
+ * specific table is not assignable to TableHandle<TableDef>. This picks the members that are safe to widen.
+ */
+export type AnyTableHandle = Pick<TableHandle<TableDef>, "title" | "columns" | "getIds" | "cacheIds" | "getClient">;
+
+export type RelationLinkConfig = {
+  target: AnyTableHandle;
   options?: RelationLinkOptions;
 };
 
@@ -155,7 +161,7 @@ export type TableHandle<TDef extends TableDef> = {
   _def?: TDef;
 };
 
-export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
+export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, AnyTableHandle>>;
 
 type RowAll<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: ColumnInputValue<TDef["columns"][K]>;

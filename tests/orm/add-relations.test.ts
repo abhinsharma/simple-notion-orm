@@ -1,4 +1,4 @@
-import { defineTable, relation, text } from "@/orm";
+import { defineTable, rel, relation, text } from "@/orm";
 import * as linker from "@/orm/relation/linker";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 
@@ -64,5 +64,17 @@ describe("TableHandle.addRelations", () => {
 
     expect(linkRelationsSpy).not.toHaveBeenCalled();
     linkRelationsSpy.mockRestore();
+  });
+
+  it("only accepts relation column keys", async () => {
+    const projects = await defineTable("Projects", { title: text("Title").title() }, { parentId: "parent" });
+    const tasks = await defineTable("Tasks", { title: text("Title").title(), project: relation("Project").optional() }, { parentId: "parent" });
+
+    // Before, relation keys resolved to never, so this call did not compile for tables made by defineTable.
+    const instruction = rel(tasks, "project").to(projects).single();
+    // @ts-expect-error title is not a relation column
+    rel(tasks, "title");
+
+    expect(instruction).toMatchObject({ columnKey: "project", mode: "single" });
   });
 });

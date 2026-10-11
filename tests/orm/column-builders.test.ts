@@ -1,4 +1,6 @@
-import { createdBy, createdTime, lastEditedBy, lastEditedTime, multiSelect, select, uniqueId } from "@/orm/schema";
+import { createdBy, createdTime, lastEditedBy, lastEditedTime, multiSelect, number, select, text, uniqueId } from "@/orm/schema";
+import type { RowInput, TableDef } from "@/orm/schema/types";
+import { buildInsertProperties } from "@/orm/schema/utils";
 import { describe, expect, it } from "vitest";
 
 describe("select column builder", () => {
@@ -79,5 +81,24 @@ describe("system metadata column builders", () => {
     expect(updatedAt.isOptional).toBe(true);
     expect(createdByColumn.isOptional).toBe(true);
     expect(updatedByColumn.isOptional).toBe(true);
+  });
+});
+
+describe("default modifier", () => {
+  it("lets inserts omit columns that have a default", () => {
+    const columns = {
+      title: text("Name").title(),
+      effort: number("Effort").default(1),
+      stage: select("Stage").default({ name: "Backlog" }),
+    };
+
+    // RowInput is the insert type. Before, .default() kept the column required here.
+    const input: RowInput<TableDef<typeof columns>> = { title: "Defaults" };
+    const properties = buildInsertProperties(columns, input);
+
+    expect(properties).toMatchObject({
+      Effort: { number: 1 },
+      Stage: { select: { name: "Backlog" } },
+    });
   });
 });

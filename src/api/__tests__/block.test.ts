@@ -1,6 +1,6 @@
 import { buildParagraphBlock } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
-import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters, UpdateBlockParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect } from "vitest";
 import { captureNextRequest } from "../../../tests/request-capture";
 import { getBlock, getBlockChildren, appendBlockChildren, updateBlock, deleteBlock, resolveAppendPosition } from "../block";
@@ -81,7 +81,7 @@ describe("updateBlock", () => {
       paragraph: {
         rich_text: textToRichText("Updated paragraph"),
       },
-    } as { blockId: string } & Omit<UpdateBlockParameters, "block_id">);
+    });
 
     expect(result.object).toBe("block");
     expect((result as GetBlockResponse & { type: string }).type).toBe("paragraph");

@@ -11,7 +11,7 @@ type EmailColumnBuilder<TOptional extends boolean = false, TNullable extends boo
 > & {
   optional: () => EmailColumnBuilder<true, TNullable>;
   nullable: () => EmailColumnBuilder<TOptional, true>;
-  default: (value: string | null) => EmailColumnBuilder<TOptional, TNullable>;
+  default: (value: string | null) => EmailColumnBuilder<true, TNullable>;
 };
 
 function buildEmailColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -41,7 +41,7 @@ function buildEmailColumn<TOptional extends boolean, TNullable extends boolean>(
       buildEmailColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

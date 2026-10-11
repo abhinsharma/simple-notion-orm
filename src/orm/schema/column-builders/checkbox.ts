@@ -4,7 +4,7 @@ import type { ColumnDef } from "../types";
 
 type CheckboxColumnBuilder<TOptional extends boolean = false> = ColumnDef<boolean, TOptional, false, CheckboxPropertyPayload, CheckboxPropertyResponse> & {
   optional: () => CheckboxColumnBuilder<true>;
-  default: (value: boolean) => CheckboxColumnBuilder<TOptional>;
+  default: (value: boolean) => CheckboxColumnBuilder<true>;
 };
 
 function buildCheckboxColumn<TOptional extends boolean>(
@@ -25,7 +25,7 @@ function buildCheckboxColumn<TOptional extends boolean>(
       buildCheckboxColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

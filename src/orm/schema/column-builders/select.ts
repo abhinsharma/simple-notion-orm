@@ -22,7 +22,7 @@ type SelectColumnBuilder<
 > = ColumnDef<SelectValue<TOptions, TAllowCustom>, TOptional, TNullable, SelectPropertyPayload, SelectPropertyResponse> & {
   optional: () => SelectColumnBuilder<true, TNullable, TOptions, TAllowCustom>;
   nullable: () => SelectColumnBuilder<TOptional, true, TOptions, TAllowCustom>;
-  default: (value: SelectValue<TOptions, TAllowCustom>) => SelectColumnBuilder<TOptional, TNullable, TOptions, TAllowCustom>;
+  default: (value: SelectValue<TOptions, TAllowCustom>) => SelectColumnBuilder<true, TNullable, TOptions, TAllowCustom>;
   options: <const Options extends readonly SelectOptionConfigInput[]>(
     options: Options
   ) => SelectColumnBuilder<TOptional, TNullable, NormalizedSelectOptions<Options>, false>;
@@ -69,9 +69,10 @@ function buildSelectColumn<
         meta
       ),
     default: (value: SelectValue<TOptions, TAllowCustom>) =>
-      buildSelectColumn<TOptional, TNullable, TOptions, TAllowCustom>(
+      buildSelectColumn<true, TNullable, TOptions, TAllowCustom>(
         {
           ...baseDef,
+          isOptional: true as const,
           defaultValue: value,
         },
         meta

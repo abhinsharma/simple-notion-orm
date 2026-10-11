@@ -12,9 +12,11 @@ type RelationColumnBuilder<TOptional extends boolean = false, TNullable extends 
   RelationPropertyPayload,
   RelationPropertyResponse
 > & {
+  /** Literal type so RelationColumnKeys can find relation columns. */
+  propertyType: "relation";
   optional: () => RelationColumnBuilder<true, TNullable>;
   nullable: () => RelationColumnBuilder<TOptional, true>;
-  default: (value: RelationValue) => RelationColumnBuilder<TOptional, TNullable>;
+  default: (value: RelationValue) => RelationColumnBuilder<true, TNullable>;
 };
 
 function buildRelationColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -22,6 +24,7 @@ function buildRelationColumn<TOptional extends boolean, TNullable extends boolea
 ): RelationColumnBuilder<TOptional, TNullable> {
   return {
     ...def,
+    propertyType: "relation",
     optional: () =>
       buildRelationColumn({
         name: def.name,
@@ -44,7 +47,7 @@ function buildRelationColumn<TOptional extends boolean, TNullable extends boolea
       buildRelationColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

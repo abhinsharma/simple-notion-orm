@@ -203,7 +203,7 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
         if (!config) {
           return [];
         }
-        const builder = rel(handle, columnKey).to(config.target);
+        const builder = rel(handle, columnKey).to(config.target as TableHandle<TableDef>);
         if (config.options?.type === "dual_property") {
           return [builder.dual({ syncedPropertyId: config.options.syncedPropertyId, syncedPropertyName: config.options.syncedPropertyName })];
         }

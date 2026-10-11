@@ -16,7 +16,7 @@ type TextColumnBuilder<
 > = ColumnDef<string, TOptional, TNullable, TPayload, TResponse> & {
   optional: () => TextColumnBuilder<true, TNullable, TPayload, TResponse>;
   nullable: () => TextColumnBuilder<TOptional, true, TPayload, TResponse>;
-  default: (value: string) => TextColumnBuilder<TOptional, TNullable, TPayload, TResponse>;
+  default: (value: string) => TextColumnBuilder<true, TNullable, TPayload, TResponse>;
   title: () => TextColumnBuilder<TOptional, TNullable, TitlePropertyPayload, TitlePropertyResponse>;
 };
 
@@ -47,7 +47,7 @@ function buildTextColumn<TOptional extends boolean, TNullable extends boolean, T
       buildTextColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,
