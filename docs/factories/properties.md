@@ -33,7 +33,7 @@ await createPage({
 | `buildEmailProperty(email?)`        | Email property.                                 |
 | `buildPhoneNumberProperty(phone?)`  | Phone number property.                          |
 | `buildPeopleProperty(users)`        | People property (IDs or user/group objects).    |
-| `buildFilesProperty(files)`         | Files property for external/file uploads.       |
+| `buildFilesProperty(files)`         | External URLs or existing file references.      |
 | `buildSelectProperty(option)`       | Single select option by name or id.             |
 | `buildMultiSelectProperty(options)` | Multi-select property.                          |
 | `buildStatusProperty(option)`       | Status property value by name or id.            |
