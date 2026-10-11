@@ -31,6 +31,7 @@ This release moves the package to `@notionhq/client` 5.27 and Notion API version
 
 ### Fixed
 
+- The data-source example no longer requires user-list access, so it works with personal access tokens.
 - `.default()` on column builders makes the column optional in the insert type. The runtime already filled in the default.
 - `rel(table, "column")` compiles for tables made by `defineTable`. Relation keys used to resolve to `never`, and `addRelations` accepted any key.
 - `updateBlock` accepts block content such as `paragraph` without a cast.

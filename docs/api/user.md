@@ -8,6 +8,8 @@
 
 ## List users for a people column
 
+`listUsers` requires an integration token with permission to read users. Notion rejects this endpoint for personal access tokens. Use `getSelf` to inspect the identity of a personal access token instead. See [Notion's user-list API](https://developers.notion.com/reference/get-users).
+
 ```ts
 import { listUsers } from "simple-notion-orm";
 
