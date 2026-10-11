@@ -2,7 +2,7 @@
 
 Simple Notion ORM provides typed table definitions, row codecs, block factories, and page helpers on top of `@notionhq/client`. Use it to create or query Notion databases and read or update page content.
 
-This branch prepares **0.1.0**. The npm release remains **0.0.15** until 0.1.0 is published. The API and examples below describe 0.1.0; see the [migration notes](./CHANGELOG.md#breaking-changes) before upgrading.
+The API and examples below describe **0.1.0**. See the [migration notes](./CHANGELOG.md#breaking-changes) before upgrading.
 
 ## Table of Contents
 
