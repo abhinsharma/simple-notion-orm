@@ -126,9 +126,14 @@ export const handlers = [
     () => respond(databaseUpdateFixture.dataSource)
   ),
 
-  http.post<never, Record<string, unknown>, typeof databaseQueryFixture>("https://api.notion.com/v1/data_sources/:dataSourceId/query", () =>
-    respond(databaseQueryFixture)
-  ),
+  // The fixture reports another page. A request that passes start_cursor gets the last page, so cursor loops end.
+  http.post<never, Record<string, unknown>, Record<string, unknown>>("https://api.notion.com/v1/data_sources/:dataSourceId/query", async ({ request }) => {
+    const body = (await request.json()) as { start_cursor?: string };
+    if (body.start_cursor) {
+      return respond({ ...databaseQueryFixture, next_cursor: null, has_more: false });
+    }
+    return respond(databaseQueryFixture);
+  }),
 
   http.get<never, undefined, typeof commentListFixture>("https://api.notion.com/v1/comments", () => respond(commentListFixture)),
 

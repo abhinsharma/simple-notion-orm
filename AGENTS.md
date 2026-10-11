@@ -8,16 +8,17 @@
   - `orm/` – (future) higher-level abstractions for the ORM surface.
   - `utils/`, `types/` – shared helpers and type definitions.
 - `tests/fixtures/` contains obfuscated JSON responses used by MSW-based tests.
-- `docs/` and `ai-docs/` hold reference material (API usage, design stories, factories).
+- `docs/` holds reference material (API usage, factories, ORM guides).
+- `examples/` holds runnable scripts that import from `simple-notion-orm`. `tests/examples.test.ts` runs each one against the MSW handlers.
 - `playground.ts` is a scratch pad for manual flows (reset to minimal use after each run).
 
 ## Build, Test, and Development Commands
 
-- `pnpm tsc` – Standalone type check (alias for `tsc --noEmit`).
+- `pnpm tsc` – Standalone type check (alias for `tsc --noEmit`). `tsc` is the native TypeScript 7 compiler from `@typescript/native`.
 - `pnpm lint` – Run ESLint with the configured project-flat rules.
 - `pnpm lint --fix` – Auto-fix lint issues where possible.
 - `pnpm format` / `pnpm format:check` – Prettier formatting at `printWidth: 160`.
-- `pnpm build` – Type-check via `tsc --noEmit`.
+- `pnpm build` – Compile `src/` to `dist/` with declarations, then rewrite path aliases with `tsc-alias`.
 - `pnpm tsx playground.ts` – Execute the playground script (temporarily expand as needed).
 - `pnpm test` / `vitest run <path>` – Run the Vitest + MSW suite (see `tests/handlers.ts` scaffolding).
 
@@ -34,12 +35,20 @@
 - **Factories (`src/factories/`)** build payloads for properties, schemas, and blocks.
 - **Utils/types** host cross-cutting helpers; path aliases point to these modules (`@/api/*`, `@/factories/*`, etc.).
 
+## Toolchain Notes
+
+- TypeScript 7 has no programmatic API yet. The `typescript` package name points at `@typescript/typescript6` so typescript-eslint keeps working. Remove the alias once typescript-eslint supports TypeScript 7.
+- ESLint uses `eslint-plugin-import-x` (rules prefixed `import-x/`) and `@eslint-community/eslint-plugin-eslint-comments`.
+- pnpm 12 applies a one-day minimum release age and requires approval for dependency build scripts. Both settings live in `pnpm-workspace.yaml`.
+- The package targets Notion API version `2026-03-11` (`NOTION_API_VERSION` in `src/api/client.ts`). Send `in_trash` instead of `archived` and `position` instead of `after`.
+
 ## Path Aliases
 
 Configured in `tsconfig.json` and `vitest.config.ts`:
 
 ```
 @/api/*        -> src/api/*
+simple-notion-orm -> src/index.ts (examples import the package by name)
 @/orm/*        -> src/orm/*
 @/factories/*  -> src/factories/*
 @/utils/*      -> src/utils/*

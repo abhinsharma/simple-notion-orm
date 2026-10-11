@@ -12,6 +12,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "simple-notion-orm": path.resolve(root, "src/index.ts"),
       "@/orm": path.resolve(root, "src/orm"),
       "@/api": path.resolve(root, "src/api"),
       "@/utils": path.resolve(root, "src/utils"),

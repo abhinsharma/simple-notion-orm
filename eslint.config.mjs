@@ -48,7 +48,7 @@ export default [
     },
   },
   {
-    files: ["playground.ts"],
+    files: ["playground.ts", "examples/**/*.ts"],
     rules: {
       "no-console": "off",
     },

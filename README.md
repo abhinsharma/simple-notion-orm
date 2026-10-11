@@ -7,6 +7,7 @@ Simple Notion ORM is a schema first toolkit that turns Notion’s powerful but t
 - [Overview](#overview)
 - [Setup](#setup)
 - [Installation](#installation)
+- [Notion API version](#notion-api-version)
 - [Quick Preview](#quick-preview)
 - [Core Ideas](#core-ideas)
 - [Project Layout](#project-layout)
@@ -23,12 +24,13 @@ Notion exposes every page, block, and database through the same flexible JSON su
 - Virtual “page handles” so you can work with single stand alone pages or with database items as typed rows.
 - Factories and transforms that keep request/response shapes predictable.
 - Page update helpers can append block content via the `append` option on `updatePage` and `updateDatabasePage`.
+- Data source helpers for databases with more than one data source.
 
 Bring your own workspace, point the ORM at an existing database (or ask it to create one), and work with TypeScript types instead of raw REST payloads.
 
 ## Setup
 
-1. **Requirements:** Node.js ≥ 22 and `pnpm` (the repo pins `pnpm@10.17.1`).
+1. **Requirements:** Node.js ≥ 22 to use the package. Working on the repo needs Node.js ≥ 22.12 and `pnpm` 12 (the repo pins `pnpm@12.11.2`).
 2. **Install dependencies:** run the commands below from the repo root.
 3. **Configure secrets:** create `.env` and set `NOTION_API_KEY=secret_from_notion`.
 4. **Reference Notion targets:** set `NOTION_TASKS_DB` or whichever database IDs you want to work with before running samples.
@@ -43,10 +45,16 @@ npm install simple-notion-orm
 yarn add simple-notion-orm
 ```
 
+## Notion API version
+
+The package targets Notion API version `2026-03-11` with `@notionhq/client` 5.27. Clients made by `createNotionClient` and the default `NOTION_API_KEY` client send that version. It is exported as `NOTION_API_VERSION`.
+
+Version 2026-03-11 renamed `archived` to `in_trash`, replaced the append `after` parameter with `position`, and renamed the `transcription` block to `meeting_notes`. The helpers here send the new shapes and keep the older option names working. See [CHANGELOG.md](./CHANGELOG.md) for details.
+
 ## Quick Preview
 
 ```ts
-import { defineTable, text, status, people } from "@/orm/schema";
+import { defineTable, text, status, people } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Tasks",
@@ -64,8 +72,10 @@ await tasks.insert({
   status: { name: "In Progress" },
 });
 
-const rows = await tasks.select();
-console.table(rows);
+const { rows } = await tasks.select({ pageSize: 10 });
+console.table(rows.map((row) => row.data));
+
+const everyTask = await tasks.selectAll();
 ```
 
 ## Core Ideas
@@ -113,8 +123,10 @@ Docs live alongside the codebase so every layer stays well explained (see [Docum
 ```bash
 pnpm install               # Install dependencies
 pnpm lint                  # ESLint flat config with TypeScript support
+pnpm tsc                   # Type check with the TypeScript 7 compiler
+pnpm test                  # Run the Vitest + MSW suite, including the examples
+pnpm build                 # Compile to dist/ with declarations
 pnpm format                # Format the codebase with Prettier
-pnpm build                 # Type check (tsc --noEmit), also used in CI
 pnpm format:check          # Verify formatting without writing changes
 ```
 
@@ -124,3 +136,5 @@ pnpm format:check          # Verify formatting without writing changes
 - `docs/factories` – Property/block builders and payload recipes.
 - `docs/pages` – Higher level helpers like `NotionPage` that sit above the raw SDK.
 - `docs/orm` – ORM concepts, codecs, and schema DSL walkthroughs.
+- `examples` – Runnable scripts. Each one runs against a real workspace when you set the listed environment variables, and the test suite runs each one against mocked API responses.
+- `CHANGELOG.md` – Release notes.

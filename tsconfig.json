@@ -19,6 +19,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "simple-notion-orm": ["./src/index.ts"],
       "@/orm": ["./src/orm/index.ts"],
       "@/orm/*": ["./src/orm/*"],
       "@/api/*": ["./src/api/*"],
@@ -32,6 +33,6 @@
       "@/pages/*": ["./src/pages/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*", "vitest.config.mts", "playground.ts"],
+  "include": ["src/**/*", "tests/**/*", "examples/**/*", "vitest.config.mts", "playground.ts"],
   "exclude": ["node_modules", "dist"]
 }

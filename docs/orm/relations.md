@@ -18,7 +18,7 @@ See `docs/orm/first-run-seeding.md` for a complete seeding walkthrough.
 ## Configure a relation column
 
 ```ts
-import { defineTable, text, relation } from "@/orm/schema";
+import { defineTable, text, relation } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Linked Tasks",
@@ -36,7 +36,7 @@ const tasks = await defineTable(
 ## Link relations after creation
 
 ```ts
-import { linkRelations, rel } from "@/orm/relation";
+import { linkRelations, rel } from "simple-notion-orm";
 
 await linkRelations([
   rel(tasks, "project").to(projects).single(),
@@ -70,7 +70,7 @@ await tasks.insert({
 ## Hydrate related records
 
 ```ts
-import { getPage } from "@/api/page";
+import { getPage } from "simple-notion-orm";
 
 const { rows } = await tasks.select();
 const related = await Promise.all(rows.flatMap((row) => row.project.map((ref) => getPage(ref.id))));

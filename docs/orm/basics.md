@@ -2,19 +2,19 @@
 
 Start here to understand what the ORM provides before diving into builders, relations, or predicates.
 
-| Helper                                                 | Returns                                                         | Description                                                                                            |
-| ------------------------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `defineTable(title, columns, options)`                 | `Promise<TableHandle>`                                          | Validates an existing database (via `databaseId`) or creates one under a parent page (via `parentId`). |
-| `TableHandle#getIds()`                                 | `{ databaseId, dataSourceId }`                                  | Cached identifiers reused by every CRUD helper.                                                        |
-| `TableHandle#columns`                                  | Column builders keyed by the names you passed to `defineTable`. | Enables strongly typed predicates and patches.                                                         |
-| `TableHandle#insert/#select/#update/#archive/#restore` | Various row envelopes and metadata                              | CRUD helpers implemented in `src/orm/operations/**` that call the API wrappers for you.                |
+| Helper                                                            | Returns                                                         | Description                                                                                               |
+| ----------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `defineTable(title, columns, options)`                            | `Promise<TableHandle>`                                          | Validates an existing database (`databaseId` or `dataSourceId`) or creates one under a page (`parentId`). |
+| `TableHandle#getIds()`                                            | `{ databaseId, dataSourceId }`                                  | Cached identifiers reused by every CRUD helper.                                                           |
+| `TableHandle#columns`                                             | Column builders keyed by the names you passed to `defineTable`. | Enables strongly typed predicates and patches.                                                            |
+| `TableHandle#insert/#select/#selectAll/#update/#archive/#restore` | Various row envelopes and metadata                              | CRUD helpers implemented in `src/orm/operations/**` that call the API wrappers for you.                   |
 
 > Creating multiple related tables from scratch? Follow `docs/orm/first-run-seeding.md` for the parentId → linkRelations → env caching workflow.
 
 ## Create a table under a parent page
 
 ```ts
-import { defineTable, text, people, relation } from "@/orm/schema";
+import { defineTable, text, people, relation } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Playground Tasks",
@@ -35,7 +35,7 @@ const { databaseId, dataSourceId } = tasks.getIds();
 ## Attach to an existing database
 
 ```ts
-import { defineTable, text, checkbox } from "@/orm/schema";
+import { defineTable, text, checkbox } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Existing Tasks",
@@ -51,6 +51,22 @@ const tasks = await defineTable(
 
 - Passing `databaseId` tells the ORM to fetch the remote schema via `src/api/database` and verify every column builder.
 - Use this path when you already have a Notion database and only need typed access plus CRUD helpers.
+- With `databaseId`, the ORM uses the first data source of the database.
+
+## Attach to one data source
+
+Since Notion API version 2025-09-03, a database can hold more than one data source. Pass `dataSourceId` to bind a table to a specific one:
+
+```ts
+import { defineTable, text } from "simple-notion-orm";
+
+const archive = await defineTable("Archive", { title: text("Name").title() }, { dataSourceId: process.env.ARCHIVE_DATA_SOURCE_ID! });
+
+const { databaseId, dataSourceId } = archive.getIds();
+```
+
+- The ORM reads the data source schema, validates the columns, and takes the database ID from the data source parent.
+- Rows inserted through this handle go into that data source.
 
 ## Work with the table handle
 

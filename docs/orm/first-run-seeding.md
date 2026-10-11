@@ -20,9 +20,8 @@ This guide shows how to create multiple related tables the first time (using `pa
 ## Step-by-Step (seed)
 
 ```ts
-import { defineTable, text, relation } from "@/orm";
+import { defineTable, text, relation, linkRelations, rel } from "simple-notion-orm";
 // Proposed helper (see issue M5+M6):
-import { linkRelations, rel } from "@/orm/relation";
 
 async function seed() {
   const parentId = process.env.NOTION_ROOT_PAGE!;

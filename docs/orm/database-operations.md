@@ -6,15 +6,16 @@ Table handles expose a consistent CRUD surface across every schema. Each helper 
 | --------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `insert(values \| values[])`            | `Promise<RowEnvelope \| RowEnvelope[]>` | Encodes values, ensures table IDs exist, then calls `createDatabasePage`.                   |
 | `select(options?)`                      | `Promise<SelectResult<Row>>`            | Compiles predicates/sorts via `src/orm/query/compiler.ts` and proxies to `queryDataSource`. |
-| `update(patch, targets)`                | `Promise<RowEnvelope[]>`                | Encodes the patch, resolves targets (`pageIds` or predicates), and issues Notion updates.   |
-| `archive(targets)` / `restore(targets)` | `Promise<RowEnvelope[]>`                | Thin wrappers over `updateRows` that toggle the `archived` flag.                            |
+| `selectAll(options?)`                   | `Promise<RowEnvelope[]>`                | Calls `select` until Notion reports no more pages, then returns every row.                  |
+| `update(patch, targets)`                | `Promise<RowEnvelope \| RowEnvelope[]>` | Encodes the patch, resolves targets (`pageIds` or predicates), and issues Notion updates.   |
+| `archive(targets)` / `restore(targets)` | `Promise<number>`                       | Move matching rows to the trash or restore them. Returns the number of rows changed.        |
 
 > Provisioning new databases? Run through `docs/orm/first-run-seeding.md` first so every handle has stable IDs before you start inserting rows.
 
 ## Setup
 
 ```ts
-import { defineTable, text, checkbox } from "@/orm/schema";
+import { defineTable, text, checkbox } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Operations Demo",
@@ -32,16 +33,16 @@ Keep a single table handle in memory and reuse it for every operation below.
 
 ```ts
 const inserted = await tasks.insert({ title: "Run database ops" });
-// inserted.row contains decoded column data; inserted.page is the raw Notion object
+// inserted.data contains decoded column data; inserted.page is the raw Notion object
 ```
 
-- Array inserts are supported: pass an array of values to batch new rows in one call.
-- Under the hood, `insert` resolves cached `{ databaseId, dataSourceId }`, builds the Notion payload, and calls `createDatabasePage`.
+- Array inserts are supported: pass an array of values and the ORM creates one row per value.
+- Under the hood, `insert` resolves the cached `dataSourceId`, builds the Notion payload, and calls `createDatabasePage` with the data source as the parent.
 
 ## Select rows
 
 ```ts
-import { eq, asc } from "@/orm/query";
+import { asc, eq } from "simple-notion-orm";
 
 const result = await tasks.select({
   where: eq(tasks.columns.title, "Run database ops"),
@@ -52,8 +53,20 @@ const result = await tasks.select({
 const [row] = result.rows;
 ```
 
-- `where`, `orderBy`, `pageSize`, and `nextCursor` mirror Notion’s query surface but keep type safety via the column builders.
+- `where`, `orderBy`, `pageSize`, and `startCursor` mirror Notion’s query surface but keep type safety via the column builders.
+- The result carries `nextCursor` and `hasMore`. Pass `nextCursor` back as `startCursor` to read the next page.
 - You can also pass `rawFilter` or `rawSorts` if you need a shape that is not covered by the helpers.
+
+## Select every row
+
+```ts
+const allOpen = await tasks.selectAll({
+  where: eq(tasks.columns.done, false),
+});
+```
+
+- `selectAll` follows the cursors for you and fetches up to 100 rows per request. `pageSize` sets the batch size.
+- It loads every matching row into memory, so add a `where` filter on large databases.
 
 ## Update rows
 
@@ -75,5 +88,6 @@ await tasks.archive({ pageIds: [page.id] });
 await tasks.restore({ pageIds: [page.id] });
 ```
 
-- Both helpers call the same `updateRows` implementation with `archived: true/false`, so they share filtering behavior with `update`.
+- Both helpers send `in_trash: true` or `in_trash: false` for each target and share the target options with `update`.
+- Without `pageIds`, they act on the first page of matching rows (up to 100). Call them again, or pass explicit `pageIds`, for larger sets.
 - Each helper throws contextual errors (table name + column names) when Notion rejects a payload, matching the diagnostics you get from the lower-level API docs.
