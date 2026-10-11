@@ -47,3 +47,4 @@ This release moves the package to `@notionhq/client` 5.27 and Notion API version
 - ESLint 10 with `eslint-plugin-import-x` and `@eslint-community/eslint-plugin-eslint-comments`, Vitest 5, MSW 3, Prettier 3.9, zod 4.6, dotenv 18, and pnpm 12.
 - CI runs on Node 24 and adds a separate type check step.
 - `release:check` runs lint, formatting, types, tests, and a clean build. Packing builds fresh output, and publishing runs the full check.
+- Test discovery only includes source tests, so stale compiled tests in `dist` cannot break validation.
