@@ -1,6 +1,6 @@
 # Column Builders
 
-Every builder below is exported from `@/orm/schema/index.ts` and wraps a codec in `src/orm/codecs/**`. The codec trio (`parse`, `encode`, `config`) keeps TypeScript types aligned with the Notion payloads, and `defineTable` uses `config` when provisioning schemas.
+Every builder below is exported from `simple-notion-orm` and wraps a codec in `src/orm/codecs/**`. The codec trio (`parse`, `encode`, `config`) keeps TypeScript types aligned with the Notion payloads, and `defineTable` uses `config` when provisioning schemas.
 
 | Builder                          | Description                                                                                                             | Modifiers                                                                                   |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |

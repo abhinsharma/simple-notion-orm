@@ -11,11 +11,13 @@ Predicate helpers live under `src/orm/query/predicates.ts` and compose into `Sel
 | `startsWith` / `endsWith`                  | Title, rich text, URL, email, phone                            | Prefix or suffix match on text.         |
 | `gt` / `gte`                               | Numbers, dates                                                 | Greater-than comparisons.               |
 | `lt` / `lte`                               | Numbers, dates                                                 | Less-than comparisons.                  |
-| `isNull` / `isNotNull`                     | All columns                                                    | Empty/non-empty checks.                 |
+| `isNull` / `isNotNull`                     | Property types with a supported Notion empty filter            | Empty/non-empty checks.                 |
 | `and(...predicates)` / `or(...predicates)` | Any predicates                                                 | Combine filters with boolean logic.     |
 | `asc(column)` / `desc(column)`             | Sortable columns                                               | Sort descriptors used inside `orderBy`. |
 
 `compileQueryOptions` in `src/orm/query/compiler.ts` turns these helpers into the exact `queryDataSource` filter/sort payloads. If you need something not covered, pass `rawFilter` or `rawSorts` alongside the helpers.
+
+Formula and rollup columns require `rawFilter`, including empty checks. Relative date filters also require `rawFilter`. Not every Notion property supports `is_empty`; choose a filter supported by that property's API schema.
 
 People and relation filters take an ID string or an object with an `id`, so you can pass a row's `page` or a user reference directly. Formula and rollup columns have no predicate helpers because the filter shape depends on the result type. Use `rawFilter` for them.
 

@@ -1,6 +1,6 @@
 # Block Factories
 
-Block factories live under `@/factories/blocks`. They return payloads compatible with the Notion Blocks API so you can compose complex layouts without manually shaping JSON.
+Import block factories from `simple-notion-orm`. They return payloads compatible with the Notion Blocks API so you can compose complex layouts without manually shaping JSON.
 
 | Factory                                          | Description                                      |
 | ------------------------------------------------ | ------------------------------------------------ |

@@ -8,7 +8,7 @@
 | `updateBlock`         | `UpdateBlockResponse`         | Update an existing block.                           |
 | `deleteBlock`         | `DeleteBlockResponse`         | Soft-delete (archive) a block.                      |
 
-All helpers live under `@/api/block`.
+Import these helpers from `simple-notion-orm`.
 
 ## Get a block
 

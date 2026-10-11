@@ -79,6 +79,7 @@ await tasks.update({ done: true }, { pageIds: [inserted.page.id] });
 
 - The patch respects your column codecs, so `null`/`default` handling stays consistent.
 - Target rows either via explicit `pageIds` or by using the same predicate helpers you use for `select` (`{ where: eq(...) }`).
+- An update changes one matching row by default. Set `many: true` to update every row in the selected page, up to 100 rows. To update more, select IDs with `selectAll` and pass those IDs with `many: true`.
 
 ## Archive and restore rows
 
@@ -90,5 +91,5 @@ await tasks.restore({ pageIds: [page.id] });
 ```
 
 - Both helpers send `in_trash: true` or `in_trash: false` for each target and share the target options with `update`.
-- Without `pageIds`, they act on the first page of matching rows (up to 100). Call them again, or pass explicit `pageIds`, for larger sets.
+- Without `pageIds`, they act on the first page of matching rows, up to 100. Select IDs with `selectAll` and pass explicit `pageIds` for larger sets. Restoring requires explicit IDs for trashed rows because normal queries exclude them.
 - Each helper throws contextual errors (table name + column names) when Notion rejects a payload, matching the diagnostics you get from the lower-level API docs.

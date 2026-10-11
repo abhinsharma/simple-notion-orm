@@ -11,7 +11,7 @@
 | `searchPages`      | `SearchResponse`     | Query pages in the workspace using Notion search. |
 | `clearPageContent` | `void`               | Remove all child blocks (content) from a page.    |
 
-All helpers live under `@/api/page` and operate on regular (non-database) Notion pages.
+Import these helpers from `simple-notion-orm`. They operate on regular pages outside databases.
 
 ## Get a page
 

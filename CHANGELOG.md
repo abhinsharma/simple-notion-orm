@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0
+## 0.1.0 (unreleased)
 
 This release moves the package to `@notionhq/client` 5.27 and Notion API version `2026-03-11`, adds missing API and ORM features, and fixes several type bugs. The minor version goes up because of the breaking changes listed below.
 
@@ -31,6 +31,7 @@ This release moves the package to `@notionhq/client` 5.27 and Notion API version
 
 ### Fixed
 
+- Standalone block conversion preserves nested children without a custom callback.
 - The data-source example no longer requires user-list access, so it works with personal access tokens.
 - `.default()` on column builders makes the column optional in the insert type. The runtime already filled in the default.
 - `rel(table, "column")` compiles for tables made by `defineTable`. Relation keys used to resolve to `never`, and `addRelations` accepted any key.
@@ -45,3 +46,4 @@ This release moves the package to `@notionhq/client` 5.27 and Notion API version
 - TypeScript 7 (native compiler) for type checks and builds. The `typescript` package name points at `@typescript/typescript6` for typescript-eslint, which does not support TypeScript 7 yet.
 - ESLint 10 with `eslint-plugin-import-x` and `@eslint-community/eslint-plugin-eslint-comments`, Vitest 5, MSW 3, Prettier 3.9, zod 4.6, dotenv 18, and pnpm 12.
 - CI runs on Node 24 and adds a separate type check step.
+- `release:check` runs lint, formatting, types, tests, and a clean build. Packing builds fresh output, and publishing runs the full check.

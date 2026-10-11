@@ -1,6 +1,6 @@
 # Property Factories
 
-Property factories map application values to the shapes expected by Notion page and database properties. Import them from `@/factories/properties`.
+Property factories map application values to the shapes expected by Notion page and database properties. Import them from `simple-notion-orm`.
 
 ## Page-level properties
 

@@ -21,7 +21,6 @@ This guide shows how to create multiple related tables the first time (using `pa
 
 ```ts
 import { defineTable, text, relation, linkRelations, rel } from "simple-notion-orm";
-// Proposed helper (see issue M5+M6):
 
 async function seed() {
   const parentId = process.env.NOTION_ROOT_PAGE!;
@@ -87,5 +86,5 @@ async function seed() {
 
 ## Notes
 
-- The `linkRelations` helper and fluent `rel()` DSL live in `@/orm/relation`; they patch relation properties via `databases.update`.
-- You generally do not need to persist `dataSourceId`; keep `databaseId` in `.env` and the ORM will derive DS each time.
+- Import `linkRelations` and `rel` from `simple-notion-orm`. They patch relation properties through `dataSources.update` on the source table's data source.
+- Persist `dataSourceId` for databases with multiple sources. Passing `databaseId` alone attaches to the first source.

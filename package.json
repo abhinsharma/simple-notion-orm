@@ -41,9 +41,11 @@
   },
   "scripts": {
     "tsc": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && pnpm run clean:dist",
+    "build": "rimraf dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && pnpm run clean:dist",
     "clean:dist": "rimraf dist/src dist/tests dist/playground.* dist/vitest.config.*",
-    "prepublishOnly": "pnpm run build",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run release:check",
+    "release:check": "pnpm lint && pnpm format:check && pnpm tsc && pnpm test && pnpm build",
     "lint": "eslint .",
     "test": "vitest run",
     "format": "prettier --write .",

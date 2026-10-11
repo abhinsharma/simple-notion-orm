@@ -7,13 +7,13 @@ Relation columns rely on Notion data sources. Since a brand-new workspace doesn�
 
 See `docs/orm/first-run-seeding.md` for a complete seeding walkthrough.
 
-| Requirement                          | Why it matters                                                                                                    |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| Use `parentId` only on the first run | A fresh database doesn’t have IDs yet; once it exists, switch to `databaseId` and cache it in `.env`.             |
-| Use `data_source_id` for relations   | Relation properties require the target data source ID (not the database ID).                                      |
-| Provide `{ id: string }` entries     | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.                    |
-| Hydrate related rows manually        | Table handles return raw arrays of `{ id }`; use the low-level API wrappers if you need the related page content. |
-| Batch links with `addRelations`      | When a table links to many targets, a single call keeps all wiring in one place.                                  |
+| Requirement                          | Why it matters                                                                                        |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Use `parentId` only on the first run | A fresh database doesn’t have IDs yet; once it exists, switch to `databaseId` and cache it in `.env`. |
+| Use `data_source_id` for relations   | Relation properties require the target data source ID (not the database ID).                          |
+| Provide `{ id: string }` entries     | `relationCodec` ensures payloads only contain IDs; it will throw if a different shape appears.        |
+| Register relation metadata           | Use `defineRelations` before selecting with `populate`, or retrieve related pages directly by ID.     |
+| Batch links with `addRelations`      | When a table links to many targets, a single call keeps all wiring in one place.                      |
 
 ## Configure a relation column
 
@@ -47,7 +47,6 @@ await linkRelations([
 await tasks.addRelation("project", projects, { type: "single_property" });
 await tasks.addRelations({
   project: { target: projects, options: { type: "dual_property", syncedPropertyName: "Tasks" } },
-  documents: { target: documents, options: { type: "dual_property", syncedPropertyName: "Tasks" } },
 });
 ```
 
@@ -73,8 +72,19 @@ await tasks.insert({
 import { getPage } from "simple-notion-orm";
 
 const { rows } = await tasks.select();
-const related = await Promise.all(rows.flatMap((row) => row.project.map((ref) => getPage(ref.id))));
+const related = await Promise.all(rows.flatMap((row) => row.data.project.map((ref) => getPage(ref.id))));
 ```
+
+For decoded related rows, register the target table and request population:
+
+```ts
+import { defineRelations } from "simple-notion-orm";
+
+defineRelations(tasks, { project: projects });
+const populated = await tasks.select({ populate: { project: ["title"] } });
+```
+
+`populate` replaces references at runtime with the requested fields. Its return type still uses the declared relation column type, so narrow or validate populated values before using their extra fields. It does not fetch relation entries that Notion omitted from a truncated page response.
 
 - Table handles return the decoded column data plus the raw page envelope; use those IDs with `getPage`, `getDatabasePage`, or other APIs when you need full related details.
 - Keep relation mappings documented in your schema definitions to avoid schema-validation errors during the `defineTable` sync step.
@@ -86,4 +96,4 @@ const related = await Promise.all(rows.flatMap((row) => row.project.map((ref) =>
 | `databaseId`   | Attach a table handle to an existing Notion database; update DB-level metadata via `databases.update`. |
 | `dataSourceId` | Query rows (`select` calls `dataSources.query`) and configure relation properties.                     |
 
-`table.getIds()` returns both; persist `databaseId` (the SDK can always re-derive the data source ID).
+`table.getIds()` returns both. Persist `dataSourceId` when a database has multiple data sources; `databaseId` alone selects the first source.

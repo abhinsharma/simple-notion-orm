@@ -1,6 +1,8 @@
 # Simple Notion ORM
 
-Simple Notion ORM is a schema first toolkit that turns Notion’s powerful but type heavy API into a familiar Drizzle style workflow. It provides builders, codecs, and helpers so you can treat both standalone pages and database rows (which are themselves pages) as predictable application data.
+Simple Notion ORM provides typed table definitions, row codecs, block factories, and page helpers on top of `@notionhq/client`. Use it to create or query Notion databases and read or update page content.
+
+This branch prepares **0.1.0**. The npm release remains **0.0.15** until 0.1.0 is published. The API and examples below describe 0.1.0; see the [migration notes](./CHANGELOG.md#breaking-changes) before upgrading.
 
 ## Table of Contents
 
@@ -8,12 +10,14 @@ Simple Notion ORM is a schema first toolkit that turns Notion’s powerful but t
 - [Setup](#setup)
 - [Installation](#installation)
 - [Notion API version](#notion-api-version)
-- [Quick Preview](#quick-preview)
+- [Quick start](#quick-start)
+- [Runnable examples](#runnable-examples)
+- [Limitations](#limitations)
 - [Core Ideas](#core-ideas)
 - [Project Layout](#project-layout)
 - [Command Palette](#command-palette)
 - [Documentation Map](#documentation-map)
-- [Feedback](#feedback)
+- [Release preparation](#release-preparation)
 
 ## Overview
 
@@ -30,10 +34,11 @@ Bring your own workspace, point the ORM at an existing database (or ask it to cr
 
 ## Setup
 
-1. **Requirements:** Node.js ≥ 22 to use the package. Working on the repo needs Node.js ≥ 22.12 and `pnpm` 12 (the repo pins `pnpm@12.11.2`).
-2. **Install dependencies:** run the commands below from the repo root.
-3. **Configure secrets:** create `.env` and set `NOTION_API_KEY=secret_from_notion`.
-4. **Reference Notion targets:** set `NOTION_TASKS_DB` or whichever database IDs you want to work with before running samples.
+Use Node.js 22 or later with ESM `import` syntax. Repository development uses pnpm 12.11.2 and is checked in CI on Node.js 24.
+
+Set `NOTION_API_KEY` in your environment or a local `.env` file. An existing environment variable takes precedence over `.env`. You can use a personal access token or an integration token. For an integration token, share the target pages and databases with that integration. Personal access tokens use your own page permissions, but cannot list workspace users.
+
+Never commit a token. The examples below use `TASKS_DATABASE_ID` for an existing database and `PAGE_ID` for a test page.
 
 ## Installation
 
@@ -51,32 +56,57 @@ The package targets Notion API version `2026-03-11` with `@notionhq/client` 5.27
 
 Version 2026-03-11 renamed `archived` to `in_trash`, replaced the append `after` parameter with `position`, and renamed the `transcription` block to `meeting_notes`. The helpers here send the new shapes and keep the older option names working. See [CHANGELOG.md](./CHANGELOG.md) for details.
 
-## Quick Preview
+## Quick start
+
+Create a test database with a title property named `Name` and a select property named `Stage`. Set `TASKS_DATABASE_ID` to its database ID. This example creates a row, updates it, then moves it to the trash.
 
 ```ts
-import { defineTable, text, status, people } from "simple-notion-orm";
+import { defineTable, eq, select, text } from "simple-notion-orm";
 
 const tasks = await defineTable(
   "Tasks",
   {
-    title: text("Name").title(),
-    assignees: people("Assignees").optional(),
-    status: status("Status").nullable(),
+    name: text("Name").title(),
+    stage: select("Stage").default({ name: "Todo" }),
   },
-  { databaseId: process.env.NOTION_TASKS_DB! }
+  { databaseId: process.env.TASKS_DATABASE_ID! }
 );
 
-await tasks.insert({
-  title: "Ship ORM codecs",
-  assignees: [{ id: "user-123" }],
-  status: { name: "In Progress" },
-});
+const created = await tasks.insert({ name: "Ship ORM codecs" });
 
-const { rows } = await tasks.select({ pageSize: 10 });
+const { rows } = await tasks.select({ where: eq(tasks.columns.stage, "Todo") });
 console.table(rows.map((row) => row.data));
 
 const everyTask = await tasks.selectAll();
+console.log(everyTask.length);
+await tasks.update({ stage: { name: "Done" } }, { pageIds: [created.page.id] });
+await tasks.archive({ pageIds: [created.page.id] });
 ```
+
+For a database with several data sources, pass `{ dataSourceId }` instead of `{ databaseId }` to select the intended schema.
+
+## Runnable examples
+
+From a repository checkout, run `pnpm install --frozen-lockfile` and `pnpm build`, then configure `NOTION_API_KEY` and the target IDs in the environment or `.env`:
+
+```bash
+TASKS_DATABASE_ID=<test-database-id> pnpm tsx examples/tasks-table.ts
+TASKS_DATABASE_ID=<test-database-id> pnpm tsx examples/data-sources.ts
+PAGE_ID=<test-page-id> pnpm tsx examples/page-content.ts
+```
+
+The task example creates, updates, and trashes its row. The data-source example only reads. The page-content example appends blocks and a comment, so use a disposable page and archive it afterward. All three examples have passed against the live Notion API with a personal access token; the automated suite also runs them against mocked responses.
+
+## Limitations
+
+- `selectAll` follows pagination, but throws when Notion reports an incomplete query. Narrow the filter in that case.
+- Predicate-based bulk updates and archive/restore operations use one page of results, up to 100 rows. Explicit `pageIds` avoid that selection limit. A normal `update` changes one row; set `many: true` for a bulk update.
+- Relation and people arrays can be truncated in page responses. The ORM does not fetch additional property pages automatically.
+- Formula and rollup columns are read-only. Formula creation requires an expression; rollups must already exist. Their filters use `rawFilter`.
+- There is no file-upload helper. Media factories accept an existing upload ID, but the `files` column does not support upload IDs.
+- Some newer property types and SDK endpoints have no ORM wrapper. Use the underlying Notion client when needed.
+
+See the [capability limits](https://github.com/abhinsharma/simple-notion-orm/blob/main/docs/limitations.md) for details. These limits remain part of 0.1.0.
 
 ## Core Ideas
 
@@ -132,9 +162,13 @@ pnpm format:check          # Verify formatting without writing changes
 
 ## Documentation Map
 
-- `docs/api` – API usage guides that cover pages, blocks, and data sources.
-- `docs/factories` – Property/block builders and payload recipes.
-- `docs/pages` – Higher level helpers like `NotionPage` that sit above the raw SDK.
-- `docs/orm` – ORM concepts, codecs, and schema DSL walkthroughs.
-- `examples` – Runnable scripts. Each one runs against a real workspace when you set the listed environment variables, and the test suite runs each one against mocked API responses.
+- [API guides](https://github.com/abhinsharma/simple-notion-orm/tree/main/docs/api) cover pages, blocks, data sources, comments, and users.
+- [Factories](https://github.com/abhinsharma/simple-notion-orm/tree/main/docs/factories) document property and block payload builders.
+- [Page helpers](https://github.com/abhinsharma/simple-notion-orm/tree/main/docs/pages) cover `NotionPage` and recursive block traversal.
+- [ORM guides](https://github.com/abhinsharma/simple-notion-orm/tree/main/docs/orm) cover columns, queries, and relations.
+- [Examples](https://github.com/abhinsharma/simple-notion-orm/tree/main/examples) contain the runnable scripts listed above.
 - `CHANGELOG.md` – Release notes.
+
+## Release preparation
+
+Run `pnpm release:check` to validate the package. Follow the [release guide](https://github.com/abhinsharma/simple-notion-orm/blob/main/docs/releasing.md) to inspect and install the tarball before publishing. Publishing and creating a release tag are separate, manual steps.

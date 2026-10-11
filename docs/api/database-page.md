@@ -9,7 +9,7 @@
 | `restoreDatabasePage`      | `PageObjectResponse` | Restore a row from the trash.          |
 | `clearDatabasePageContent` | `void`               | Remove all blocks from a database row. |
 
-All helpers live under `@/api/database-page`.
+Import these helpers from `simple-notion-orm`.
 
 ## Get a database page
 
