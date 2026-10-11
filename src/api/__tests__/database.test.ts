@@ -1,6 +1,18 @@
 import { textToRichText } from "@/utils/richtext";
 import { describe, it, expect } from "vitest";
-import { getDatabase, createDatabase, updateDatabase, queryDatabase, searchDatabases } from "../database";
+import { captureNextRequest } from "../../../tests/request-capture";
+import {
+  archiveDatabase,
+  createDatabase,
+  createDataSource,
+  getDatabase,
+  getDataSource,
+  queryDatabase,
+  restoreDatabase,
+  searchDatabases,
+  updateDatabase,
+  updateDataSource,
+} from "../database";
 
 describe("getDatabase", () => {
   it("should successfully retrieve a database by ID", async () => {
@@ -77,5 +89,68 @@ describe("searchDatabases", () => {
     expect(result.object).toBe("list");
     expect(result.results).toBeInstanceOf(Array);
     expect(result.type).toBe("page_or_data_source");
+  });
+});
+
+describe("getDataSource", () => {
+  it("retrieves a data source by ID", async () => {
+    const result = await getDataSource("obf_id_3");
+
+    expect(result.object).toBe("data_source");
+    expect(result.properties).toBeDefined();
+  });
+});
+
+describe("createDataSource", () => {
+  it("adds a data source to a database", async () => {
+    const captured = captureNextRequest((request) => request.method === "POST" && request.url.endsWith("/v1/data_sources"));
+
+    const result = await createDataSource({
+      databaseId: "obf_id_1",
+      title: textToRichText("Second source"),
+      properties: { Name: { title: {} } },
+    });
+
+    const { body } = await captured;
+    expect(body).toEqual(
+      expect.objectContaining({
+        parent: { type: "database_id", database_id: "obf_id_1" },
+        properties: { Name: { title: {} } },
+      })
+    );
+    expect(result.object).toBe("data_source");
+  });
+});
+
+describe("updateDataSource", () => {
+  it("sends in_trash and returns the refreshed data source", async () => {
+    const captured = captureNextRequest((request) => request.method === "PATCH" && request.url.includes("/v1/data_sources/"));
+
+    const result = await updateDataSource({ dataSourceId: "obf_id_3", inTrash: true });
+
+    const { body } = await captured;
+    expect(body).toEqual({ in_trash: true });
+    expect(result.object).toBe("data_source");
+  });
+});
+
+describe("archiveDatabase and restoreDatabase", () => {
+  it("sends in_trash true when archiving", async () => {
+    const captured = captureNextRequest((request) => request.method === "PATCH" && request.url.includes("/v1/databases/"));
+
+    const result = await archiveDatabase("obf_id_1");
+
+    const { body } = await captured;
+    expect(body).toEqual({ in_trash: true });
+    expect(result.object).toBe("database");
+  });
+
+  it("sends in_trash false when restoring", async () => {
+    const captured = captureNextRequest((request) => request.method === "PATCH" && request.url.includes("/v1/databases/"));
+
+    await restoreDatabase("obf_id_1");
+
+    const { body } = await captured;
+    expect(body).toEqual({ in_trash: false });
   });
 });

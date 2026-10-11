@@ -3,7 +3,7 @@
  * Here api is shaped for non database pages to reduce complexity.
  */
 import { appendBlockChildren, deleteBlock, getBlockChildren, type AppendBlockChildrenOptions } from "@/api/block";
-import type { Client } from "@notionhq/client";
+import { isFullPage, type Client } from "@notionhq/client";
 import type {
   AppendBlockChildrenParameters,
   CreatePageParameters,
@@ -132,6 +132,27 @@ export async function restorePage(pageId: string, client?: Client): Promise<Page
     return await updatePage({ pageId, inTrash: false }, client);
   } catch (error) {
     throw wrapError(`Failed to restore page ${pageId}`, error);
+  }
+}
+
+/**
+ * Move a page under another page or into a data source
+ */
+type MovePageParams = {
+  pageId: string;
+  parent: { pageId: string } | { dataSourceId: string };
+};
+
+export async function movePage({ pageId, parent }: MovePageParams, client?: Client): Promise<PageObjectResponse> {
+  try {
+    const notionClient = client ?? getNotionClient();
+    const response = await notionClient.pages.move({
+      page_id: pageId,
+      parent: "pageId" in parent ? { type: "page_id", page_id: parent.pageId } : { type: "data_source_id", data_source_id: parent.dataSourceId },
+    });
+    return isFullPage(response) ? response : await getPage(pageId, undefined, client);
+  } catch (error) {
+    throw wrapError(`Failed to move page ${pageId}`, error);
   }
 }
 

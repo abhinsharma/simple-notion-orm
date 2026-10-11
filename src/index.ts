@@ -5,6 +5,7 @@ export * from "./api/comment";
 export * from "./api/database";
 export * from "./api/database-page";
 export * from "./api/page";
+export * from "./api/user";
 
 export * from "./factories";
 export * from "./orm";

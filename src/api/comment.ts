@@ -3,9 +3,12 @@ import type { Client } from "@notionhq/client";
 import type {
   CreateCommentParameters,
   CreateCommentResponse,
+  DeleteCommentResponse,
   GetCommentResponse,
   ListCommentsParameters,
   ListCommentsResponse,
+  UpdateCommentParameters,
+  UpdateCommentResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { getNotionClient } from "./client";
 
@@ -33,5 +36,23 @@ export async function getComment(commentId: string, client?: Client): Promise<Ge
     return await notionClient.comments.retrieve({ comment_id: commentId });
   } catch (error) {
     throw wrapError(`Failed to retrieve comment ${commentId}`, error);
+  }
+}
+
+export async function updateComment(params: UpdateCommentParameters, client?: Client): Promise<UpdateCommentResponse> {
+  try {
+    const notionClient = client ?? getNotionClient();
+    return await notionClient.comments.update(params);
+  } catch (error) {
+    throw wrapError(`Failed to update comment ${params.comment_id}`, error);
+  }
+}
+
+export async function deleteComment(commentId: string, client?: Client): Promise<DeleteCommentResponse> {
+  try {
+    const notionClient = client ?? getNotionClient();
+    return await notionClient.comments.delete({ comment_id: commentId });
+  } catch (error) {
+    throw wrapError(`Failed to delete comment ${commentId}`, error);
   }
 }

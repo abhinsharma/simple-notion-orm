@@ -4,7 +4,8 @@ import { textToRichText } from "@/utils/richtext";
 import type { AppendBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect } from "vitest";
 import { server } from "../../../tests/setup-msw";
-import { getPage, createPage, updatePage, archivePage, restorePage, searchPages } from "../page";
+import { captureNextRequest } from "../../../tests/request-capture";
+import { getPage, createPage, updatePage, archivePage, restorePage, searchPages, movePage } from "../page";
 
 type RecordedRequest = {
   url: string;
@@ -143,5 +144,27 @@ describe("searchPages", () => {
     expect(result.results).toBeInstanceOf(Array);
     expect(result.results.length).toBeGreaterThan(0);
     expect(result.results[0].object).toBe("page");
+  });
+});
+
+describe("movePage", () => {
+  it("moves a page into a data source", async () => {
+    const captured = captureNextRequest((request) => request.method === "POST" && request.url.endsWith("/move"));
+
+    const result = await movePage({ pageId: "obf_id_74", parent: { dataSourceId: "obf_id_3" } });
+
+    const { url, body } = await captured;
+    expect(url).toContain("/v1/pages/obf_id_74/move");
+    expect(body).toEqual({ parent: { type: "data_source_id", data_source_id: "obf_id_3" } });
+    expect(result.object).toBe("page");
+  });
+
+  it("moves a page under another page", async () => {
+    const captured = captureNextRequest((request) => request.method === "POST" && request.url.endsWith("/move"));
+
+    await movePage({ pageId: "obf_id_74", parent: { pageId: "obf_parent" } });
+
+    const { body } = await captured;
+    expect(body).toEqual({ parent: { type: "page_id", page_id: "obf_parent" } });
   });
 });

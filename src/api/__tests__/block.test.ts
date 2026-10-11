@@ -2,23 +2,9 @@ import { buildParagraphBlock } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
 import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters, UpdateBlockParameters } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect } from "vitest";
-import { server } from "../../../tests/setup-msw";
+import { captureNextRequest } from "../../../tests/request-capture";
 import { getBlock, getBlockChildren, appendBlockChildren, updateBlock, deleteBlock, resolveAppendPosition } from "../block";
 import { NOTION_API_VERSION } from "../client";
-
-function captureNextRequest(predicate: (request: Request) => boolean): Promise<{ headers: Headers; body: unknown }> {
-  return new Promise((resolve) => {
-    const listener = ({ request }: { request: Request }) => {
-      if (!predicate(request)) {
-        return;
-      }
-      server.events.removeListener("request:start", listener);
-      const clone = request.clone();
-      void clone.json().then((body) => resolve({ headers: request.headers, body }));
-    };
-    server.events.on("request:start", listener);
-  });
-}
 
 describe("getBlock", () => {
   it("should successfully retrieve a block by ID", async () => {
