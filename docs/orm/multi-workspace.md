@@ -13,6 +13,8 @@ const workspace2 = createNotionClient({ auth: process.env.NOTION_KEY_WS2! });
 
 The default `NOTION_API_KEY` env-based client remains available for backward compatibility.
 
+Both `createNotionClient` and the default client send Notion API version `2026-03-11` (exported as `NOTION_API_VERSION`). Pass `notionVersion` to `createNotionClient` to pin a different version. Clients you build with `new Client()` from `@notionhq/client` use the SDK default, which is older.
+
 ## Binding tables to clients
 
 Pass `client` in the options to bind a table to a specific workspace:

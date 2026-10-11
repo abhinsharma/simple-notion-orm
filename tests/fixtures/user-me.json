@@ -1,0 +1,14 @@
+{
+  "object": "user",
+  "id": "obf_bot_1",
+  "type": "bot",
+  "name": "Obfuscated Integration",
+  "avatar_url": null,
+  "bot": {
+    "owner": {
+      "type": "workspace",
+      "workspace": true
+    },
+    "workspace_name": "Obfuscated Workspace"
+  }
+}

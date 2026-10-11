@@ -1,6 +1,7 @@
 import { NotionBlocks } from "@/pages/notion-blocks";
 import { describe, it, expect } from "vitest";
-import { listComments, createComment, getComment } from "../comment";
+import { captureNextRequest } from "../../../tests/request-capture";
+import { listComments, createComment, deleteComment, getComment, updateComment } from "../comment";
 
 describe("listComments", () => {
   it("should list comments for a page", async () => {
@@ -51,5 +52,30 @@ describe("NotionBlocks.replyToComment", () => {
 
     expect(result.object).toBe("comment");
     expect(result.id).toBeDefined();
+  });
+});
+
+describe("updateComment", () => {
+  it("sends the new markdown body", async () => {
+    const captured = captureNextRequest((request) => request.method === "PATCH" && request.url.includes("/v1/comments/"));
+
+    const result = await updateComment({ comment_id: "comment-1", markdown: "Edited **comment**" });
+
+    const { url, body } = await captured;
+    expect(url).toContain("/v1/comments/comment-1");
+    expect(body).toEqual({ markdown: "Edited **comment**" });
+    expect(result.object).toBe("comment");
+  });
+});
+
+describe("deleteComment", () => {
+  it("deletes a comment by ID", async () => {
+    const captured = captureNextRequest((request) => request.method === "DELETE" && request.url.includes("/v1/comments/"));
+
+    const result = await deleteComment("comment-1");
+
+    const { url } = await captured;
+    expect(url).toContain("/v1/comments/comment-1");
+    expect(result.object).toBe("comment");
   });
 });

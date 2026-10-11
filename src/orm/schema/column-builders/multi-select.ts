@@ -24,7 +24,7 @@ type MultiSelectColumnBuilder<
 > = ColumnDef<MultiSelectValue<TOptions, TAllowCustom>, TOptional, TNullable, MultiSelectPropertyPayload, MultiSelectPropertyResponse> & {
   optional: () => MultiSelectColumnBuilder<true, TNullable, TOptions, TAllowCustom>;
   nullable: () => MultiSelectColumnBuilder<TOptional, true, TOptions, TAllowCustom>;
-  default: (value: MultiSelectValue<TOptions, TAllowCustom>) => MultiSelectColumnBuilder<TOptional, TNullable, TOptions, TAllowCustom>;
+  default: (value: MultiSelectValue<TOptions, TAllowCustom>) => MultiSelectColumnBuilder<true, TNullable, TOptions, TAllowCustom>;
   options: <const Options extends readonly SelectOptionConfigInput[]>(
     options: Options
   ) => MultiSelectColumnBuilder<TOptional, TNullable, NormalizedSelectOptions<Options>, false>;
@@ -77,9 +77,10 @@ function buildMultiSelectColumn<
         meta
       ),
     default: (value: MultiSelectValue<TOptions, TAllowCustom>) =>
-      buildMultiSelectColumn<TOptional, TNullable, TOptions, TAllowCustom>(
+      buildMultiSelectColumn<true, TNullable, TOptions, TAllowCustom>(
         {
           ...baseDef,
+          isOptional: true as const,
           defaultValue: value,
         },
         meta

@@ -1,0 +1,10 @@
+{
+  "object": "user",
+  "id": "obf_user_1",
+  "type": "person",
+  "name": "Obfuscated Person",
+  "avatar_url": null,
+  "person": {
+    "email": "person@example.com"
+  }
+}

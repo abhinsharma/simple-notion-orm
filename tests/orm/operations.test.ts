@@ -1,6 +1,8 @@
 import { defineTable, select, text, eq, asc } from "@/orm";
 import { describe, it, expect } from "vitest";
+import { http, HttpResponse } from "msw";
 import { server } from "../setup-msw";
+import databaseQueryFixture from "../fixtures/database-query.json";
 import dbPageCreateFixture from "../fixtures/db-page-create.json";
 
 const DATABASE_ID = "obf_id_1";
@@ -59,12 +61,16 @@ function getPageIdFromUrl(url: string): string {
 describe("ORM operations", () => {
   it("returns envelopes when inserting rows", async () => {
     const table = await createTestTable();
+    const stopRecording = recordRequests((request) => request.method === "POST" && request.url.endsWith("/v1/pages"));
 
     const envelope = await table.insert({
       name: "Example row",
       stage: { name: "Todo" },
     });
 
+    const [createRequest] = await stopRecording();
+    const createBody = createRequest?.body as { parent?: Record<string, unknown> };
+    expect(createBody.parent).toEqual({ type: "data_source_id", data_source_id: table.getIds().dataSourceId });
     expect(envelope.page.id).toBe(dbPageCreateFixture.id);
     expect(envelope.data).toEqual({
       name: "Example row",
@@ -108,6 +114,53 @@ describe("ORM operations", () => {
     expect(selection.hasMore).toBe(true);
   });
 
+  it("attaches to a specific data source and resolves its database", async () => {
+    const table = await defineTable("MSW Test Table", { name: text("Name").title(), stage: select("Stage").optional() }, { dataSourceId: "obf_id_3" });
+
+    expect(table.getIds()).toEqual({ databaseId: DATABASE_ID, dataSourceId: "obf_id_3" });
+  });
+
+  it("selectAll follows cursors until every row is loaded", async () => {
+    const table = await createTestTable();
+    const cursors: Array<string | undefined> = [];
+    const page = databaseQueryFixture.results[0]!;
+
+    server.use(
+      http.post("https://api.notion.com/v1/data_sources/:dataSourceId/query", async ({ request }) => {
+        const body = (await request.json()) as { start_cursor?: string; page_size?: number };
+        cursors.push(body.start_cursor);
+        if (!body.start_cursor) {
+          return HttpResponse.json({ ...databaseQueryFixture, results: [page], next_cursor: "cursor_2", has_more: true });
+        }
+        return HttpResponse.json({ ...databaseQueryFixture, results: [{ ...page, id: "second-page" }], next_cursor: null, has_more: false });
+      })
+    );
+
+    const rows = await table.selectAll({ where: eq(table.columns.name, "Example row") });
+
+    expect(cursors).toEqual([undefined, "cursor_2"]);
+    expect(rows.map((row) => row.page.id)).toEqual([page.id, "second-page"]);
+  });
+
+  it("selectAll throws when Notion reports the query hit its result limit", async () => {
+    const table = await createTestTable();
+
+    server.use(
+      http.post("https://api.notion.com/v1/data_sources/:dataSourceId/query", () =>
+        HttpResponse.json({
+          ...databaseQueryFixture,
+          next_cursor: null,
+          has_more: false,
+          request_status: { type: "incomplete", incomplete_reason: "query_result_limit_reached" },
+        })
+      )
+    );
+
+    const page = await table.select();
+    expect(page.incomplete).toBe(true);
+    await expect(table.selectAll()).rejects.toThrow(/reached Notion's result limit/);
+  });
+
   it("updates rows and returns fresh envelopes", async () => {
     const table = await createTestTable();
 
@@ -144,12 +197,12 @@ describe("ORM operations", () => {
     const archiveRequests = await stopRecording();
     const payloads = archiveRequests.map((request) => ({
       id: getPageIdFromUrl(request.url),
-      body: request.body as { archived?: boolean },
+      body: request.body as { in_trash?: boolean },
     }));
 
     expect(count).toBe(2);
-    expect(payloads).toContainEqual({ id: "page-1", body: { archived: true } });
-    expect(payloads).toContainEqual({ id: "page-2", body: { archived: true } });
+    expect(payloads).toContainEqual({ id: "page-1", body: { in_trash: true } });
+    expect(payloads).toContainEqual({ id: "page-2", body: { in_trash: true } });
   });
 
   it("restores all provided page IDs", async () => {
@@ -162,10 +215,10 @@ describe("ORM operations", () => {
     const [restoreRequest] = await stopRecording();
     const restorePayload = {
       id: getPageIdFromUrl(restoreRequest.url),
-      body: restoreRequest.body as { archived?: boolean },
+      body: restoreRequest.body as { in_trash?: boolean },
     };
 
     expect(count).toBe(1);
-    expect(restorePayload).toEqual({ id: "page-3", body: { archived: false } });
+    expect(restorePayload).toEqual({ id: "page-3", body: { in_trash: false } });
   });
 });

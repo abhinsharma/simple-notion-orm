@@ -2,7 +2,7 @@ import type { NotionCodec } from "@/orm/codecs/base/codec";
 import type { SortDescriptor, TablePredicate } from "@/orm/query/types";
 import type { NotionPage } from "@/pages";
 import type { Client } from "@notionhq/client";
-import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints.js";
 
 export type ColumnPropertyType =
   | "title"
@@ -23,7 +23,9 @@ export type ColumnPropertyType =
   | "created_time"
   | "last_edited_time"
   | "created_by"
-  | "last_edited_by";
+  | "last_edited_by"
+  | "formula"
+  | "rollup";
 
 export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boolean, TPropertyPayload = unknown, TPropertyResponse = unknown> = {
   name: string;
@@ -89,8 +91,14 @@ export type RelationLinkOptions = {
   syncedPropertyId?: string;
 };
 
-export type RelationLinkConfig<TTarget extends TableDef = TableDef> = {
-  target: TableHandle<TTarget>;
+/**
+ * Accepts any table handle as a relation target. TableHandle is invariant in its row types, so a
+ * specific table is not assignable to TableHandle<TableDef>. This picks the members that are safe to widen.
+ */
+export type AnyTableHandle = Pick<TableHandle<TableDef>, "title" | "columns" | "getIds" | "cacheIds" | "getClient">;
+
+export type RelationLinkConfig = {
+  target: AnyTableHandle;
   options?: RelationLinkOptions;
 };
 
@@ -106,10 +114,14 @@ export type SelectOptions<TDef extends TableDef = TableDef> = {
   populate?: RelationPopulateMap<TDef>;
 };
 
+export type SelectAllOptions<TDef extends TableDef = TableDef> = Omit<SelectOptions<TDef>, "startCursor">;
+
 export type SelectResult<TDef extends TableDef> = {
   rows: Array<RowEnvelope<TDef>>;
   nextCursor: string | null;
   hasMore: boolean;
+  /** True when Notion stopped the query at its result limit. Later rows cannot be read with a cursor; narrow the filter. */
+  incomplete: boolean;
 };
 
 export type TargetOptions<TDef extends TableDef = TableDef> = {
@@ -131,6 +143,8 @@ export type TableHandle<TDef extends TableDef> = {
     (data: Array<RowInput<TDef>>): Promise<Array<RowEnvelope<TDef>>>;
   };
   select: (options?: SelectOptions<TDef>) => Promise<SelectResult<TDef>>;
+  /** Follows pagination cursors and returns every matching row. */
+  selectAll: (options?: SelectAllOptions<TDef>) => Promise<Array<RowEnvelope<TDef>>>;
   update: {
     (patch: RowPatch<TDef>, options?: UpdateOptions<TDef> & { many?: false }): Promise<RowEnvelope<TDef>>;
     (patch: RowPatch<TDef>, options: UpdateOptions<TDef> & { many: true }): Promise<Array<RowEnvelope<TDef>>>;
@@ -149,7 +163,7 @@ export type TableHandle<TDef extends TableDef> = {
   _def?: TDef;
 };
 
-export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, TableHandle<TableDef>>>;
+export type RelationMap<TDef extends TableDef> = Partial<Record<RelationColumnKeys<TDef>, AnyTableHandle>>;
 
 type RowAll<TDef extends TableDef> = {
   [K in keyof TDef["columns"]]: ColumnInputValue<TDef["columns"][K]>;

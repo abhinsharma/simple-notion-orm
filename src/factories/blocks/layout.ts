@@ -3,13 +3,12 @@
  * Includes divider, table, columns, breadcrumb, and table of contents
  */
 
-import type { RichTextItemRequest, ApiColor } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemRequest, ApiColor, ChildBlockRequest } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = ChildBlockRequest;
 
 /**
  * Builds a divider block
@@ -125,7 +124,7 @@ export function buildTableBlock(
  * @example
  * buildColumnBlock([paragraphBlock, imageBlock])
  */
-export function buildColumnBlock(children: BlockWithChildren[]) {
+export function buildColumnBlock<TChildren extends BlockWithChildren[]>(children: TChildren): { type: "column"; column: { children: TChildren } } {
   return {
     type: "column" as const,
     column: {
@@ -146,7 +145,9 @@ export function buildColumnBlock(children: BlockWithChildren[]) {
  *   buildColumnBlock([rightContent])
  * ])
  */
-export function buildColumnListBlock(columns: ReturnType<typeof buildColumnBlock>[]) {
+export function buildColumnListBlock<TColumns extends Array<ReturnType<typeof buildColumnBlock>>>(
+  columns: TColumns
+): { type: "column_list"; column_list: { children: TColumns } } {
   return {
     type: "column_list" as const,
     column_list: {

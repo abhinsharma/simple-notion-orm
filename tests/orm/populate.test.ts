@@ -3,7 +3,7 @@ import { populateRelations } from "@/orm/relation/populate";
 import { text, relation, defineRelations } from "@/orm";
 import { NotionPage } from "@/pages";
 import type { AnyColumnDef, RowEnvelope, RowOutput, TableDef, TableHandle } from "@/orm/schema/types";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title: string, columns: TColumns): TableHandle<TableDef<TColumns>> {
@@ -19,6 +19,9 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title:
     select: (async () => {
       throw new Error("Not implemented in tests");
     }) as TableHandle<TableDef<TColumns>>["select"],
+    selectAll: (async () => {
+      throw new Error("Not implemented in tests");
+    }) as TableHandle<TableDef<TColumns>>["selectAll"],
     update: (async () => {
       throw new Error("Not implemented in tests");
     }) as TableHandle<TableDef<TColumns>>["update"],
@@ -42,6 +45,7 @@ function createProjectPage(id: string, name: string): PageObjectResponse {
     parent: { type: "workspace", workspace: true },
     is_locked: false,
     archived: false,
+    is_archived: false,
     in_trash: false,
     properties: {
       Title: {

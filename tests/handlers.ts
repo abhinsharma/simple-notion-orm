@@ -23,6 +23,8 @@ import dbPageCreateFixture from "./fixtures/db-page-create.json";
 import commentListFixture from "./fixtures/comment-list.json";
 import commentCreateFixture from "./fixtures/comment-create.json";
 import commentGetFixture from "./fixtures/comment-get.json";
+import userGetFixture from "./fixtures/user-get.json";
+import userMeFixture from "./fixtures/user-me.json";
 
 const respond = <BodyType extends JsonBodyType>(data: BodyType) => HttpResponse.json<BodyType>(data);
 
@@ -37,8 +39,8 @@ export const handlers = [
   }),
 
   http.post<never, Record<string, unknown>, typeof dbPageCreateFixture | typeof pageCreateFixture>("https://api.notion.com/v1/pages", async ({ request }) => {
-    const body = (await request.json()) as { parent?: { database_id?: string; page_id?: string } };
-    if (body.parent?.database_id) {
+    const body = (await request.json()) as { parent?: { database_id?: string; data_source_id?: string; page_id?: string } };
+    if (body.parent?.database_id || body.parent?.data_source_id) {
       return respond(dbPageCreateFixture);
     }
 
@@ -55,22 +57,22 @@ export const handlers = [
     | typeof dbPageArchiveFixture
     | typeof dbPageRestoreFixture
   >("https://api.notion.com/v1/pages/:pageId", async ({ request, params }) => {
-    const body = (await request.json()) as { archived?: boolean };
+    const body = (await request.json()) as { in_trash?: boolean };
 
     if (params.pageId === dbPageGetFixture.id) {
-      if (body.archived === true) {
+      if (body.in_trash === true) {
         return respond(dbPageArchiveFixture);
       }
-      if (body.archived === false) {
+      if (body.in_trash === false) {
         return respond(dbPageRestoreFixture);
       }
       return respond(dbPageUpdateFixture);
     }
 
-    if (body.archived === true) {
+    if (body.in_trash === true) {
       return respond(pageArchiveFixture);
     }
-    if (body.archived === false) {
+    if (body.in_trash === false) {
       return respond(pageRestoreFixture);
     }
     return respond(pageUpdateFixture);
@@ -124,13 +126,43 @@ export const handlers = [
     () => respond(databaseUpdateFixture.dataSource)
   ),
 
-  http.post<never, Record<string, unknown>, typeof databaseQueryFixture>("https://api.notion.com/v1/data_sources/:dataSourceId/query", () =>
-    respond(databaseQueryFixture)
-  ),
+  // The fixture reports another page. A request that passes start_cursor gets the last page, so cursor loops end.
+  http.post<never, Record<string, unknown>, Record<string, unknown>>("https://api.notion.com/v1/data_sources/:dataSourceId/query", async ({ request }) => {
+    const body = (await request.json()) as { start_cursor?: string };
+    if (body.start_cursor) {
+      return respond({ ...databaseQueryFixture, next_cursor: null, has_more: false });
+    }
+    return respond(databaseQueryFixture);
+  }),
 
   http.get<never, undefined, typeof commentListFixture>("https://api.notion.com/v1/comments", () => respond(commentListFixture)),
 
   http.post<never, Record<string, unknown>, typeof commentCreateFixture>("https://api.notion.com/v1/comments", () => respond(commentCreateFixture)),
 
   http.get<{ commentId: string }, undefined, typeof commentGetFixture>("https://api.notion.com/v1/comments/:commentId", () => respond(commentGetFixture)),
+
+  http.patch<{ commentId: string }, Record<string, unknown>, typeof commentGetFixture>("https://api.notion.com/v1/comments/:commentId", () =>
+    respond(commentGetFixture)
+  ),
+
+  http.delete<{ commentId: string }, undefined, typeof commentGetFixture>("https://api.notion.com/v1/comments/:commentId", () => respond(commentGetFixture)),
+
+  http.post<{ pageId: string }, Record<string, unknown>, typeof pageGetFixture>("https://api.notion.com/v1/pages/:pageId/move", () => respond(pageGetFixture)),
+
+  http.post<never, Record<string, unknown>, typeof databaseGetFixture.dataSource>("https://api.notion.com/v1/data_sources", () =>
+    respond(databaseGetFixture.dataSource)
+  ),
+
+  http.get<never, undefined, typeof userMeFixture>("https://api.notion.com/v1/users/me", () => respond(userMeFixture)),
+
+  http.get<{ userId: string }, undefined, typeof userGetFixture>("https://api.notion.com/v1/users/:userId", () => respond(userGetFixture)),
+
+  // Two pages of users so tests can check that listUsers follows the cursor.
+  http.get<never, undefined, Record<string, unknown>>("https://api.notion.com/v1/users", ({ request }) => {
+    const cursor = new URL(request.url).searchParams.get("start_cursor");
+    const page = cursor
+      ? { results: [userMeFixture], next_cursor: null, has_more: false }
+      : { results: [userGetFixture], next_cursor: "users_page_2", has_more: true };
+    return respond({ object: "list", type: "user", user: {}, ...page });
+  }),
 ];

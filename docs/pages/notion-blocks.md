@@ -16,11 +16,12 @@
 >
 > - `PageBlock` mirrors Notion's SDK types with an added `children?: PageBlock[]` field.
 > - `SimpleBlock` is a discriminated union (paragraphs, headings, media, layout, advanced, etc.) where defaults (`color: "default"`, `has_children: false`, etc.) are stripped and rich text is normalized into `{ plainText, href?, annotations? }` spans. See `src/transform/blocks/types.ts` for the full surface.
+> - Newer block types map too: `heading_4` becomes a heading with `level: 4`, `tab` keeps its children, and `meeting_notes` (named `transcription` before API version 2026-03-11) becomes `{ type: "meeting_notes", title, status?, summaryBlockId?, notesBlockId?, transcriptBlockId? }`.
 
 ## Usage Examples
 
 ```ts
-import { NotionPage } from "@/pages";
+import { NotionPage } from "simple-notion-orm";
 
 const page = await NotionPage.from(process.env.PLAYGROUND_PAGE_ID!);
 

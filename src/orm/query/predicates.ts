@@ -22,6 +22,18 @@ export function contains<TColumn extends AnyColumnDef>(column: TColumn, value: C
   return makeComparisonPredicate(column, "contains", value);
 }
 
+export function notContains<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
+  return makeComparisonPredicate(column, "notContains", value);
+}
+
+export function startsWith<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
+  return makeComparisonPredicate(column, "startsWith", value);
+}
+
+export function endsWith<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
+  return makeComparisonPredicate(column, "endsWith", value);
+}
+
 export function gt<TColumn extends AnyColumnDef>(column: TColumn, value: ColumnFilterValue<TColumn>): ComparisonPredicate<TColumn> {
   return makeComparisonPredicate(column, "gt", value);
 }

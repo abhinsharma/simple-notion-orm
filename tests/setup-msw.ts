@@ -6,7 +6,7 @@ const server = setupServer(...handlers);
 
 beforeAll(() => {
   process.env.NOTION_API_KEY = "test-api-key";
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
 });
 
 afterEach(() => server.resetHandlers());

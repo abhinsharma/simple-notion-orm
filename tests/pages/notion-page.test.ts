@@ -5,7 +5,7 @@ import type {
   BlockObjectResponse,
   ListBlockChildrenResponse,
   PageObjectResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 
 let appendCallCount = 0;
 const appendBlockChildrenMock = vi.fn(async (_pageId: string, children: BlockObjectRequest[], _options?: { after?: string }) => {

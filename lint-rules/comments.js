@@ -1,5 +1,5 @@
 export default {
   rules: {
-    "eslint-comments/require-description": "error",
+    "@eslint-community/eslint-comments/require-description": "error",
   },
 };

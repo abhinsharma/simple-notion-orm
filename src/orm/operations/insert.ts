@@ -1,7 +1,7 @@
 import { createDatabasePage } from "@/api/database-page";
 import type { TableDef, TableHandle, RowInput, RowEnvelope } from "@/orm/schema/types";
 import { buildInsertProperties } from "@/orm/schema/utils";
-import type { CreatePageParameters, PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { CreatePageParameters, PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
 export function insertRows<TDef extends TableDef>(table: TableHandle<TDef>, values: RowInput<TDef>): Promise<RowEnvelope<TDef>>;
@@ -19,7 +19,7 @@ export async function insertRows<TDef extends TableDef>(
     const properties = buildInsertProperties(table.columns, value);
     const page = await createDatabasePage(
       {
-        databaseId: ids.databaseId,
+        dataSourceId: ids.dataSourceId,
         properties: properties as CreatePageParameters["properties"],
       },
       client

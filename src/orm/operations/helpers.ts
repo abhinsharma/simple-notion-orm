@@ -1,7 +1,7 @@
 import { NotionPage } from "@/pages";
 import type { TableDef, TableHandle, RowEnvelope } from "@/orm/schema/types";
 import { decodeRow } from "@/orm/schema/utils";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 
 export function ensureTableIds<TDef extends TableDef>(table: TableHandle<TDef>): { databaseId: string; dataSourceId: string } {
   const ids = table.getIds();

@@ -1,6 +1,6 @@
 # Property Factories
 
-Property factories map application values to the shapes expected by Notion page and database properties. Import them from `@/factories/properties`.
+Property factories map application values to the shapes expected by Notion page and database properties. Import them from `simple-notion-orm`.
 
 ## Page-level properties
 
@@ -11,8 +11,7 @@ Property factories map application values to the shapes expected by Notion page 
 ### Example
 
 ```ts
-import { createPage } from "@/api/page";
-import { buildTitleProperty } from "@/factories/properties";
+import { createPage, buildTitleProperty } from "simple-notion-orm";
 
 await createPage({
   parentId: "notion-page-id",
@@ -34,7 +33,7 @@ await createPage({
 | `buildEmailProperty(email?)`        | Email property.                                 |
 | `buildPhoneNumberProperty(phone?)`  | Phone number property.                          |
 | `buildPeopleProperty(users)`        | People property (IDs or user/group objects).    |
-| `buildFilesProperty(files)`         | Files property for external/file uploads.       |
+| `buildFilesProperty(files)`         | External URLs or existing file references.      |
 | `buildSelectProperty(option)`       | Single select option by name or id.             |
 | `buildMultiSelectProperty(options)` | Multi-select property.                          |
 | `buildStatusProperty(option)`       | Status property value by name or id.            |
@@ -46,34 +45,30 @@ await createPage({
 
 ### Example: create a database row
 
-````ts
-import { createDatabasePage } from "@/api/database-page";
-import {
-  buildTitleProperty,
-  buildSelectProperty,
-  buildRichTextProperty,
-} from "@/factories/properties";
+```ts
+import { buildRichTextProperty, buildSelectProperty, buildTitleProperty, createDatabasePage } from "simple-notion-orm";
 
 await createDatabasePage({
-  databaseId: "notion-database-id",
+  dataSourceId: "notion-data-source-id",
   properties: {
     Name: buildTitleProperty("Example row"),
     Stage: buildSelectProperty({ name: "In Progress" }),
     Notes: buildRichTextProperty("Generated from factories"),
   },
 });
+```
 
 ### Example: update database properties
 
 ```ts
-import { updateDatabasePage } from "@/api/database-page";
 import {
-  buildSelectProperty,
-  buildMultiSelectProperty,
-  buildDateProperty,
   buildCheckboxProperty,
+  buildDateProperty,
+  buildMultiSelectProperty,
   buildRelationProperty,
-} from "@/factories/properties/database-page";
+  buildSelectProperty,
+  updateDatabasePage,
+} from "simple-notion-orm";
 
 await updateDatabasePage({
   pageId: "notion-page-id",
@@ -85,21 +80,14 @@ await updateDatabasePage({
     Relation: buildRelationProperty(["linked-page-id"]),
   },
 });
-````
-
-````
+```
 
 ## Schema helpers
 
 The database schema factories in `src/factories/properties/database-schema.ts` mirror the value builders, emitting configuration for database properties. Use them when provisioning databases via `createDatabase`.
 
 ```ts
-import { createDatabase } from "@/api/database";
-import { textToRichText } from "@/utils/richtext";
-import {
-  buildSelectColumn,
-  buildTitleColumn,
-} from "@/factories/properties/database-schema";
+import { buildSelectColumn, buildTitleColumn, createDatabase, textToRichText } from "simple-notion-orm";
 
 await createDatabase({
   parentId: "notion-page-id",
@@ -112,6 +100,6 @@ await createDatabase({
     ]),
   },
 });
-````
+```
 
 These helpers keep property payloads consistent with Notion’s expected JSON and guard against typos when you need to set, update, or provision database columns.

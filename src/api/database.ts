@@ -4,9 +4,10 @@
  */
 import type { DatabaseResource } from "@/utils/database";
 import { wrapError } from "@/utils/error";
-import type { Client } from "@notionhq/client";
+import { isFullDatabase, isFullDataSource, type Client } from "@notionhq/client";
 import type {
   CreateDatabaseParameters,
+  CreateDataSourceParameters,
   DataSourceObjectResponse,
   DatabaseObjectResponse,
   QueryDataSourceParameters,
@@ -14,7 +15,7 @@ import type {
   SearchResponse,
   UpdateDatabaseParameters,
   UpdateDataSourceParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { getNotionClient } from "./client";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
@@ -65,6 +66,74 @@ async function loadDatabaseResource(databaseId: string, client?: Client): Promis
     database,
     dataSource,
   };
+}
+
+/**
+ * Retrieve a data source by its ID
+ */
+export async function getDataSource(dataSourceId: string, client?: Client): Promise<DataSourceObjectResponse> {
+  try {
+    return await retrieveDataSource(dataSourceId, client);
+  } catch (error) {
+    throw wrapError(`Failed to retrieve data source ${dataSourceId}`, error);
+  }
+}
+
+/**
+ * Add a data source to an existing database
+ */
+type CreateDataSourceParams = {
+  databaseId: string;
+  properties: CreateDataSourceParameters["properties"];
+  title?: CreateDataSourceParameters["title"];
+  icon?: CreateDataSourceParameters["icon"];
+};
+
+export async function createDataSource({ databaseId, properties, title, icon }: CreateDataSourceParams, client?: Client): Promise<DataSourceObjectResponse> {
+  try {
+    const notionClient = client ?? getNotionClient();
+    const response = await notionClient.dataSources.create({
+      parent: { type: "database_id", database_id: databaseId },
+      properties,
+      ...(title ? { title } : {}),
+      ...(icon !== undefined ? { icon } : {}),
+    });
+
+    return isFullDataSource(response) ? response : await retrieveDataSource(response.id, client);
+  } catch (error) {
+    throw wrapError(`Failed to create data source in database ${databaseId}`, error);
+  }
+}
+
+/**
+ * Update a single data source. Use this for databases with more than one data source.
+ */
+type UpdateDataSourceParams = {
+  dataSourceId: string;
+  title?: UpdateDataSourceParameters["title"];
+  icon?: UpdateDataSourceParameters["icon"];
+  properties?: UpdateDataSourceParameters["properties"];
+  inTrash?: boolean;
+};
+
+export async function updateDataSource(
+  { dataSourceId, title, icon, properties, inTrash }: UpdateDataSourceParams,
+  client?: Client
+): Promise<DataSourceObjectResponse> {
+  try {
+    const notionClient = client ?? getNotionClient();
+    await notionClient.dataSources.update({
+      data_source_id: dataSourceId,
+      ...(title ? { title } : {}),
+      ...(icon !== undefined ? { icon } : {}),
+      ...(properties ? { properties } : {}),
+      ...(typeof inTrash === "boolean" ? { in_trash: inTrash } : {}),
+    });
+
+    return await retrieveDataSource(dataSourceId, client);
+  } catch (error) {
+    throw wrapError(`Failed to update data source ${dataSourceId}`, error);
+  }
 }
 
 /**
@@ -180,6 +249,38 @@ export async function updateDatabase(
     return await loadDatabaseResource(databaseId, client);
   } catch (error) {
     throw wrapError(`Failed to update database ${databaseId}`, error);
+  }
+}
+
+async function setDatabaseTrashState(databaseId: string, inTrash: boolean, client?: Client): Promise<DatabaseObjectResponse> {
+  const notionClient = client ?? getNotionClient();
+  const response = await notionClient.databases.update({
+    database_id: databaseId,
+    in_trash: inTrash,
+  });
+
+  return isFullDatabase(response) ? response : await retrieveDatabase(databaseId, client);
+}
+
+/**
+ * Move a database to the trash
+ */
+export async function archiveDatabase(databaseId: string, client?: Client): Promise<DatabaseObjectResponse> {
+  try {
+    return await setDatabaseTrashState(databaseId, true, client);
+  } catch (error) {
+    throw wrapError(`Failed to archive database ${databaseId}`, error);
+  }
+}
+
+/**
+ * Restore a database from the trash
+ */
+export async function restoreDatabase(databaseId: string, client?: Client): Promise<DatabaseObjectResponse> {
+  try {
+    return await setDatabaseTrashState(databaseId, false, client);
+  } catch (error) {
+    throw wrapError(`Failed to restore database ${databaseId}`, error);
   }
 }
 

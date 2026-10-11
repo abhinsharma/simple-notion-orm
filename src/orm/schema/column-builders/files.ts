@@ -12,7 +12,7 @@ type FilesColumnBuilder<TOptional extends boolean = false, TNullable extends boo
 > & {
   optional: () => FilesColumnBuilder<true, TNullable>;
   nullable: () => FilesColumnBuilder<TOptional, true>;
-  default: (value: FileInput[]) => FilesColumnBuilder<TOptional, TNullable>;
+  default: (value: FileInput[]) => FilesColumnBuilder<true, TNullable>;
 };
 
 function buildFilesColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -42,7 +42,7 @@ function buildFilesColumn<TOptional extends boolean, TNullable extends boolean>(
       buildFilesColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: cloneArray(value),
         propertyType: def.propertyType,

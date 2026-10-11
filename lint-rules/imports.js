@@ -1,12 +1,12 @@
 export default {
   rules: {
-    "import/default": "off",
-    "import/export": "off",
-    "import/namespace": "off",
-    "import/no-unresolved": "off",
-    "import/no-mutable-exports": "error",
-    "import/first": "error",
-    "import/no-extraneous-dependencies": [
+    "import-x/default": "off",
+    "import-x/export": "off",
+    "import-x/namespace": "off",
+    "import-x/no-unresolved": "off",
+    "import-x/no-mutable-exports": "error",
+    "import-x/first": "error",
+    "import-x/no-extraneous-dependencies": [
       "error",
       {
         devDependencies: ["tests/**", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "vitest.config.ts", "playground/**"],
@@ -14,10 +14,10 @@ export default {
         peerDependencies: false,
       },
     ],
-    "import/no-self-import": "error",
-    "import/no-default-export": "error",
-    "import/no-absolute-path": "error",
-    "import/order": [
+    "import-x/no-self-import": "error",
+    "import-x/no-default-export": "error",
+    "import-x/no-absolute-path": "error",
+    "import-x/order": [
       "error",
       {
         groups: ["internal", "builtin", "external", "parent", "sibling", "index"],

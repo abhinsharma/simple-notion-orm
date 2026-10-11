@@ -14,7 +14,7 @@ type StatusColumnBuilder<TOptional extends boolean = false, TNullable extends bo
 > & {
   optional: () => StatusColumnBuilder<true, TNullable>;
   nullable: () => StatusColumnBuilder<TOptional, true>;
-  default: (value: StatusValue) => StatusColumnBuilder<TOptional, TNullable>;
+  default: (value: StatusValue) => StatusColumnBuilder<true, TNullable>;
 };
 
 function buildStatusColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -44,7 +44,7 @@ function buildStatusColumn<TOptional extends boolean, TNullable extends boolean>
       buildStatusColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

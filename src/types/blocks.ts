@@ -3,8 +3,15 @@
  * Includes Notion block-specific types and re-exports
  */
 
+import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints.js";
+
 // Re-export RichTextItemRequest from utils for convenience
 export type { RichTextItemRequest } from "@/utils/richtext";
+
+/**
+ * Block payload accepted as a nested child of another block in a create or append request.
+ */
+export type ChildBlockRequest = NonNullable<Extract<BlockObjectRequest, { paragraph: unknown }>["paragraph"]["children"]>[number];
 
 /**
  * Notion API color options for blocks and text
@@ -130,7 +137,7 @@ export type Language =
 /**
  * Heading levels (1, 2, or 3)
  */
-export type HeadingLevel = 1 | 2 | 3;
+export type HeadingLevel = 1 | 2 | 3 | 4;
 
 /**
  * Icon types for callout blocks and pages
@@ -140,7 +147,10 @@ export type IconType = { type: "emoji"; emoji: string } | { type: "external"; ex
 /**
  * File source types for media blocks
  */
-export type FileSource = { type: "external"; url: string } | { type: "file"; url: string };
+/**
+ * Media source for block requests. Notion-hosted files are attached through a completed file upload, not a URL.
+ */
+export type FileSource = { type: "external"; url: string } | { type: "file_upload"; id: string };
 
 /**
  * Link to page types

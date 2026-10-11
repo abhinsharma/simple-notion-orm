@@ -8,9 +8,9 @@ import type {
   CreateCommentParameters,
   ListBlockChildrenParameters,
   ListCommentsResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 
-type RichTextInput = CreateCommentParameters["rich_text"];
+type RichTextInput = Extract<CreateCommentParameters, { rich_text: unknown }>["rich_text"];
 
 type ListOptions = {
   pageSize?: ListBlockChildrenParameters["page_size"];

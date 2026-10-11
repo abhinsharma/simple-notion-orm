@@ -7,6 +7,7 @@ import type {
   SimpleTableBlock,
   SimpleTableRowBlock,
   SimpleTableOfContentsBlock,
+  SimpleTabBlock,
   SimpleBlock,
 } from "./types";
 import { normalizeColor, toSimpleRichTextSpanArray } from "./richtext";
@@ -47,6 +48,14 @@ export function fromColumn(block: Extract<PageBlock, { type: "column" }>, transf
     type: "column",
     id: block.id,
     ...(typeof widthRatio === "number" ? { widthRatio } : {}),
+    ...(block.children ? { children: block.children.map(transformChild) } : {}),
+  };
+}
+
+export function fromTab(block: Extract<PageBlock, { type: "tab" }>, transformChild: (child: PageBlock) => SimpleBlock): SimpleTabBlock {
+  return {
+    type: "tab",
+    id: block.id,
     ...(block.children ? { children: block.children.map(transformChild) } : {}),
   };
 }

@@ -1,4 +1,4 @@
-import { appendBlockChildren, deleteBlock as deleteBlockApi, updateBlock as updateBlockApi } from "@/api/block";
+import { appendBlockChildren, deleteBlock as deleteBlockApi, updateBlock as updateBlockApi, type UpdateBlockInput } from "@/api/block";
 import { createComment, listComments } from "@/api/comment";
 import { archivePage, clearPageContent, getPage, restorePage, updatePage } from "@/api/page";
 import type { Client } from "@notionhq/client";
@@ -10,13 +10,12 @@ import type {
   ListBlockChildrenParameters,
   ListCommentsResponse,
   PageObjectResponse,
-  UpdateBlockParameters,
   UpdatePageParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { NotionBlocks, type PageBlock } from "./notion-blocks";
 export type { PageBlock } from "./notion-blocks";
 
-type RichTextInput = CreateCommentParameters["rich_text"];
+type RichTextInput = Extract<CreateCommentParameters, { rich_text: unknown }>["rich_text"];
 
 const MAX_CHILDREN_PER_REQUEST = 100;
 
@@ -33,8 +32,6 @@ export type GetPageOptions = {
   recursiveChildren?: boolean;
   pageSize?: ListBlockChildrenParameters["page_size"];
 };
-
-type UpdateBlockInput = Omit<UpdateBlockParameters, "block_id">;
 
 /**
  * Fluent helper for interacting with a Notion page's blocks and metadata.

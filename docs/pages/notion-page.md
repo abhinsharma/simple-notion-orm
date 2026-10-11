@@ -1,6 +1,6 @@
 # Notion Page Helper
 
-`src/pages/notion-page.ts` exposes a lightweight `NotionPage` wrapper around any Notion page ID. Use it when you need to manipulate blocks, covers, or archived state without dropping down to the raw SDK.
+`src/pages/notion-page.ts` exposes a lightweight `NotionPage` wrapper around any Notion page ID. Use it when you need to manipulate blocks, covers, or trash state without dropping down to the raw SDK.
 
 | API / Property                             | Returns                                                    | Description                                                                                                                         |
 | ------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -12,7 +12,7 @@
 | `get(options?)`                            | `Promise<PageObjectResponse & { children?: PageBlock[] }>` | Fetch metadata and, if requested, the current block tree (with optional recursion and page size).                                   |
 | `updateTitle(title)`                       | `Promise<PageObjectResponse>`                              | Locates the canonical title property and overwrites it.                                                                             |
 | `setIcon(icon)` / `setCover(cover)`        | `Promise<PageObjectResponse>`                              | Forward to the Notion Pages API to update chrome.                                                                                   |
-| `archive()` / `restore()`                  | `Promise<PageObjectResponse>`                              | Toggle the archived flag for the wrapped page.                                                                                      |
+| `archive()` / `restore()`                  | `Promise<PageObjectResponse>`                              | Move the wrapped page to the trash or restore it (`in_trash`).                                                                      |
 | `clearContent()`                           | `Promise<void>`                                            | Removes all child blocks from the page.                                                                                             |
 | `append(blocks, options?)` / `add(blocks)` | `Promise<NotionPage>`                                      | Appends up to 100 blocks per request, chunking large arrays automatically (optional `after` cursor).                                |
 | `insertAfter(blockId, blocks)`             | `Promise<NotionPage>`                                      | Inserts blocks after an existing block ID.                                                                                          |
@@ -25,9 +25,7 @@
 `RowEnvelope` now bundles a `.notionPage` handle so you can jump straight into block operations without an extra lookup:
 
 ```ts
-import { defineTable, text } from "@/orm/schema";
-import { buildCalloutBlock, buildParagraphBlock } from "@/factories/blocks";
-import { textToRichText } from "@/utils/richtext";
+import { defineTable, text, buildCalloutBlock, buildParagraphBlock, textToRichText } from "simple-notion-orm";
 
 const notes = await defineTable("Docs Notes", { title: text("Title").title() }, { databaseId: process.env.NOTION_NOTES_DB! });
 

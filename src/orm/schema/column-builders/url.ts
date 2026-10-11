@@ -11,7 +11,7 @@ type UrlColumnBuilder<TOptional extends boolean = false, TNullable extends boole
 > & {
   optional: () => UrlColumnBuilder<true, TNullable>;
   nullable: () => UrlColumnBuilder<TOptional, true>;
-  default: (value: string | null) => UrlColumnBuilder<TOptional, TNullable>;
+  default: (value: string | null) => UrlColumnBuilder<true, TNullable>;
 };
 
 function buildUrlColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -41,7 +41,7 @@ function buildUrlColumn<TOptional extends boolean, TNullable extends boolean>(
       buildUrlColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

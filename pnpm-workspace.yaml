@@ -1,0 +1,9 @@
+# esbuild and unrs-resolver ship prebuilt binaries as optional dependencies, so their install scripts are not needed.
+allowBuilds:
+  esbuild: false
+  unrs-resolver: false
+
+# prettier 3.9.10 was published on 2026-10-10, inside pnpm's default one-day release-age window.
+# Remove this entry once the window has passed.
+minimumReleaseAgeExclude:
+  - prettier@3.9.10

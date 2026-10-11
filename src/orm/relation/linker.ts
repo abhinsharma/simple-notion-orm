@@ -1,9 +1,10 @@
-import { updateDatabase } from "@/api/database";
+import { updateDataSource } from "@/api/database";
 import { buildRelationColumn } from "@/factories/properties/database-schema";
 import { ensureTableIds } from "@/orm/operations/helpers";
 import type { AnyColumnDef, RelationColumnKeys, TableDef, TableHandle } from "@/orm/schema/types";
 import type { RelationConfigInput } from "@/types/properties";
 import type { Client } from "@notionhq/client";
+import type { UpdateDataSourceParameters } from "@notionhq/client/build/src/api-endpoints.js";
 
 type RelationLinkMode = "single" | "dual";
 
@@ -21,6 +22,7 @@ export type RelationLinkInstruction = {
 };
 
 type RelationPropertyConfig = ReturnType<typeof buildRelationColumn>;
+type UpdateDataSourceProperties = NonNullable<UpdateDataSourceParameters["properties"]>;
 
 export async function linkRelations(instructions: RelationLinkInstruction[]): Promise<void> {
   if (!instructions.length) {
@@ -79,7 +81,8 @@ export async function linkRelations(instructions: RelationLinkInstruction[]): Pr
 
   await Promise.all(
     Array.from(grouped.values()).map(async ({ ids, properties, client }) => {
-      await updateDatabase({ databaseId: ids.databaseId, properties }, client);
+      // Patch the table's own data source. updateDatabase would always patch the database's first data source.
+      await updateDataSource({ dataSourceId: ids.dataSourceId, properties: properties as UpdateDataSourceProperties }, client);
     })
   );
 }

@@ -7,6 +7,7 @@ import type {
   SimpleChildDatabaseBlock,
   SimpleEquationBlock,
   SimpleLinkToPageBlock,
+  SimpleMeetingNotesBlock,
   SimpleSyncedBlock,
   SimpleTemplateBlock,
 } from "./types";
@@ -122,6 +123,23 @@ export function fromChildPage(block: Extract<PageBlock, { type: "child_page" }>,
   }
 
   return simple;
+}
+
+/**
+ * API version 2026-03-11 renamed the `transcription` block to `meeting_notes`. Both map to the same simple block.
+ */
+export function fromMeetingNotes(block: Extract<PageBlock, { type: "meeting_notes" | "transcription" }>): SimpleMeetingNotesBlock {
+  const content = block.type === "meeting_notes" ? block.meeting_notes : block.transcription;
+  const children = content.children;
+  return {
+    type: "meeting_notes",
+    id: block.id,
+    title: toSimpleRichTextSpanArray(content.title ?? []),
+    ...(content.status ? { status: content.status } : {}),
+    ...(children?.summary_block_id ? { summaryBlockId: children.summary_block_id } : {}),
+    ...(children?.notes_block_id ? { notesBlockId: children.notes_block_id } : {}),
+    ...(children?.transcript_block_id ? { transcriptBlockId: children.transcript_block_id } : {}),
+  };
 }
 
 type EmojiIcon = { type: "emoji"; emoji: string };

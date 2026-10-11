@@ -3,13 +3,12 @@
  * Includes code, callout, equation, synced blocks, and link-to-page
  */
 
-import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType, ChildBlockRequest } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = ChildBlockRequest;
 
 /**
  * Builds a code block
@@ -54,14 +53,14 @@ export function buildCodeBlock(richText: RichTextItemRequest[], language: Langua
  *   { icon: { type: "emoji", emoji: "💡" }, color: "yellow_background" }
  * )
  */
-export function buildCalloutBlock(
+export function buildCalloutBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     icon?: IconType;
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "callout"; callout: { rich_text: RichTextItemRequest[]; icon?: IconType; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "callout" as const,
     callout: {
@@ -101,7 +100,9 @@ export function buildEquationBlock(expression: string) {
  * @example
  * buildSyncedBlock([paragraphBlock, imageBlock])
  */
-export function buildSyncedBlock(children?: BlockWithChildren[]) {
+export function buildSyncedBlock<TChildren extends BlockWithChildren[] = never[]>(
+  children?: TChildren
+): { type: "synced_block"; synced_block: { synced_from: null; children?: NoInfer<TChildren> } } {
   return {
     type: "synced_block" as const,
     synced_block: {
@@ -162,7 +163,10 @@ export function buildLinkToPageBlock(link: LinkToPageType) {
  *   [paragraphBlock]
  * )
  */
-export function buildTemplateBlock(richText: RichTextItemRequest[], children?: BlockWithChildren[]) {
+export function buildTemplateBlock<TChildren extends BlockWithChildren[] = never[]>(
+  richText: RichTextItemRequest[],
+  children?: TChildren
+): { type: "template"; template: { rich_text: RichTextItemRequest[]; children?: NoInfer<TChildren> } } {
   return {
     type: "template" as const,
     template: {

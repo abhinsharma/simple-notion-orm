@@ -3,10 +3,10 @@ import type { AnyColumnDef, TableDef, TableHandle } from "@/orm/schema/types";
 import { linkRelations, type RelationLinkInstruction } from "@/orm/relation/linker";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const updateDatabaseMock = vi.fn();
+const updateDataSourceMock = vi.fn();
 
 vi.mock("@/api/database", () => ({
-  updateDatabase: (...args: unknown[]) => updateDatabaseMock(...args),
+  updateDataSource: (...args: unknown[]) => updateDataSourceMock(...args),
 }));
 
 function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(
@@ -26,6 +26,9 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(
     select: async () => {
       throw new Error("not implemented");
     },
+    selectAll: async () => {
+      throw new Error("not implemented");
+    },
     update: async () => {
       throw new Error("not implemented");
     },
@@ -38,7 +41,7 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(
 
 describe("linkRelations", () => {
   beforeEach(() => {
-    updateDatabaseMock.mockReset();
+    updateDataSourceMock.mockReset();
   });
 
   it("patches relation properties with target data source ids", async () => {
@@ -62,9 +65,10 @@ describe("linkRelations", () => {
 
     await linkRelations([instruction]);
 
-    expect(updateDatabaseMock).toHaveBeenCalledWith(
+    // The relation goes to the source table's own data source, not the database's first one.
+    expect(updateDataSourceMock).toHaveBeenCalledWith(
       {
-        databaseId: "task-db",
+        dataSourceId: "task-ds",
         properties: {
           Project: expect.objectContaining({
             relation: expect.objectContaining({ data_source_id: "proj-ds", type: "single_property" }),

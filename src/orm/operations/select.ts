@@ -1,8 +1,8 @@
 import { queryDataSource } from "@/api/database";
 import { compileQueryOptions } from "@/orm/query/compiler";
 import { populateRelations } from "@/orm/relation/populate";
-import type { TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
-import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { RowEnvelope, SelectAllOptions, TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
+import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -49,5 +49,27 @@ export async function selectRows<TDef extends TableDef>(table: TableHandle<TDef>
     rows,
     nextCursor: response.next_cursor ?? null,
     hasMore: response.has_more ?? Boolean(response.next_cursor),
+    incomplete: response.request_status?.type === "incomplete",
   };
+}
+
+/**
+ * Select every matching row by following pagination cursors. Each request fetches up to 100 rows.
+ */
+export async function selectAllRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: SelectAllOptions<TDef>): Promise<Array<RowEnvelope<TDef>>> {
+  const rows: Array<RowEnvelope<TDef>> = [];
+  let startCursor: string | undefined;
+
+  do {
+    const page = await selectRows(table, { ...options, pageSize: options?.pageSize ?? MAX_PAGE_SIZE, startCursor });
+    rows.push(...page.rows);
+    if (page.incomplete) {
+      throw new Error(
+        `Query on table "${table.title}" reached Notion's result limit after ${rows.length} rows, so selectAll cannot return every row. Add a where filter to narrow the query.`
+      );
+    }
+    startCursor = page.hasMore && page.nextCursor ? page.nextCursor : undefined;
+  } while (startCursor);
+
+  return rows;
 }

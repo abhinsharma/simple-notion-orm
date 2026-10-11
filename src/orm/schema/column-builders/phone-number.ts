@@ -11,7 +11,7 @@ type PhoneNumberColumnBuilder<TOptional extends boolean = false, TNullable exten
 > & {
   optional: () => PhoneNumberColumnBuilder<true, TNullable>;
   nullable: () => PhoneNumberColumnBuilder<TOptional, true>;
-  default: (value: string | null) => PhoneNumberColumnBuilder<TOptional, TNullable>;
+  default: (value: string | null) => PhoneNumberColumnBuilder<true, TNullable>;
 };
 
 function buildPhoneNumberColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -41,7 +41,7 @@ function buildPhoneNumberColumn<TOptional extends boolean, TNullable extends boo
       buildPhoneNumberColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

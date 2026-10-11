@@ -3,14 +3,25 @@
  * Includes paragraph, headings, lists, quotes, toggles, and to-dos
  */
 
-import type { RichTextItemRequest, ApiColor, HeadingLevel } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemRequest, ApiColor, HeadingLevel, ChildBlockRequest } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  * This will be the union of all block types
  */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = ChildBlockRequest;
+
+type HeadingContent<TChildren> = {
+  rich_text: RichTextItemRequest[];
+  color?: ApiColor;
+  is_toggleable?: boolean;
+  children?: TChildren;
+};
+
+/** Heading payload whose `type` and content key match the level, for example `heading_2`. */
+type HeadingBlockRequest<TLevel extends HeadingLevel, TChildren> = {
+  [K in `heading_${TLevel}`]: { type: K } & { [P in K]: HeadingContent<TChildren> };
+}[`heading_${TLevel}`];
 
 /**
  * Builds a paragraph block
@@ -26,13 +37,13 @@ type BlockWithChildren = BlockObjectRequestWithoutChildren;
  *   { color: "blue", children: [childBlock] }
  * )
  */
-export function buildParagraphBlock(
+export function buildParagraphBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "paragraph"; paragraph: { rich_text: RichTextItemRequest[]; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "paragraph" as const,
     paragraph: {
@@ -44,9 +55,9 @@ export function buildParagraphBlock(
 }
 
 /**
- * Builds a heading block (H1, H2, or H3)
+ * Builds a heading block (H1 to H4)
  *
- * @param level - Heading level (1, 2, or 3)
+ * @param level - Heading level (1, 2, 3, or 4)
  * @param richText - Array of rich text items
  * @param options - Optional color, toggleable, and children
  * @returns Heading block payload
@@ -59,16 +70,16 @@ export function buildParagraphBlock(
  *   { is_toggleable: true, children: [childBlock] }
  * )
  */
-export function buildHeadingBlock(
-  level: HeadingLevel,
+export function buildHeadingBlock<TLevel extends HeadingLevel, TChildren extends BlockWithChildren[] = never[]>(
+  level: TLevel,
   richText: RichTextItemRequest[],
   options?: {
     color?: ApiColor;
     is_toggleable?: boolean;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
-  const headingType = `heading_${level}` as "heading_1" | "heading_2" | "heading_3";
+): HeadingBlockRequest<TLevel, NoInfer<TChildren>> {
+  const headingType = `heading_${level}` as const;
 
   return {
     type: headingType,
@@ -78,7 +89,7 @@ export function buildHeadingBlock(
       ...(options?.is_toggleable !== undefined && { is_toggleable: options.is_toggleable }),
       ...(options?.children && { children: options.children }),
     },
-  };
+  } as HeadingBlockRequest<TLevel, NoInfer<TChildren>>;
 }
 
 /**
@@ -95,13 +106,13 @@ export function buildHeadingBlock(
  *   { children: [nestedItem] }
  * )
  */
-export function buildBulletedListItemBlock(
+export function buildBulletedListItemBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "bulleted_list_item"; bulleted_list_item: { rich_text: RichTextItemRequest[]; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "bulleted_list_item" as const,
     bulleted_list_item: {
@@ -122,13 +133,13 @@ export function buildBulletedListItemBlock(
  * @example
  * buildNumberedListItemBlock([{ type: "text", text: { content: "Step 1" } }])
  */
-export function buildNumberedListItemBlock(
+export function buildNumberedListItemBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "numbered_list_item"; numbered_list_item: { rich_text: RichTextItemRequest[]; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "numbered_list_item" as const,
     numbered_list_item: {
@@ -153,14 +164,14 @@ export function buildNumberedListItemBlock(
  *   { checked: true }
  * )
  */
-export function buildToDoBlock(
+export function buildToDoBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     checked?: boolean;
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "to_do"; to_do: { rich_text: RichTextItemRequest[]; checked?: boolean; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "to_do" as const,
     to_do: {
@@ -185,13 +196,13 @@ export function buildToDoBlock(
  *   { children: [hiddenContent] }
  * )
  */
-export function buildToggleBlock(
+export function buildToggleBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "toggle"; toggle: { rich_text: RichTextItemRequest[]; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "toggle" as const,
     toggle: {
@@ -212,13 +223,13 @@ export function buildToggleBlock(
  * @example
  * buildQuoteBlock([{ type: "text", text: { content: "To be or not to be" } }])
  */
-export function buildQuoteBlock(
+export function buildQuoteBlock<TChildren extends BlockWithChildren[] = never[]>(
   richText: RichTextItemRequest[],
   options?: {
     color?: ApiColor;
-    children?: BlockWithChildren[];
+    children?: TChildren;
   }
-) {
+): { type: "quote"; quote: { rich_text: RichTextItemRequest[]; color?: ApiColor; children?: NoInfer<TChildren> } } {
   return {
     type: "quote" as const,
     quote: {

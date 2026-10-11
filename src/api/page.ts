@@ -2,15 +2,15 @@
  * Page API
  * Here api is shaped for non database pages to reduce complexity.
  */
-import { appendBlockChildren, deleteBlock, getBlockChildren } from "@/api/block";
-import type { Client } from "@notionhq/client";
+import { appendBlockChildren, deleteBlock, getBlockChildren, type AppendBlockChildrenOptions } from "@/api/block";
+import { isFullPage, type Client } from "@notionhq/client";
 import type {
   AppendBlockChildrenParameters,
   CreatePageParameters,
   PageObjectResponse,
   SearchResponse,
   UpdatePageParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 
@@ -73,19 +73,25 @@ type UpdatePageParams = {
   properties?: UpdatePageParameters["properties"];
   icon?: UpdatePageParameters["icon"];
   cover?: UpdatePageParameters["cover"];
+  /** Move the page to the trash (`true`) or restore it (`false`). */
+  inTrash?: boolean;
+  /** @deprecated Use `inTrash`. API version 2026-03-11 renamed `archived` to `in_trash`. */
   archived?: boolean;
   append?: {
     children: AppendBlockChildrenParameters["children"];
-    after?: string;
-  };
+  } & AppendBlockChildrenOptions;
 };
-export async function updatePage({ pageId, properties, icon, cover, archived, append }: UpdatePageParams, client?: Client): Promise<PageObjectResponse> {
+export async function updatePage(
+  { pageId, properties, icon, cover, inTrash, archived, append }: UpdatePageParams,
+  client?: Client
+): Promise<PageObjectResponse> {
   try {
     if (append) {
-      await appendBlockChildren(pageId, append.children, append.after ? { after: append.after } : undefined, client);
+      await appendBlockChildren(pageId, append.children, { after: append.after, position: append.position }, client);
     }
 
-    const hasUpdate = Boolean(properties || icon !== undefined || cover !== undefined || typeof archived === "boolean");
+    const trashState = inTrash ?? archived;
+    const hasUpdate = Boolean(properties || icon !== undefined || cover !== undefined || typeof trashState === "boolean");
     if (!hasUpdate) {
       return await getPage(pageId, undefined, client);
     }
@@ -96,7 +102,7 @@ export async function updatePage({ pageId, properties, icon, cover, archived, ap
       ...(properties ? { properties } : {}),
       ...(icon !== undefined ? { icon } : {}),
       ...(cover !== undefined ? { cover } : {}),
-      ...(typeof archived === "boolean" ? { archived } : {}),
+      ...(typeof trashState === "boolean" ? { in_trash: trashState } : {}),
     });
     if (!("properties" in response)) {
       throw new Error(`Update page request for ${pageId} returned a partial page response`);
@@ -112,7 +118,7 @@ export async function updatePage({ pageId, properties, icon, cover, archived, ap
  */
 export async function archivePage(pageId: string, client?: Client): Promise<PageObjectResponse> {
   try {
-    return await updatePage({ pageId, archived: true }, client);
+    return await updatePage({ pageId, inTrash: true }, client);
   } catch (error) {
     throw wrapError(`Failed to archive page ${pageId}`, error);
   }
@@ -123,9 +129,30 @@ export async function archivePage(pageId: string, client?: Client): Promise<Page
  */
 export async function restorePage(pageId: string, client?: Client): Promise<PageObjectResponse> {
   try {
-    return await updatePage({ pageId, archived: false }, client);
+    return await updatePage({ pageId, inTrash: false }, client);
   } catch (error) {
     throw wrapError(`Failed to restore page ${pageId}`, error);
+  }
+}
+
+/**
+ * Move a page under another page or into a data source
+ */
+type MovePageParams = {
+  pageId: string;
+  parent: { pageId: string } | { dataSourceId: string };
+};
+
+export async function movePage({ pageId, parent }: MovePageParams, client?: Client): Promise<PageObjectResponse> {
+  try {
+    const notionClient = client ?? getNotionClient();
+    const response = await notionClient.pages.move({
+      page_id: pageId,
+      parent: "pageId" in parent ? { type: "page_id", page_id: parent.pageId } : { type: "data_source_id", data_source_id: parent.dataSourceId },
+    });
+    return isFullPage(response) ? response : await getPage(pageId, undefined, client);
+  } catch (error) {
+    throw wrapError(`Failed to move page ${pageId}`, error);
   }
 }
 

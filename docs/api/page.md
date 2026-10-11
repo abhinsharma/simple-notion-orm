@@ -5,17 +5,18 @@
 | `getPage`          | `PageObjectResponse` | Retrieve a page by ID.                            |
 | `createPage`       | `PageObjectResponse` | Create a child page under the capture page.       |
 | `updatePage`       | `PageObjectResponse` | Update page properties such as title.             |
-| `archivePage`      | `PageObjectResponse` | Archive (soft delete) a page.                     |
-| `restorePage`      | `PageObjectResponse` | Restore a previously archived page.               |
+| `archivePage`      | `PageObjectResponse` | Move a page to the trash.                         |
+| `restorePage`      | `PageObjectResponse` | Restore a page from the trash.                    |
+| `movePage`         | `PageObjectResponse` | Move a page under another page or data source.    |
 | `searchPages`      | `SearchResponse`     | Query pages in the workspace using Notion search. |
 | `clearPageContent` | `void`               | Remove all child blocks (content) from a page.    |
 
-All helpers live under `@/api/page` and operate on regular (non-database) Notion pages.
+Import these helpers from `simple-notion-orm`. They operate on regular pages outside databases.
 
 ## Get a page
 
 ```ts
-import { getPage } from "@/api/page";
+import { getPage } from "simple-notion-orm";
 
 const page = await getPage("notion-page-id");
 ```
@@ -23,8 +24,7 @@ const page = await getPage("notion-page-id");
 ## Create a child page
 
 ```ts
-import { createPage } from "@/api/page";
-import { buildTitleProperty } from "@/factories/properties";
+import { createPage, buildTitleProperty } from "simple-notion-orm";
 
 const page = await createPage({
   parentId: "notion-page-id",
@@ -37,8 +37,7 @@ const page = await createPage({
 ## Update page properties
 
 ```ts
-import { updatePage } from "@/api/page";
-import { buildTitleProperty } from "@/factories/properties";
+import { updatePage, buildTitleProperty } from "simple-notion-orm";
 
 const page = await updatePage({
   pageId: "notion-page-id",
@@ -51,9 +50,7 @@ const page = await updatePage({
 ## Append page content
 
 ```ts
-import { updatePage } from "@/api/page";
-import { buildParagraphBlock } from "@/factories/blocks/text";
-import { textToRichText } from "@/utils/richtext";
+import { updatePage, buildParagraphBlock, textToRichText } from "simple-notion-orm";
 
 await updatePage({
   pageId: "notion-page-id",
@@ -63,10 +60,13 @@ await updatePage({
 });
 ```
 
+- `append` also takes `after` (a block ID) or `position` (`{ type: "start" }`, `{ type: "end" }`, or `{ type: "after_block", after_block: { id } }`).
+- `updatePage` takes `inTrash` to trash or restore a page. The older `archived` option still works and sends `in_trash`, which API version 2026-03-11 requires.
+
 ## Archive a page
 
 ```ts
-import { archivePage } from "@/api/page";
+import { archivePage } from "simple-notion-orm";
 
 const archived = await archivePage("notion-page-id");
 ```
@@ -74,15 +74,24 @@ const archived = await archivePage("notion-page-id");
 ## Restore a page
 
 ```ts
-import { restorePage } from "@/api/page";
+import { restorePage } from "simple-notion-orm";
 
 const restored = await restorePage("notion-page-id");
+```
+
+## Move a page
+
+```ts
+import { movePage } from "simple-notion-orm";
+
+await movePage({ pageId: "notion-page-id", parent: { pageId: "new-parent-page-id" } });
+await movePage({ pageId: "notion-page-id", parent: { dataSourceId: "notion-data-source-id" } });
 ```
 
 ## Search pages
 
 ```ts
-import { searchPages } from "@/api/page";
+import { searchPages } from "simple-notion-orm";
 
 const results = await searchPages("Playground");
 ```
@@ -90,7 +99,7 @@ const results = await searchPages("Playground");
 ## Clear page content
 
 ```ts
-import { clearPageContent } from "@/api/page";
+import { clearPageContent } from "simple-notion-orm";
 
 await clearPageContent("notion-page-id");
 ```

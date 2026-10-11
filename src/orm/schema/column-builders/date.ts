@@ -14,7 +14,7 @@ type DateColumnBuilder<TOptional extends boolean = false, TNullable extends bool
 > & {
   optional: () => DateColumnBuilder<true, TNullable>;
   nullable: () => DateColumnBuilder<TOptional, true>;
-  default: (value: DateValue) => DateColumnBuilder<TOptional, TNullable>;
+  default: (value: DateValue) => DateColumnBuilder<true, TNullable>;
 };
 
 function buildDateColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -44,7 +44,7 @@ function buildDateColumn<TOptional extends boolean, TNullable extends boolean>(
       buildDateColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

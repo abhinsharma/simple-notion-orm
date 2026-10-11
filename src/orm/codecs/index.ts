@@ -35,6 +35,10 @@ export { createdByCodec, lastEditedByCodec, type CreatedByPropertyResponse, type
 // File codecs
 export { filesCodec } from "./files/files";
 
+// Computed codecs (read-only)
+export { formulaCodec, type FormulaValue, type FormulaPropertyResponse } from "./computed/formula";
+export { rollupCodec, type RollupValue, type RollupArrayItem, type RollupPropertyResponse } from "./computed/rollup";
+
 // Timestamp codecs
 export { createdTimeCodec, type CreatedTimePropertyResponse } from "./timestamps/created-time";
 export { lastEditedTimeCodec, type LastEditedTimePropertyResponse } from "./timestamps/last-edited-time";

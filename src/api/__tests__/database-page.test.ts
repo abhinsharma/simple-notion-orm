@@ -1,7 +1,7 @@
 import { buildParagraphBlock } from "@/factories/blocks";
 import { buildTitleProperty } from "@/factories/properties/page";
 import { textToRichText } from "@/utils/richtext";
-import type { AppendBlockChildrenParameters, CreatePageResponse, GetPageResponse, UpdatePageResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { AppendBlockChildrenParameters, CreatePageResponse, GetPageResponse, UpdatePageResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, it, expect } from "vitest";
 import { server } from "../../../tests/setup-msw";
 import { getDatabasePage, createDatabasePage, updateDatabasePage, archiveDatabasePage, restoreDatabasePage, clearDatabasePageContent } from "../database-page";
@@ -137,8 +137,7 @@ describe("archiveDatabasePage", () => {
     const result = await archiveDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(true);
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(true);
+    expect((result as UpdatePageResponse & { in_trash: boolean }).in_trash).toBe(true);
   });
 });
 
@@ -149,8 +148,7 @@ describe("restoreDatabasePage", () => {
     const result = await restoreDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(false);
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(false);
+    expect((result as UpdatePageResponse & { in_trash: boolean }).in_trash).toBe(false);
   });
 });
 

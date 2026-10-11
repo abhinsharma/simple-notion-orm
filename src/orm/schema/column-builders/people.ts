@@ -14,7 +14,7 @@ type PeopleColumnBuilder<TOptional extends boolean = false, TNullable extends bo
 > & {
   optional: () => PeopleColumnBuilder<true, TNullable>;
   nullable: () => PeopleColumnBuilder<TOptional, true>;
-  default: (value: PeopleValue) => PeopleColumnBuilder<TOptional, TNullable>;
+  default: (value: PeopleValue) => PeopleColumnBuilder<true, TNullable>;
 };
 
 function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -44,7 +44,7 @@ function buildPeopleColumn<TOptional extends boolean, TNullable extends boolean>
       buildPeopleColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

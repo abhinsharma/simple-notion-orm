@@ -1,10 +1,11 @@
-export { getNotionClient, createNotionClient } from "./api/client";
+export { getNotionClient, createNotionClient, NOTION_API_VERSION } from "./api/client";
 export type { NotionClientOptions } from "./api/client";
 export * from "./api/block";
 export * from "./api/comment";
 export * from "./api/database";
 export * from "./api/database-page";
 export * from "./api/page";
+export * from "./api/user";
 
 export * from "./factories";
 export * from "./orm";

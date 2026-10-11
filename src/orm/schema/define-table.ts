@@ -1,11 +1,11 @@
-import { createDatabase, getDatabase } from "@/api/database";
+import { createDatabase, getDatabase, getDataSource } from "@/api/database";
 import { archiveRows, restoreRows } from "@/orm/operations/archive";
 import { insertRows } from "@/orm/operations/insert";
-import { selectRows } from "@/orm/operations/select";
+import { selectAllRows, selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
 import { linkRelations, rel } from "@/orm/relation/linker";
 import type { Client } from "@notionhq/client";
-import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints.js";
 import type { AnyColumnDef, RelationColumnKeys, RelationLinkMap, RowInput, TableHandle, TableDef } from "./types";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;
@@ -18,6 +18,8 @@ type TableDefType<TColumns extends Record<string, AnyColumnDef>> = TableDef<TCol
 
 type DefineTableOptions = {
   databaseId?: string;
+  /** Attach to one data source. Use this for databases with more than one data source. */
+  dataSourceId?: string;
   parentId?: string;
   client?: Client;
 };
@@ -32,6 +34,10 @@ async function createNewDatabase(
   for (const columnDef of Object.values(columns)) {
     const config = resolveColumnConfig(columnDef);
     if (!config) {
+      if (columnDef.propertyType === "formula" || columnDef.propertyType === "rollup") {
+        // The codec config throws an error that explains how to declare this column.
+        columnDef.codec.config(columnDef.name);
+      }
       continue;
     }
     Object.assign(schema, config);
@@ -52,8 +58,11 @@ async function createNewDatabase(
   };
 }
 
+/** Column types whose Notion config depends on other properties, so they have no default config. */
+const CONFIG_REQUIRED_TYPES = new Set(["relation", "formula", "rollup"]);
+
 function resolveColumnConfig(columnDef: AnyColumnDef): Record<string, unknown> | null {
-  if (columnDef.propertyType === "relation" && !columnDef.config) {
+  if (CONFIG_REQUIRED_TYPES.has(columnDef.propertyType) && !columnDef.config) {
     return null;
   }
 
@@ -104,6 +113,25 @@ function validateSchema(existingSchema: Record<string, { type: string }>, provid
   }
 }
 
+async function connectToDataSource(
+  dataSourceId: string,
+  columns: Record<string, AnyColumnDef>,
+  client?: Client
+): Promise<{ databaseId: string; dataSourceId: string }> {
+  const dataSource = await getDataSource(dataSourceId, client);
+
+  validateSchema(dataSource.properties, columns);
+
+  if (dataSource.parent.type !== "database_id") {
+    throw new Error(`Data source ${dataSourceId} does not belong to a database`);
+  }
+
+  return {
+    databaseId: dataSource.parent.database_id,
+    dataSourceId: dataSource.id,
+  };
+}
+
 async function connectToExistingDatabase(
   databaseId: string,
   columns: Record<string, AnyColumnDef>,
@@ -124,13 +152,15 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
   columns: TColumns,
   options: DefineTableOptions
 ): Promise<TableHandle<TableDefType<TColumns>>> {
-  if (!options.databaseId && !options.parentId) {
-    throw new Error("Either databaseId or parentId must be provided");
+  if (!options.databaseId && !options.dataSourceId && !options.parentId) {
+    throw new Error("One of databaseId, dataSourceId or parentId must be provided");
   }
 
   let cachedIds: { databaseId: string; dataSourceId: string };
 
-  if (options.databaseId) {
+  if (options.dataSourceId) {
+    cachedIds = await connectToDataSource(options.dataSourceId, columns, options.client);
+  } else if (options.databaseId) {
     cachedIds = await connectToExistingDatabase(options.databaseId, columns, options.client);
   } else {
     cachedIds = await createNewDatabase(title, columns, options.parentId!, options.client);
@@ -154,6 +184,7 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
       return insertRows(handle, data);
     }) as TableHandle<TableDefType<TColumns>>["insert"],
     select: (selectOptions) => selectRows(handle, selectOptions),
+    selectAll: (selectOptions) => selectAllRows(handle, selectOptions),
     update: ((patch, updateOptions) => updateRows(handle, patch, updateOptions)) as TableHandle<TableDefType<TColumns>>["update"],
     archive: (targetOptions) => archiveRows(handle, targetOptions),
     restore: (targetOptions) => restoreRows(handle, targetOptions),
@@ -172,7 +203,7 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
         if (!config) {
           return [];
         }
-        const builder = rel(handle, columnKey).to(config.target);
+        const builder = rel(handle, columnKey).to(config.target as TableHandle<TableDef>);
         if (config.options?.type === "dual_property") {
           return [builder.dual({ syncedPropertyId: config.options.syncedPropertyId, syncedPropertyName: config.options.syncedPropertyName })];
         }

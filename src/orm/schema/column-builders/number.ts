@@ -11,7 +11,7 @@ type NumberColumnBuilder<TOptional extends boolean = false, TNullable extends bo
 > & {
   optional: () => NumberColumnBuilder<true, TNullable>;
   nullable: () => NumberColumnBuilder<TOptional, true>;
-  default: (value: number | null) => NumberColumnBuilder<TOptional, TNullable>;
+  default: (value: number | null) => NumberColumnBuilder<true, TNullable>;
 };
 
 function buildNumberColumn<TOptional extends boolean, TNullable extends boolean>(
@@ -41,7 +41,7 @@ function buildNumberColumn<TOptional extends boolean, TNullable extends boolean>
       buildNumberColumn({
         name: def.name,
         codec: def.codec,
-        isOptional: def.isOptional,
+        isOptional: true as const,
         isNullable: def.isNullable,
         defaultValue: value,
         propertyType: def.propertyType,

@@ -1,5 +1,5 @@
 import type { IconType, Language, ApiColor } from "@/types/blocks";
-import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js";
 
 export type PageBlock = BlockObjectResponse & { children?: PageBlock[] };
 
@@ -31,9 +31,9 @@ export type SimpleParagraphBlock = {
 };
 
 export type SimpleHeadingBlock = {
-  type: "heading_1" | "heading_2" | "heading_3";
+  type: "heading_1" | "heading_2" | "heading_3" | "heading_4";
   id: string;
-  level: 1 | 2 | 3;
+  level: 1 | 2 | 3 | 4;
   text: SimpleRichTextSpan[];
   isToggleable?: true;
   color?: NonDefaultColor;
@@ -203,6 +203,22 @@ export type SimpleChildPageBlock = {
   children?: SimpleBlock[];
 };
 
+export type SimpleTabBlock = {
+  type: "tab";
+  id: string;
+  children?: SimpleBlock[];
+};
+
+export type SimpleMeetingNotesBlock = {
+  type: "meeting_notes";
+  id: string;
+  title: SimpleRichTextSpan[];
+  status?: string;
+  summaryBlockId?: string;
+  notesBlockId?: string;
+  transcriptBlockId?: string;
+};
+
 export type SimpleUnsupportedBlock = {
   type: "unsupported";
   id: string;
@@ -233,4 +249,6 @@ export type SimpleBlock =
   | SimpleTemplateBlock
   | SimpleChildDatabaseBlock
   | SimpleChildPageBlock
+  | SimpleTabBlock
+  | SimpleMeetingNotesBlock
   | SimpleUnsupportedBlock;

@@ -8,7 +8,7 @@ import type { RichTextItemRequest, FileSource } from "@/types/blocks";
 /**
  * Builds an image block
  *
- * @param source - Image source (external URL or file)
+ * @param source - Image source (external URL or completed file upload)
  * @param caption - Optional caption as rich text array
  * @returns Image block payload
  *
@@ -34,8 +34,8 @@ export function buildImageBlock(source: FileSource, caption?: RichTextItemReques
   return {
     type: "image" as const,
     image: {
-      type: "file" as const,
-      file: { url: source.url },
+      type: "file_upload" as const,
+      file_upload: { id: source.id },
       ...(caption && { caption }),
     },
   };
@@ -44,7 +44,7 @@ export function buildImageBlock(source: FileSource, caption?: RichTextItemReques
 /**
  * Builds a video block
  *
- * @param source - Video source (external URL or file)
+ * @param source - Video source (external URL or completed file upload)
  * @param caption - Optional caption as rich text array
  * @returns Video block payload
  *
@@ -66,8 +66,8 @@ export function buildVideoBlock(source: FileSource, caption?: RichTextItemReques
   return {
     type: "video" as const,
     video: {
-      type: "file" as const,
-      file: { url: source.url },
+      type: "file_upload" as const,
+      file_upload: { id: source.id },
       ...(caption && { caption }),
     },
   };
@@ -120,7 +120,7 @@ export function buildEmbedBlock(url: string, caption?: RichTextItemRequest[]) {
 /**
  * Builds a PDF block
  *
- * @param source - PDF source (external URL or file)
+ * @param source - PDF source (external URL or completed file upload)
  * @param caption - Optional caption as rich text array
  * @returns PDF block payload
  *
@@ -142,8 +142,8 @@ export function buildPdfBlock(source: FileSource, caption?: RichTextItemRequest[
   return {
     type: "pdf" as const,
     pdf: {
-      type: "file" as const,
-      file: { url: source.url },
+      type: "file_upload" as const,
+      file_upload: { id: source.id },
       ...(caption && { caption }),
     },
   };
@@ -152,7 +152,7 @@ export function buildPdfBlock(source: FileSource, caption?: RichTextItemRequest[
 /**
  * Builds a file block
  *
- * @param source - File source (external URL or file)
+ * @param source - File source (external URL or completed file upload)
  * @param name - Optional file name
  * @param caption - Optional caption as rich text array
  * @returns File block payload
@@ -176,8 +176,8 @@ export function buildFileBlock(source: FileSource, name?: string, caption?: Rich
   return {
     type: "file" as const,
     file: {
-      type: "file" as const,
-      file: { url: source.url },
+      type: "file_upload" as const,
+      file_upload: { id: source.id },
       ...(name && { name }),
       ...(caption && { caption }),
     },
@@ -187,7 +187,7 @@ export function buildFileBlock(source: FileSource, name?: string, caption?: Rich
 /**
  * Builds an audio block
  *
- * @param source - Audio source (external URL or file)
+ * @param source - Audio source (external URL or completed file upload)
  * @param caption - Optional caption as rich text array
  * @returns Audio block payload
  *
@@ -209,8 +209,8 @@ export function buildAudioBlock(source: FileSource, caption?: RichTextItemReques
   return {
     type: "audio" as const,
     audio: {
-      type: "file" as const,
-      file: { url: source.url },
+      type: "file_upload" as const,
+      file_upload: { id: source.id },
       ...(caption && { caption }),
     },
   };

@@ -2,7 +2,7 @@
  * Database Page API
  * API for managing pages/items within Notion databases
  */
-import { appendBlockChildren, deleteBlock, getBlockChildren } from "@/api/block";
+import { appendBlockChildren, deleteBlock, getBlockChildren, type AppendBlockChildrenOptions } from "@/api/block";
 import type { Client } from "@notionhq/client";
 import type {
   AppendBlockChildrenParameters,
@@ -12,7 +12,7 @@ import type {
   PageObjectResponse,
   UpdatePageParameters,
   UpdatePageResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 
@@ -34,8 +34,12 @@ export async function getDatabasePage(pageId: string, client?: Client): Promise<
 /**
  * Create a new page/item in a database
  */
-type CreateDatabasePageParams = {
-  databaseId: string;
+type CreateDatabasePageTarget =
+  | { databaseId: string; dataSourceId?: undefined }
+  /** Preferred target. Required for databases with more than one data source. */
+  | { dataSourceId: string; databaseId?: undefined };
+
+type CreateDatabasePageParams = CreateDatabasePageTarget & {
   properties: CreatePageParameters["properties"];
   children?: CreatePageParameters["children"];
   icon?: CreatePageParameters["icon"];
@@ -43,15 +47,14 @@ type CreateDatabasePageParams = {
 };
 
 export async function createDatabasePage(
-  { databaseId, properties, children, icon, cover }: CreateDatabasePageParams,
+  { databaseId, dataSourceId, properties, children, icon, cover }: CreateDatabasePageParams,
   client?: Client
 ): Promise<CreatePageResponse> {
+  const target = dataSourceId ? `data source ${dataSourceId}` : `database ${databaseId}`;
   try {
     const notionClient = client ?? getNotionClient();
     const response = await notionClient.pages.create({
-      parent: {
-        database_id: databaseId,
-      },
+      parent: dataSourceId ? { type: "data_source_id", data_source_id: dataSourceId } : { type: "database_id", database_id: databaseId! },
       properties,
       ...(children ? { children } : {}),
       ...(icon !== undefined ? { icon } : {}),
@@ -59,7 +62,7 @@ export async function createDatabasePage(
     });
     return response as PageObjectResponse;
   } catch (error) {
-    throw wrapError(`Failed to create page in database ${databaseId}`, error);
+    throw wrapError(`Failed to create page in ${target}`, error);
   }
 }
 
@@ -71,23 +74,26 @@ type UpdateDatabasePageParams = {
   properties?: UpdatePageParameters["properties"];
   icon?: UpdatePageParameters["icon"];
   cover?: UpdatePageParameters["cover"];
+  /** Move the page to the trash (`true`) or restore it (`false`). */
+  inTrash?: boolean;
+  /** @deprecated Use `inTrash`. API version 2026-03-11 renamed `archived` to `in_trash`. */
   archived?: boolean;
   append?: {
     children: AppendBlockChildrenParameters["children"];
-    after?: string;
-  };
+  } & AppendBlockChildrenOptions;
 };
 
 export async function updateDatabasePage(
-  { pageId, properties, icon, cover, archived, append }: UpdateDatabasePageParams,
+  { pageId, properties, icon, cover, inTrash, archived, append }: UpdateDatabasePageParams,
   client?: Client
 ): Promise<UpdatePageResponse> {
   try {
     if (append) {
-      await appendBlockChildren(pageId, append.children, append.after ? { after: append.after } : undefined, client);
+      await appendBlockChildren(pageId, append.children, { after: append.after, position: append.position }, client);
     }
 
-    const hasUpdate = Boolean(properties || icon !== undefined || cover !== undefined || typeof archived === "boolean");
+    const trashState = inTrash ?? archived;
+    const hasUpdate = Boolean(properties || icon !== undefined || cover !== undefined || typeof trashState === "boolean");
     if (!hasUpdate) {
       return (await getDatabasePage(pageId, client)) as UpdatePageResponse;
     }
@@ -98,7 +104,7 @@ export async function updateDatabasePage(
       ...(properties ? { properties } : {}),
       ...(icon !== undefined ? { icon } : {}),
       ...(cover !== undefined ? { cover } : {}),
-      ...(typeof archived === "boolean" ? { archived } : {}),
+      ...(typeof trashState === "boolean" ? { in_trash: trashState } : {}),
     });
     return response as PageObjectResponse;
   } catch (error) {
@@ -111,7 +117,7 @@ export async function updateDatabasePage(
  */
 export async function archiveDatabasePage(pageId: string, client?: Client): Promise<UpdatePageResponse> {
   try {
-    return await updateDatabasePage({ pageId, archived: true }, client);
+    return await updateDatabasePage({ pageId, inTrash: true }, client);
   } catch (error) {
     throw wrapError(`Failed to archive database page ${pageId}`, error);
   }
@@ -122,7 +128,7 @@ export async function archiveDatabasePage(pageId: string, client?: Client): Prom
  */
 export async function restoreDatabasePage(pageId: string, client?: Client): Promise<UpdatePageResponse> {
   try {
-    return await updateDatabasePage({ pageId, archived: false }, client);
+    return await updateDatabasePage({ pageId, inTrash: false }, client);
   } catch (error) {
     throw wrapError(`Failed to restore database page ${pageId}`, error);
   }

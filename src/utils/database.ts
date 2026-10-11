@@ -5,7 +5,7 @@ import type {
   PartialDatabaseObjectResponse,
   PartialDataSourceObjectResponse,
   PartialPageObjectResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 
 export type DatabaseResource = {
   database: DatabaseObjectResponse;
