@@ -114,6 +114,12 @@ describe("ORM operations", () => {
     expect(selection.hasMore).toBe(true);
   });
 
+  it("attaches to a specific data source and resolves its database", async () => {
+    const table = await defineTable("MSW Test Table", { name: text("Name").title(), stage: select("Stage").optional() }, { dataSourceId: "obf_id_3" });
+
+    expect(table.getIds()).toEqual({ databaseId: DATABASE_ID, dataSourceId: "obf_id_3" });
+  });
+
   it("selectAll follows cursors until every row is loaded", async () => {
     const table = await createTestTable();
     const cursors: Array<string | undefined> = [];

@@ -1,4 +1,4 @@
-import { createDatabase, getDatabase } from "@/api/database";
+import { createDatabase, getDatabase, getDataSource } from "@/api/database";
 import { archiveRows, restoreRows } from "@/orm/operations/archive";
 import { insertRows } from "@/orm/operations/insert";
 import { selectAllRows, selectRows } from "@/orm/operations/select";
@@ -18,6 +18,8 @@ type TableDefType<TColumns extends Record<string, AnyColumnDef>> = TableDef<TCol
 
 type DefineTableOptions = {
   databaseId?: string;
+  /** Attach to one data source. Use this for databases with more than one data source. */
+  dataSourceId?: string;
   parentId?: string;
   client?: Client;
 };
@@ -111,6 +113,25 @@ function validateSchema(existingSchema: Record<string, { type: string }>, provid
   }
 }
 
+async function connectToDataSource(
+  dataSourceId: string,
+  columns: Record<string, AnyColumnDef>,
+  client?: Client
+): Promise<{ databaseId: string; dataSourceId: string }> {
+  const dataSource = await getDataSource(dataSourceId, client);
+
+  validateSchema(dataSource.properties, columns);
+
+  if (dataSource.parent.type !== "database_id") {
+    throw new Error(`Data source ${dataSourceId} does not belong to a database`);
+  }
+
+  return {
+    databaseId: dataSource.parent.database_id,
+    dataSourceId: dataSource.id,
+  };
+}
+
 async function connectToExistingDatabase(
   databaseId: string,
   columns: Record<string, AnyColumnDef>,
@@ -131,13 +152,15 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
   columns: TColumns,
   options: DefineTableOptions
 ): Promise<TableHandle<TableDefType<TColumns>>> {
-  if (!options.databaseId && !options.parentId) {
-    throw new Error("Either databaseId or parentId must be provided");
+  if (!options.databaseId && !options.dataSourceId && !options.parentId) {
+    throw new Error("One of databaseId, dataSourceId or parentId must be provided");
   }
 
   let cachedIds: { databaseId: string; dataSourceId: string };
 
-  if (options.databaseId) {
+  if (options.dataSourceId) {
+    cachedIds = await connectToDataSource(options.dataSourceId, columns, options.client);
+  } else if (options.databaseId) {
     cachedIds = await connectToExistingDatabase(options.databaseId, columns, options.client);
   } else {
     cachedIds = await createNewDatabase(title, columns, options.parentId!, options.client);
