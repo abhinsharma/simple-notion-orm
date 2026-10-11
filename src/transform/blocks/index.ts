@@ -134,6 +134,6 @@ export function toSimpleBlocks(blocks: PageBlock[], transformChild?: (child: Pag
   return blocks.map((block) => toSimpleBlock(block, mapper));
 }
 
-function defaultTransformChild(): SimpleBlock {
-  throw new Error("Child transformation is not available in this context");
+function defaultTransformChild(child: PageBlock): SimpleBlock {
+  return toSimpleBlock(child, defaultTransformChild);
 }

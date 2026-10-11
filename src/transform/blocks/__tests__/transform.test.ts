@@ -1,4 +1,4 @@
-import { toSimpleBlock, type PageBlock, type SimpleBlock } from "@/transform/blocks";
+import { toSimpleBlock, toSimpleBlocks, type PageBlock, type SimpleBlock } from "@/transform/blocks";
 import { describe, expect, it } from "vitest";
 
 const baseMeta = {
@@ -251,6 +251,12 @@ const transcriptionBlock: PageBlock = {
 };
 
 describe("toSimpleBlock", () => {
+  it("recursively transforms nested blocks without a custom callback", () => {
+    expect(toSimpleBlock(paragraphBlock)).toMatchObject({ children: [{ type: "to_do", checked: true }] });
+    expect(toSimpleBlocks([columnListBlock])).toMatchObject([
+      { type: "column_list", columns: [{ children: [{ type: "paragraph", children: [{ type: "to_do" }] }] }] },
+    ]);
+  });
   it("simplifies paragraphs and children", () => {
     const result = convert(paragraphBlock);
     expect(result).toMatchObject({
