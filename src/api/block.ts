@@ -5,6 +5,7 @@
 import type { Client } from "@notionhq/client";
 import type {
   AppendBlockChildrenParameters,
+  ContentPositionSchema,
   AppendBlockChildrenResponse,
   DeleteBlockResponse,
   GetBlockResponse,
@@ -51,23 +52,44 @@ export async function getBlockChildren(
   }
 }
 
+export type AppendPosition = ContentPositionSchema;
+
+export type AppendBlockChildrenOptions = {
+  /** Insert after this block. Shorthand for `position: { type: "after_block", after_block: { id } }`. */
+  after?: string;
+  position?: AppendPosition;
+};
+
+/**
+ * Resolve append options into the `position` body parameter used by API version 2026-03-11.
+ */
+export function resolveAppendPosition(options?: AppendBlockChildrenOptions): AppendPosition | undefined {
+  if (options?.position) {
+    return options.position;
+  }
+  if (options?.after) {
+    return { type: "after_block", after_block: { id: options.after } };
+  }
+  return undefined;
+}
+
 /**
  * Append children to a block
  */
 export async function appendBlockChildren(
   blockId: string,
   children: AppendBlockChildrenParameters["children"],
-  options?: { after?: string },
+  options?: AppendBlockChildrenOptions,
   client?: Client
 ): Promise<AppendBlockChildrenResponse> {
   try {
     const notionClient = client ?? getNotionClient();
-    const payload: AppendBlockChildrenParameters & { after?: string } = {
+    const position = resolveAppendPosition(options);
+    const response = await notionClient.blocks.children.append({
       block_id: blockId,
       children,
-      ...(options?.after ? { after: options.after } : {}),
-    };
-    const response = await notionClient.blocks.children.append(payload);
+      ...(position ? { position } : {}),
+    });
     return response;
   } catch (error) {
     throw wrapError(`Failed to append children to block ${blockId}`, error);

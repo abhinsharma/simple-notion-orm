@@ -37,6 +37,7 @@ const paragraphBlock: PageBlock = {
       },
     ],
     color: "default",
+    icon: null,
   },
   children: [
     {
@@ -159,7 +160,7 @@ const unsupportedBlock: PageBlock = {
   id: "unsupported",
   has_children: false,
   type: "unsupported",
-  unsupported: {},
+  unsupported: { block_type: "unknown" },
 };
 
 const syncedSourceBlock: PageBlock = {

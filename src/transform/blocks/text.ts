@@ -30,7 +30,7 @@ export function fromParagraph(block: Extract<PageBlock, { type: "paragraph" }>, 
 }
 
 export function fromHeading(
-  block: Extract<PageBlock, { type: "heading_1" | "heading_2" | "heading_3" }>,
+  block: Extract<PageBlock, { type: "heading_1" | "heading_2" | "heading_3" | "heading_4" }>,
   transformChild: (child: PageBlock) => SimpleBlock
 ): SimpleHeadingBlock {
   if (block.type === "heading_1") {
@@ -41,7 +41,11 @@ export function fromHeading(
     return buildHeadingBlock(block, block.heading_2, "heading_2", 2, transformChild);
   }
 
-  return buildHeadingBlock(block, block.heading_3, "heading_3", 3, transformChild);
+  if (block.type === "heading_3") {
+    return buildHeadingBlock(block, block.heading_3, "heading_3", 3, transformChild);
+  }
+
+  return buildHeadingBlock(block, block.heading_4, "heading_4", 4, transformChild);
 }
 
 export function fromListItem(

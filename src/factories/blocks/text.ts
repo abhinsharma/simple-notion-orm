@@ -3,14 +3,13 @@
  * Includes paragraph, headings, lists, quotes, toggles, and to-dos
  */
 
-import type { RichTextItemRequest, ApiColor, HeadingLevel } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemRequest, ApiColor, HeadingLevel, ChildBlockRequest } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  * This will be the union of all block types
  */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = ChildBlockRequest;
 
 /**
  * Builds a paragraph block

@@ -3,13 +3,12 @@
  * Includes divider, table, columns, breadcrumb, and table of contents
  */
 
-import type { RichTextItemRequest, ApiColor } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemRequest, ApiColor, ChildBlockRequest } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = ChildBlockRequest;
 
 /**
  * Builds a divider block

@@ -3,13 +3,12 @@
  * Includes code, callout, equation, synced blocks, and link-to-page
  */
 
-import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType } from "@/types/blocks";
-import type { BlockObjectRequestWithoutChildren } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemRequest, ApiColor, Language, IconType, LinkToPageType, ChildBlockRequest } from "@/types/blocks";
 
 /**
  * Forward declaration for BlockObjectRequest to support children
  */
-type BlockWithChildren = BlockObjectRequestWithoutChildren;
+type BlockWithChildren = ChildBlockRequest;
 
 /**
  * Builds a code block

@@ -110,7 +110,14 @@ describe("archivePage", () => {
     const result = await archivePage(pageId);
 
     expect(result.object).toBe("page");
-    expect(result.archived).toBe(true);
+    expect(result.in_trash).toBe(true);
+  });
+
+  it("maps the deprecated archived flag to in_trash", async () => {
+    const pageId = "obf_id_74";
+
+    const result = await updatePage({ pageId, archived: true });
+
     expect(result.in_trash).toBe(true);
   });
 });
@@ -122,7 +129,6 @@ describe("restorePage", () => {
     const result = await restorePage(pageId);
 
     expect(result.object).toBe("page");
-    expect(result.archived).toBe(false);
     expect(result.in_trash).toBe(false);
   });
 });

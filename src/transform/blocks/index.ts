@@ -1,8 +1,18 @@
 import type { PageBlock, SimpleBlock } from "./types";
 import { fromParagraph, fromHeading, fromListItem, fromToDo, fromToggle, fromQuote } from "./text";
 import { fromMedia, fromBookmark } from "./media";
-import { fromDivider, fromBreadcrumb, fromColumn, fromColumnList, fromTable, fromTableRow, fromTableOfContents } from "./layout";
-import { fromCallout, fromChildDatabase, fromChildPage, fromCode, fromEquation, fromLinkToPage, fromSyncedBlock, fromTemplate } from "./advanced";
+import { fromDivider, fromBreadcrumb, fromColumn, fromColumnList, fromTable, fromTab, fromTableRow, fromTableOfContents } from "./layout";
+import {
+  fromCallout,
+  fromChildDatabase,
+  fromChildPage,
+  fromCode,
+  fromEquation,
+  fromLinkToPage,
+  fromMeetingNotes,
+  fromSyncedBlock,
+  fromTemplate,
+} from "./advanced";
 
 export type {
   SimpleBlock,
@@ -32,6 +42,8 @@ export type {
   SimpleTemplateBlock,
   SimpleChildDatabaseBlock,
   SimpleChildPageBlock,
+  SimpleTabBlock,
+  SimpleMeetingNotesBlock,
   SimpleUnsupportedBlock,
   NonDefaultColor,
   PageBlock,
@@ -46,7 +58,8 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
     case "heading_1":
     case "heading_2":
     case "heading_3":
-      return fromHeading(block as Extract<PageBlock, { type: "heading_1" | "heading_2" | "heading_3" }>, transformChild);
+    case "heading_4":
+      return fromHeading(block as Extract<PageBlock, { type: "heading_1" | "heading_2" | "heading_3" | "heading_4" }>, transformChild);
     case "bulleted_list_item":
     case "numbered_list_item":
       return fromListItem(block as Extract<PageBlock, { type: "bulleted_list_item" | "numbered_list_item" }>, transformChild);
@@ -101,6 +114,11 @@ export function toSimpleBlock(block: PageBlock, transformChild: (child: PageBloc
       return fromChildDatabase(block as Extract<PageBlock, { type: "child_database" }>);
     case "child_page":
       return fromChildPage(block as Extract<PageBlock, { type: "child_page" }>, transformChild);
+    case "tab":
+      return fromTab(block as Extract<PageBlock, { type: "tab" }>, transformChild);
+    case "meeting_notes":
+    case "transcription":
+      return fromMeetingNotes(block as Extract<PageBlock, { type: "meeting_notes" | "transcription" }>);
     case "unsupported":
       return { type: "unsupported", id: block.id };
     default: {

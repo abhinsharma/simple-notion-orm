@@ -37,8 +37,8 @@ export const handlers = [
   }),
 
   http.post<never, Record<string, unknown>, typeof dbPageCreateFixture | typeof pageCreateFixture>("https://api.notion.com/v1/pages", async ({ request }) => {
-    const body = (await request.json()) as { parent?: { database_id?: string; page_id?: string } };
-    if (body.parent?.database_id) {
+    const body = (await request.json()) as { parent?: { database_id?: string; data_source_id?: string; page_id?: string } };
+    if (body.parent?.database_id || body.parent?.data_source_id) {
       return respond(dbPageCreateFixture);
     }
 
@@ -55,22 +55,22 @@ export const handlers = [
     | typeof dbPageArchiveFixture
     | typeof dbPageRestoreFixture
   >("https://api.notion.com/v1/pages/:pageId", async ({ request, params }) => {
-    const body = (await request.json()) as { archived?: boolean };
+    const body = (await request.json()) as { in_trash?: boolean };
 
     if (params.pageId === dbPageGetFixture.id) {
-      if (body.archived === true) {
+      if (body.in_trash === true) {
         return respond(dbPageArchiveFixture);
       }
-      if (body.archived === false) {
+      if (body.in_trash === false) {
         return respond(dbPageRestoreFixture);
       }
       return respond(dbPageUpdateFixture);
     }
 
-    if (body.archived === true) {
+    if (body.in_trash === true) {
       return respond(pageArchiveFixture);
     }
-    if (body.archived === false) {
+    if (body.in_trash === false) {
       return respond(pageRestoreFixture);
     }
     return respond(pageUpdateFixture);

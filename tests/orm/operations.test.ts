@@ -59,12 +59,16 @@ function getPageIdFromUrl(url: string): string {
 describe("ORM operations", () => {
   it("returns envelopes when inserting rows", async () => {
     const table = await createTestTable();
+    const stopRecording = recordRequests((request) => request.method === "POST" && request.url.endsWith("/v1/pages"));
 
     const envelope = await table.insert({
       name: "Example row",
       stage: { name: "Todo" },
     });
 
+    const [createRequest] = await stopRecording();
+    const createBody = createRequest?.body as { parent?: Record<string, unknown> };
+    expect(createBody.parent).toEqual({ type: "data_source_id", data_source_id: table.getIds().dataSourceId });
     expect(envelope.page.id).toBe(dbPageCreateFixture.id);
     expect(envelope.data).toEqual({
       name: "Example row",
@@ -144,12 +148,12 @@ describe("ORM operations", () => {
     const archiveRequests = await stopRecording();
     const payloads = archiveRequests.map((request) => ({
       id: getPageIdFromUrl(request.url),
-      body: request.body as { archived?: boolean },
+      body: request.body as { in_trash?: boolean },
     }));
 
     expect(count).toBe(2);
-    expect(payloads).toContainEqual({ id: "page-1", body: { archived: true } });
-    expect(payloads).toContainEqual({ id: "page-2", body: { archived: true } });
+    expect(payloads).toContainEqual({ id: "page-1", body: { in_trash: true } });
+    expect(payloads).toContainEqual({ id: "page-2", body: { in_trash: true } });
   });
 
   it("restores all provided page IDs", async () => {
@@ -162,10 +166,10 @@ describe("ORM operations", () => {
     const [restoreRequest] = await stopRecording();
     const restorePayload = {
       id: getPageIdFromUrl(restoreRequest.url),
-      body: restoreRequest.body as { archived?: boolean },
+      body: restoreRequest.body as { in_trash?: boolean },
     };
 
     expect(count).toBe(1);
-    expect(restorePayload).toEqual({ id: "page-3", body: { archived: false } });
+    expect(restorePayload).toEqual({ id: "page-3", body: { in_trash: false } });
   });
 });

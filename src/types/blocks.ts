@@ -3,8 +3,15 @@
  * Includes Notion block-specific types and re-exports
  */
 
+import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
+
 // Re-export RichTextItemRequest from utils for convenience
 export type { RichTextItemRequest } from "@/utils/richtext";
+
+/**
+ * Block payload accepted as a nested child of another block in a create or append request.
+ */
+export type ChildBlockRequest = NonNullable<Extract<BlockObjectRequest, { paragraph: unknown }>["paragraph"]["children"]>[number];
 
 /**
  * Notion API color options for blocks and text

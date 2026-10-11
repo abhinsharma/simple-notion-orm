@@ -2,7 +2,23 @@ import { buildParagraphBlock } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
 import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters, UpdateBlockParameters } from "@notionhq/client/build/src/api-endpoints";
 import { describe, it, expect } from "vitest";
-import { getBlock, getBlockChildren, appendBlockChildren, updateBlock, deleteBlock } from "../block";
+import { server } from "../../../tests/setup-msw";
+import { getBlock, getBlockChildren, appendBlockChildren, updateBlock, deleteBlock, resolveAppendPosition } from "../block";
+import { NOTION_API_VERSION } from "../client";
+
+function captureNextRequest(predicate: (request: Request) => boolean): Promise<{ headers: Headers; body: unknown }> {
+  return new Promise((resolve) => {
+    const listener = ({ request }: { request: Request }) => {
+      if (!predicate(request)) {
+        return;
+      }
+      server.events.removeListener("request:start", listener);
+      const clone = request.clone();
+      void clone.json().then((body) => resolve({ headers: request.headers, body }));
+    };
+    server.events.on("request:start", listener);
+  });
+}
 
 describe("getBlock", () => {
   it("should successfully retrieve a block by ID", async () => {
@@ -39,6 +55,34 @@ describe("appendBlockChildren", () => {
     expect(result.object).toBe("list");
     expect(result.results).toBeInstanceOf(Array);
     expect(result.results.length).toBeGreaterThan(0);
+  });
+
+  it("sends the pinned API version and converts after into a position object", async () => {
+    const blockId = "obf_id_2";
+    const children = [buildParagraphBlock(textToRichText("After a block"))] as AppendBlockChildrenParameters["children"];
+    const captured = captureNextRequest((request) => request.method === "PATCH" && request.url.endsWith(`/v1/blocks/${blockId}/children`));
+
+    await appendBlockChildren(blockId, children, { after: "existing-block" });
+
+    const { headers, body } = await captured;
+    expect(headers.get("Notion-Version")).toBe(NOTION_API_VERSION);
+    expect(body).toEqual(
+      expect.objectContaining({
+        position: { type: "after_block", after_block: { id: "existing-block" } },
+      })
+    );
+    expect(body).not.toHaveProperty("after");
+  });
+});
+
+describe("resolveAppendPosition", () => {
+  it("prefers an explicit position over after", () => {
+    expect(resolveAppendPosition({ after: "ignored", position: { type: "start" } })).toEqual({ type: "start" });
+  });
+
+  it("returns undefined when no position is given", () => {
+    expect(resolveAppendPosition()).toBeUndefined();
+    expect(resolveAppendPosition({})).toBeUndefined();
   });
 });
 

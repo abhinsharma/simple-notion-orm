@@ -137,8 +137,7 @@ describe("archiveDatabasePage", () => {
     const result = await archiveDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(true);
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(true);
+    expect((result as UpdatePageResponse & { in_trash: boolean }).in_trash).toBe(true);
   });
 });
 
@@ -149,8 +148,7 @@ describe("restoreDatabasePage", () => {
     const result = await restoreDatabasePage(pageId);
 
     expect(result.object).toBe("page");
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).archived).toBe(false);
-    expect((result as UpdatePageResponse & { archived: boolean; in_trash: boolean }).in_trash).toBe(false);
+    expect((result as UpdatePageResponse & { in_trash: boolean }).in_trash).toBe(false);
   });
 });
 
