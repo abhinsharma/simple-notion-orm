@@ -142,6 +142,25 @@ describe("ORM operations", () => {
     expect(rows.map((row) => row.page.id)).toEqual([page.id, "second-page"]);
   });
 
+  it("selectAll throws when Notion reports the query hit its result limit", async () => {
+    const table = await createTestTable();
+
+    server.use(
+      http.post("https://api.notion.com/v1/data_sources/:dataSourceId/query", () =>
+        HttpResponse.json({
+          ...databaseQueryFixture,
+          next_cursor: null,
+          has_more: false,
+          request_status: { type: "incomplete", incomplete_reason: "query_result_limit_reached" },
+        })
+      )
+    );
+
+    const page = await table.select();
+    expect(page.incomplete).toBe(true);
+    await expect(table.selectAll()).rejects.toThrow(/reached Notion's result limit/);
+  });
+
   it("updates rows and returns fresh envelopes", async () => {
     const table = await createTestTable();
 

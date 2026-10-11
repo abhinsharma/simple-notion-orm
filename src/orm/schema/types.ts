@@ -120,6 +120,8 @@ export type SelectResult<TDef extends TableDef> = {
   rows: Array<RowEnvelope<TDef>>;
   nextCursor: string | null;
   hasMore: boolean;
+  /** True when Notion stopped the query at its result limit. Later rows cannot be read with a cursor; narrow the filter. */
+  incomplete: boolean;
 };
 
 export type TargetOptions<TDef extends TableDef = TableDef> = {

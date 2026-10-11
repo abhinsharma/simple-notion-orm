@@ -34,10 +34,10 @@ async function resolvePageIds<TDef extends TableDef>(table: TableHandle<TDef>, o
   return selection.rows.map((row) => row.page.id);
 }
 
-async function applyArchiveState(pageIds: string[], archived: boolean, client?: Client): Promise<number> {
+async function applyTrashState(pageIds: string[], inTrash: boolean, client?: Client): Promise<number> {
   let count = 0;
   for (const id of pageIds) {
-    await updateDatabasePage({ pageId: id, archived }, client);
+    await updateDatabasePage({ pageId: id, inTrash }, client);
     count += 1;
   }
   return count;
@@ -51,7 +51,7 @@ export async function archiveRows<TDef extends TableDef>(table: TableHandle<TDef
     return 0;
   }
 
-  return applyArchiveState(pageIds, true, client);
+  return applyTrashState(pageIds, true, client);
 }
 
 export async function restoreRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: TargetOptions<TDef>): Promise<number> {
@@ -62,5 +62,5 @@ export async function restoreRows<TDef extends TableDef>(table: TableHandle<TDef
     return 0;
   }
 
-  return applyArchiveState(pageIds, false, client);
+  return applyTrashState(pageIds, false, client);
 }

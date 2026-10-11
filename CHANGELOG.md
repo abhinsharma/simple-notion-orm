@@ -17,12 +17,12 @@ This release moves the package to `@notionhq/client` 5.27 and Notion API version
 
 - `NOTION_API_VERSION` export and a `notionVersion` option on `createNotionClient`.
 - Data source helpers: `getDataSource`, `createDataSource`, `updateDataSource`. `createDatabasePage` accepts `dataSourceId`.
-- `defineTable` accepts `dataSourceId` to attach to one data source of a multi-source database. ORM inserts use the data source as the page parent.
+- `defineTable` accepts `dataSourceId` to attach to one data source of a multi-source database. ORM inserts use the data source as the page parent, and `linkRelations` patches the table's own data source.
 - `archiveDatabase` and `restoreDatabase`.
 - `movePage`.
 - `updateComment` and `deleteComment`.
 - `getUser`, `getSelf`, and `listUsers`.
-- `table.selectAll()` follows pagination cursors and returns every matching row.
+- `table.selectAll()` follows pagination cursors and returns every matching row. It throws when Notion reports that the query hit its result limit, and `select` results carry an `incomplete` flag for the same case.
 - Query predicates `notContains`, `startsWith`, and `endsWith`. `contains` works for URL, email, phone number, and relation columns.
 - Read-only `formula` and `rollup` column builders. `defineTable` can create a formula column from an expression.
 - `buildHeadingBlock` supports level 4.

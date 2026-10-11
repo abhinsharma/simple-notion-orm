@@ -67,6 +67,7 @@ const allOpen = await tasks.selectAll({
 
 - `selectAll` follows the cursors for you and fetches up to 100 rows per request. `pageSize` sets the batch size.
 - It loads every matching row into memory, so add a `where` filter on large databases.
+- Notion can stop a query at its result limit. `select` then returns `incomplete: true`, and `selectAll` throws instead of returning a partial list. Narrow the `where` filter and query again.
 
 ## Update rows
 
