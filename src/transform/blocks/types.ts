@@ -1,5 +1,5 @@
 import type { IconType, Language, ApiColor } from "@/types/blocks";
-import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js";
 
 export type PageBlock = BlockObjectResponse & { children?: PageBlock[] };
 

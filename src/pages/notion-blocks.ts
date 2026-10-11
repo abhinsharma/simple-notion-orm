@@ -8,7 +8,7 @@ import type {
   CreateCommentParameters,
   ListBlockChildrenParameters,
   ListCommentsResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 
 type RichTextInput = Extract<CreateCommentParameters, { rich_text: unknown }>["rich_text"];
 

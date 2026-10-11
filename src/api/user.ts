@@ -4,7 +4,7 @@
  */
 import { wrapError } from "@/utils/error";
 import { iteratePaginatedAPI, type Client } from "@notionhq/client";
-import type { GetSelfResponse, GetUserResponse, ListUsersResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { GetSelfResponse, GetUserResponse, ListUsersResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { getNotionClient } from "./client";
 
 type UserObject = ListUsersResponse["results"][number];

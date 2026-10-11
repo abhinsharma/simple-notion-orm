@@ -1,7 +1,7 @@
 import { getDatabasePage } from "@/api/database-page";
 import { buildRowEnvelope } from "@/orm/operations/helpers";
 import type { PopulateInstruction, RelationPopulateMap, TableDef, TableHandle, RowEnvelope } from "@/orm/schema/types";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { getRelationTarget } from "./registry";
 
 type NormalizedPopulateEntry = {

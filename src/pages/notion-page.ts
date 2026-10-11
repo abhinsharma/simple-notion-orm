@@ -11,7 +11,7 @@ import type {
   ListCommentsResponse,
   PageObjectResponse,
   UpdatePageParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { NotionBlocks, type PageBlock } from "./notion-blocks";
 export type { PageBlock } from "./notion-blocks";
 

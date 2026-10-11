@@ -2,7 +2,7 @@ import { queryDataSource } from "@/api/database";
 import { compileQueryOptions } from "@/orm/query/compiler";
 import { populateRelations } from "@/orm/relation/populate";
 import type { RowEnvelope, SelectAllOptions, TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
-import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
 const DEFAULT_PAGE_SIZE = 25;

@@ -10,7 +10,7 @@ import type {
   PageObjectResponse,
   SearchResponse,
   UpdatePageParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 

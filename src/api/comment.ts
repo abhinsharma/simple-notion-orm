@@ -9,7 +9,7 @@ import type {
   ListCommentsResponse,
   UpdateCommentParameters,
   UpdateCommentResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { getNotionClient } from "./client";
 
 export async function listComments(params: ListCommentsParameters, client?: Client): Promise<ListCommentsResponse> {

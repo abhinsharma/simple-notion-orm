@@ -10,7 +10,7 @@ import {
   buildToggleBlock,
 } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
-import type { AppendBlockChildrenParameters, BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
+import type { AppendBlockChildrenParameters, BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, expect, it } from "vitest";
 
 describe("block factories", () => {

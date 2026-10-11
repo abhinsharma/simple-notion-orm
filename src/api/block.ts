@@ -13,7 +13,7 @@ import type {
   ListBlockChildrenResponse,
   UpdateBlockParameters,
   UpdateBlockResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { wrapError } from "../utils/error";
 import { getNotionClient } from "./client";
 

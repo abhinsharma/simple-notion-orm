@@ -2,7 +2,7 @@ import { defineTable, formula, rollup, text } from "@/orm/schema";
 import { buildInsertProperties, decodeRow } from "@/orm/schema/utils";
 import { compileQueryOptions } from "@/orm/query/compiler";
 import { eq, isNull } from "@/orm/query/predicates";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, expect, it } from "vitest";
 import { captureNextRequest } from "../request-capture";
 

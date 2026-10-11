@@ -1,5 +1,5 @@
 import type { ApiColor } from "@/types/blocks";
-import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import type { NonDefaultColor, SimpleAnnotations, SimpleRichTextSpan } from "./types";
 
 export function toSimpleRichTextSpanArray(richText: RichTextItemResponse[]): SimpleRichTextSpan[] {

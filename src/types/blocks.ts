@@ -3,7 +3,7 @@
  * Includes Notion block-specific types and re-exports
  */
 
-import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
+import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints.js";
 
 // Re-export RichTextItemRequest from utils for convenience
 export type { RichTextItemRequest } from "@/utils/richtext";

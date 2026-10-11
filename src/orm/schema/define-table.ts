@@ -5,7 +5,7 @@ import { selectAllRows, selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
 import { linkRelations, rel } from "@/orm/relation/linker";
 import type { Client } from "@notionhq/client";
-import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { CreateDatabaseParameters } from "@notionhq/client/build/src/api-endpoints.js";
 import type { AnyColumnDef, RelationColumnKeys, RelationLinkMap, RowInput, TableHandle, TableDef } from "./types";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;

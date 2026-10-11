@@ -1,6 +1,6 @@
 import { buildParagraphBlock } from "@/factories/blocks";
 import { textToRichText } from "@/utils/richtext";
-import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { GetBlockResponse, DeleteBlockResponse, AppendBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, it, expect } from "vitest";
 import { captureNextRequest } from "../../../tests/request-capture";
 import { getBlock, getBlockChildren, appendBlockChildren, updateBlock, deleteBlock, resolveAppendPosition } from "../block";

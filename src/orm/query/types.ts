@@ -1,5 +1,5 @@
 import type { ColumnPropertyType, TableDef, AnyColumnDef } from "@/orm/schema/types";
-import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints.js";
 
 export type ColumnToken<TColumn extends AnyColumnDef = AnyColumnDef> = TColumn;
 

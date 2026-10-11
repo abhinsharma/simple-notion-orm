@@ -1,4 +1,4 @@
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import type { AnyColumnDef, RowInput, RowOutput, RowPatch, TableDef } from "./types";
 
 function cloneDefaultValue<T>(value: T): T {

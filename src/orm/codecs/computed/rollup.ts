@@ -1,6 +1,6 @@
-import { createNotionCodec } from "@/orm/codecs/base/codec";
+import { createNotionCodec, type NotionCodec } from "@/orm/codecs/base/codec";
 import type { DatePropertyInput } from "@/types/properties";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { z } from "zod";
 
 export type RollupPropertyResponse = Extract<PageObjectResponse["properties"][string], { type: "rollup" }>;
@@ -21,7 +21,7 @@ export type RollupValue =
 
 const READ_ONLY_ERROR = "rollup properties are read-only and cannot be set.";
 
-export const rollupCodec = createNotionCodec<RollupValue, never, RollupPropertyResponse>(
+export const rollupCodec: NotionCodec<RollupValue, never, RollupPropertyResponse> = createNotionCodec<RollupValue, never, RollupPropertyResponse>(
   z.codec(z.custom<RollupValue>(), z.custom<never>(), {
     decode: () => {
       throw new Error(READ_ONLY_ERROR);

@@ -2,7 +2,7 @@ import type { NotionCodec } from "@/orm/codecs/base/codec";
 import type { SortDescriptor, TablePredicate } from "@/orm/query/types";
 import type { NotionPage } from "@/pages";
 import type { Client } from "@notionhq/client";
-import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse, QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints.js";
 
 export type ColumnPropertyType =
   | "title"

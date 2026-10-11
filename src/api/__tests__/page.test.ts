@@ -1,7 +1,7 @@
 import { buildParagraphBlock } from "@/factories/blocks";
 import { buildTitleProperty } from "@/factories/properties/page";
 import { textToRichText } from "@/utils/richtext";
-import type { AppendBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { AppendBlockChildrenParameters } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, it, expect } from "vitest";
 import { server } from "../../../tests/setup-msw";
 import { captureNextRequest } from "../../../tests/request-capture";

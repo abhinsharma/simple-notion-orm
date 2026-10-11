@@ -3,7 +3,7 @@ import { populateRelations } from "@/orm/relation/populate";
 import { text, relation, defineRelations } from "@/orm";
 import { NotionPage } from "@/pages";
 import type { AnyColumnDef, RowEnvelope, RowOutput, TableDef, TableHandle } from "@/orm/schema/types";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title: string, columns: TColumns): TableHandle<TableDef<TColumns>> {

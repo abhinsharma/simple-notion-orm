@@ -1,5 +1,5 @@
 import type { ApiColor } from "@/types/blocks";
-import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import type {
   PageBlock,
   SimpleBlock,

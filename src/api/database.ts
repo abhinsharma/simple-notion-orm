@@ -15,7 +15,7 @@ import type {
   SearchResponse,
   UpdateDatabaseParameters,
   UpdateDataSourceParameters,
-} from "@notionhq/client/build/src/api-endpoints";
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { getNotionClient } from "./client";
 
 type InitialDataSource = NonNullable<CreateDatabaseParameters["initial_data_source"]>;

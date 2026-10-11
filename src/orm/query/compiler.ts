@@ -1,5 +1,5 @@
 import type { TableDef, AnyColumnDef } from "@/orm/schema/types";
-import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
+import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints.js";
 import type { Predicate, ComparisonPredicate, NullPredicate, CompoundPredicate, SortDescriptor, TablePredicate, ComparisonOperator } from "./types";
 
 type NotionFilter = QueryDataSourceParameters["filter"];
