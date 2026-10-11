@@ -4,8 +4,9 @@ import { fileURLToPath } from "node:url";
 import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import unicornPlugin from "eslint-plugin-unicorn";
-import importPlugin from "eslint-plugin-import";
-import eslintCommentsPlugin from "eslint-plugin-eslint-comments";
+import importPlugin from "eslint-plugin-import-x";
+import eslintCommentsPlugin from "@eslint-community/eslint-plugin-eslint-comments";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
 
 import bestPractices from "./lint-rules/best-practices.js";
 import comments from "./lint-rules/comments.js";
@@ -30,16 +31,12 @@ export default [
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
-      import: importPlugin,
-      "eslint-comments": eslintCommentsPlugin,
+      "import-x": importPlugin,
+      "@eslint-community/eslint-comments": eslintCommentsPlugin,
       unicorn: unicornPlugin,
     },
     settings: {
-      "import/resolver": {
-        typescript: {
-          project: "./tsconfig.json",
-        },
-      },
+      "import-x/resolver-next": [createTypeScriptImportResolver({ project: "./tsconfig.json" })],
     },
     rules: {
       ...bestPractices.rules,
@@ -73,9 +70,9 @@ export default [
     },
   },
   {
-    files: ["vitest.config.ts"],
+    files: ["vitest.config.mts"],
     rules: {
-      "import/no-default-export": "off",
+      "import-x/no-default-export": "off",
     },
   },
 ];
