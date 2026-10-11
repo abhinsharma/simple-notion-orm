@@ -209,6 +209,47 @@ function convert(block: PageBlock): SimpleBlock {
   return toSimpleBlock(block, convert);
 }
 
+const headingFourBlock: PageBlock = {
+  ...baseMeta,
+  id: "heading-4",
+  has_children: false,
+  type: "heading_4",
+  heading_4: {
+    rich_text: [{ type: "text", text: { content: "Small heading", link: null }, annotations, plain_text: "Small heading", href: null }],
+    color: "default",
+    is_toggleable: false,
+  },
+};
+
+const tabBlock: PageBlock = {
+  ...baseMeta,
+  id: "tab",
+  has_children: true,
+  type: "tab",
+  tab: {},
+  children: [paragraphBlock],
+};
+
+const meetingNotesBlock: PageBlock = {
+  ...baseMeta,
+  id: "meeting",
+  has_children: false,
+  type: "meeting_notes",
+  meeting_notes: {
+    title: [{ type: "text", text: { content: "Weekly sync", link: null }, annotations, plain_text: "Weekly sync", href: null }],
+    status: "notes_ready",
+    children: { summary_block_id: "summary", notes_block_id: "notes", transcript_block_id: "transcript" },
+  },
+};
+
+const transcriptionBlock: PageBlock = {
+  ...baseMeta,
+  id: "transcription",
+  has_children: false,
+  type: "transcription",
+  transcription: {},
+};
+
 describe("toSimpleBlock", () => {
   it("simplifies paragraphs and children", () => {
     const result = convert(paragraphBlock);
@@ -281,5 +322,33 @@ describe("toSimpleBlock", () => {
   it("keeps child page children", () => {
     const result = convert(childPageBlockWithChildren);
     expect(result).toMatchObject({ type: "child_page", children: [{ type: "paragraph" }] });
+  });
+
+  it("maps heading_4 blocks with level 4", () => {
+    const result = convert(headingFourBlock);
+    expect(result).toEqual({ type: "heading_4", id: "heading-4", level: 4, text: [{ plainText: "Small heading" }] });
+  });
+
+  it("maps tab blocks and their children", () => {
+    const result = convert(tabBlock);
+    expect(result).toMatchObject({ type: "tab", id: "tab", children: [{ type: "paragraph" }] });
+  });
+
+  it("maps meeting_notes blocks", () => {
+    const result = convert(meetingNotesBlock);
+    expect(result).toEqual({
+      type: "meeting_notes",
+      id: "meeting",
+      title: [{ plainText: "Weekly sync" }],
+      status: "notes_ready",
+      summaryBlockId: "summary",
+      notesBlockId: "notes",
+      transcriptBlockId: "transcript",
+    });
+  });
+
+  it("maps the legacy transcription type to meeting_notes", () => {
+    const result = convert(transcriptionBlock);
+    expect(result).toEqual({ type: "meeting_notes", id: "transcription", title: [] });
   });
 });

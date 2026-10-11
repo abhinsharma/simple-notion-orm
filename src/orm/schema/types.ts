@@ -23,7 +23,9 @@ export type ColumnPropertyType =
   | "created_time"
   | "last_edited_time"
   | "created_by"
-  | "last_edited_by";
+  | "last_edited_by"
+  | "formula"
+  | "rollup";
 
 export type ColumnDef<TValue, TOptional extends boolean, TNullable extends boolean, TPropertyPayload = unknown, TPropertyResponse = unknown> = {
   name: string;
@@ -106,6 +108,8 @@ export type SelectOptions<TDef extends TableDef = TableDef> = {
   populate?: RelationPopulateMap<TDef>;
 };
 
+export type SelectAllOptions<TDef extends TableDef = TableDef> = Omit<SelectOptions<TDef>, "startCursor">;
+
 export type SelectResult<TDef extends TableDef> = {
   rows: Array<RowEnvelope<TDef>>;
   nextCursor: string | null;
@@ -131,6 +135,8 @@ export type TableHandle<TDef extends TableDef> = {
     (data: Array<RowInput<TDef>>): Promise<Array<RowEnvelope<TDef>>>;
   };
   select: (options?: SelectOptions<TDef>) => Promise<SelectResult<TDef>>;
+  /** Follows pagination cursors and returns every matching row. */
+  selectAll: (options?: SelectAllOptions<TDef>) => Promise<Array<RowEnvelope<TDef>>>;
   update: {
     (patch: RowPatch<TDef>, options?: UpdateOptions<TDef> & { many?: false }): Promise<RowEnvelope<TDef>>;
     (patch: RowPatch<TDef>, options: UpdateOptions<TDef> & { many: true }): Promise<Array<RowEnvelope<TDef>>>;

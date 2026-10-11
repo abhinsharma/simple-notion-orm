@@ -1,7 +1,7 @@
 import { createDatabase, getDatabase } from "@/api/database";
 import { archiveRows, restoreRows } from "@/orm/operations/archive";
 import { insertRows } from "@/orm/operations/insert";
-import { selectRows } from "@/orm/operations/select";
+import { selectAllRows, selectRows } from "@/orm/operations/select";
 import { updateRows } from "@/orm/operations/update";
 import { linkRelations, rel } from "@/orm/relation/linker";
 import type { Client } from "@notionhq/client";
@@ -32,6 +32,10 @@ async function createNewDatabase(
   for (const columnDef of Object.values(columns)) {
     const config = resolveColumnConfig(columnDef);
     if (!config) {
+      if (columnDef.propertyType === "formula" || columnDef.propertyType === "rollup") {
+        // The codec config throws an error that explains how to declare this column.
+        columnDef.codec.config(columnDef.name);
+      }
       continue;
     }
     Object.assign(schema, config);
@@ -52,8 +56,11 @@ async function createNewDatabase(
   };
 }
 
+/** Column types whose Notion config depends on other properties, so they have no default config. */
+const CONFIG_REQUIRED_TYPES = new Set(["relation", "formula", "rollup"]);
+
 function resolveColumnConfig(columnDef: AnyColumnDef): Record<string, unknown> | null {
-  if (columnDef.propertyType === "relation" && !columnDef.config) {
+  if (CONFIG_REQUIRED_TYPES.has(columnDef.propertyType) && !columnDef.config) {
     return null;
   }
 
@@ -154,6 +161,7 @@ export async function defineTable<const TColumns extends Record<string, AnyColum
       return insertRows(handle, data);
     }) as TableHandle<TableDefType<TColumns>>["insert"],
     select: (selectOptions) => selectRows(handle, selectOptions),
+    selectAll: (selectOptions) => selectAllRows(handle, selectOptions),
     update: ((patch, updateOptions) => updateRows(handle, patch, updateOptions)) as TableHandle<TableDefType<TColumns>>["update"],
     archive: (targetOptions) => archiveRows(handle, targetOptions),
     restore: (targetOptions) => restoreRows(handle, targetOptions),

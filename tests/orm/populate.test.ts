@@ -19,6 +19,9 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(title:
     select: (async () => {
       throw new Error("Not implemented in tests");
     }) as TableHandle<TableDef<TColumns>>["select"],
+    selectAll: (async () => {
+      throw new Error("Not implemented in tests");
+    }) as TableHandle<TableDef<TColumns>>["selectAll"],
     update: (async () => {
       throw new Error("Not implemented in tests");
     }) as TableHandle<TableDef<TColumns>>["update"],

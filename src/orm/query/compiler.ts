@@ -44,7 +44,10 @@ const OPERATOR_SUPPORT: Record<string, Array<string>> = {
     "last_edited_time",
     "unique_id",
   ],
-  contains: ["title", "rich_text", "multi_select", "people", "created_by", "last_edited_by"],
+  contains: ["title", "rich_text", "url", "email", "phone_number", "multi_select", "people", "created_by", "last_edited_by", "relation"],
+  notContains: ["title", "rich_text", "url", "email", "phone_number", "multi_select", "people", "created_by", "last_edited_by", "relation"],
+  startsWith: ["title", "rich_text", "url", "email", "phone_number"],
+  endsWith: ["title", "rich_text", "url", "email", "phone_number"],
   gt: ["number", "date", "created_time", "last_edited_time", "unique_id"],
   gte: ["number", "date", "created_time", "last_edited_time", "unique_id"],
   lt: ["number", "date", "created_time", "last_edited_time", "unique_id"],
@@ -144,6 +147,12 @@ function buildComparisonFilter(propertyTypeKey: string, predicate: ComparisonPre
       return { does_not_equal: normalizeValue(column, value) };
     case "contains":
       return { contains: normalizeContainsValue(column, value) };
+    case "notContains":
+      return { does_not_contain: normalizeContainsValue(column, value) };
+    case "startsWith":
+      return { starts_with: expectStringValue(column, value) };
+    case "endsWith":
+      return { ends_with: expectStringValue(column, value) };
     case "gt":
       return buildRangeFilter(propertyTypeKey, column, value, "gt");
     case "gte":
@@ -232,7 +241,9 @@ function normalizeContainsValue(column: AnyColumnDef, value: unknown): unknown {
     case "people":
     case "created_by":
     case "last_edited_by":
-      return extractUserId(value);
+      return extractId(value, "People filters require a user id string or { id } value.");
+    case "relation":
+      return extractId(value, "Relation filters require a page id string or { id } value.");
     default:
       return expectStringValue(column, value);
   }
@@ -295,14 +306,14 @@ function expectBooleanValue(column: AnyColumnDef, value: unknown): boolean {
   return value;
 }
 
-function extractUserId(value: unknown): string {
+function extractId(value: unknown, message: string): string {
   if (typeof value === "string") {
     return value;
   }
   if (value && typeof value === "object" && "id" in value && typeof (value as { id?: unknown }).id === "string") {
     return (value as { id: string }).id;
   }
-  throw new Error("People filters require a user id string or { id } value.");
+  throw new Error(message);
 }
 
 function validateOperatorSupport(predicate: ComparisonPredicate): void {

@@ -26,6 +26,9 @@ function createTableHandle<TColumns extends Record<string, AnyColumnDef>>(
     select: async () => {
       throw new Error("not implemented");
     },
+    selectAll: async () => {
+      throw new Error("not implemented");
+    },
     update: async () => {
       throw new Error("not implemented");
     },

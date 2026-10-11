@@ -1,6 +1,8 @@
 import { defineTable, select, text, eq, asc } from "@/orm";
 import { describe, it, expect } from "vitest";
+import { http, HttpResponse } from "msw";
 import { server } from "../setup-msw";
+import databaseQueryFixture from "../fixtures/database-query.json";
 import dbPageCreateFixture from "../fixtures/db-page-create.json";
 
 const DATABASE_ID = "obf_id_1";
@@ -110,6 +112,28 @@ describe("ORM operations", () => {
     expect(selection.rows[0]?.data.name).toBe("Example row");
     expect(selection.nextCursor).toBe("cursor_123");
     expect(selection.hasMore).toBe(true);
+  });
+
+  it("selectAll follows cursors until every row is loaded", async () => {
+    const table = await createTestTable();
+    const cursors: Array<string | undefined> = [];
+    const page = databaseQueryFixture.results[0]!;
+
+    server.use(
+      http.post("https://api.notion.com/v1/data_sources/:dataSourceId/query", async ({ request }) => {
+        const body = (await request.json()) as { start_cursor?: string; page_size?: number };
+        cursors.push(body.start_cursor);
+        if (!body.start_cursor) {
+          return HttpResponse.json({ ...databaseQueryFixture, results: [page], next_cursor: "cursor_2", has_more: true });
+        }
+        return HttpResponse.json({ ...databaseQueryFixture, results: [{ ...page, id: "second-page" }], next_cursor: null, has_more: false });
+      })
+    );
+
+    const rows = await table.selectAll({ where: eq(table.columns.name, "Example row") });
+
+    expect(cursors).toEqual([undefined, "cursor_2"]);
+    expect(rows.map((row) => row.page.id)).toEqual([page.id, "second-page"]);
   });
 
   it("updates rows and returns fresh envelopes", async () => {

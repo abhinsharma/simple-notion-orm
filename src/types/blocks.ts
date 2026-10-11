@@ -137,7 +137,7 @@ export type Language =
 /**
  * Heading levels (1, 2, or 3)
  */
-export type HeadingLevel = 1 | 2 | 3;
+export type HeadingLevel = 1 | 2 | 3 | 4;
 
 /**
  * Icon types for callout blocks and pages

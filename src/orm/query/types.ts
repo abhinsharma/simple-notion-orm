@@ -3,7 +3,7 @@ import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-e
 
 export type ColumnToken<TColumn extends AnyColumnDef = AnyColumnDef> = TColumn;
 
-export type ComparisonOperator = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "contains";
+export type ComparisonOperator = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "contains" | "notContains" | "startsWith" | "endsWith";
 
 export type CompoundOperator = "and" | "or";
 
@@ -21,7 +21,7 @@ type FilterValueForProperty<T extends ColumnPropertyType> = T extends "number"
           ? string | { name: string }
           : T extends "multi_select"
             ? string
-            : T extends "people" | "created_by" | "last_edited_by"
+            : T extends "people" | "created_by" | "last_edited_by" | "relation"
               ? string | { id: string }
               : string;
 

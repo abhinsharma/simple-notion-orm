@@ -8,6 +8,7 @@ export type {
   SelectedRow,
   RowPatch,
   SelectOptions,
+  SelectAllOptions,
   SelectResult,
   TargetOptions,
   UpdateOptions,
@@ -19,6 +20,8 @@ export type {
   InferOutput,
   InferEnvelope,
 } from "./types";
+export type { FormulaValue } from "@/orm/codecs/computed/formula";
+export type { RollupArrayItem, RollupValue } from "@/orm/codecs/computed/rollup";
 export { defineTable } from "./define-table";
 export { text } from "./column-builders/text";
 export { number } from "./column-builders/number";
@@ -38,3 +41,5 @@ export { lastEditedTime } from "./column-builders/last-edited-time";
 export { createdBy } from "./column-builders/created-by";
 export { lastEditedBy } from "./column-builders/last-edited-by";
 export { uniqueId } from "./column-builders/unique-id";
+export { formula } from "./column-builders/formula";
+export { rollup } from "./column-builders/rollup";

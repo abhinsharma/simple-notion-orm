@@ -1,7 +1,7 @@
 import { queryDataSource } from "@/api/database";
 import { compileQueryOptions } from "@/orm/query/compiler";
 import { populateRelations } from "@/orm/relation/populate";
-import type { TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
+import type { RowEnvelope, SelectAllOptions, TableDef, TableHandle, SelectOptions, SelectResult } from "@/orm/schema/types";
 import type { PageObjectResponse, QueryDataSourceResponse } from "@notionhq/client/build/src/api-endpoints";
 import { ensureTableIds, buildRowEnvelope } from "./helpers";
 
@@ -50,4 +50,20 @@ export async function selectRows<TDef extends TableDef>(table: TableHandle<TDef>
     nextCursor: response.next_cursor ?? null,
     hasMore: response.has_more ?? Boolean(response.next_cursor),
   };
+}
+
+/**
+ * Select every matching row by following pagination cursors. Each request fetches up to 100 rows.
+ */
+export async function selectAllRows<TDef extends TableDef>(table: TableHandle<TDef>, options?: SelectAllOptions<TDef>): Promise<Array<RowEnvelope<TDef>>> {
+  const rows: Array<RowEnvelope<TDef>> = [];
+  let startCursor: string | undefined;
+
+  do {
+    const page = await selectRows(table, { ...options, pageSize: options?.pageSize ?? MAX_PAGE_SIZE, startCursor });
+    rows.push(...page.rows);
+    startCursor = page.hasMore && page.nextCursor ? page.nextCursor : undefined;
+  } while (startCursor);
+
+  return rows;
 }

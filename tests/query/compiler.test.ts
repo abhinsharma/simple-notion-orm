@@ -1,6 +1,6 @@
 import { compileQueryOptions } from "@/orm/query/compiler";
-import { eq, contains, gt, and, isNull } from "@/orm/query/predicates";
-import { text, number, select, uniqueId, createdBy } from "@/orm";
+import { eq, contains, notContains, startsWith, endsWith, gt, and, isNull } from "@/orm/query/predicates";
+import { text, number, select, uniqueId, createdBy, multiSelect, relation, url } from "@/orm";
 import type { TableDef } from "@/orm/schema/types";
 import { describe, it, expect } from "vitest";
 
@@ -10,6 +10,9 @@ const columns = {
   stage: select("Stage"),
   ticketId: uniqueId("Ticket"),
   creator: createdBy("Created by"),
+  tags: multiSelect("Tags"),
+  project: relation("Project"),
+  link: url("Link"),
 };
 
 type TestTableDef = TableDef<typeof columns>;
@@ -81,5 +84,47 @@ describe("compileQueryOptions", () => {
       property: "Created by",
       created_by: { contains: "user_123" },
     });
+  });
+
+  it("compiles notContains, startsWith and endsWith for text columns", () => {
+    const compiled = compileQueryOptions<TestTableDef>({
+      where: and(startsWith(columns.title, "Draft"), endsWith(columns.link, ".pdf"), notContains(columns.title, "old")),
+    });
+
+    expect(compiled.filter).toEqual({
+      and: [
+        { property: "Title", title: { starts_with: "Draft" } },
+        { property: "Link", url: { ends_with: ".pdf" } },
+        { property: "Title", title: { does_not_contain: "old" } },
+      ],
+    });
+  });
+
+  it("compiles notContains for multi_select columns", () => {
+    const compiled = compileQueryOptions<TestTableDef>({
+      where: notContains(columns.tags, "archived"),
+    });
+
+    expect(compiled.filter).toEqual({
+      property: "Tags",
+      multi_select: { does_not_contain: "archived" },
+    });
+  });
+
+  it("compiles relation contains filters from ids or objects", () => {
+    const compiled = compileQueryOptions<TestTableDef>({
+      where: and(contains(columns.project, "page_1"), notContains(columns.project, { id: "page_2" })),
+    });
+
+    expect(compiled.filter).toEqual({
+      and: [
+        { property: "Project", relation: { contains: "page_1" } },
+        { property: "Project", relation: { does_not_contain: "page_2" } },
+      ],
+    });
+  });
+
+  it("rejects startsWith on non-text columns", () => {
+    expect(() => compileQueryOptions<TestTableDef>({ where: startsWith(columns.points, 1) })).toThrow(/Operator 'startsWith' is not supported/);
   });
 });
